@@ -3,7 +3,7 @@ import { boucle } from "./boucle.mjs";
 import { creerOutilsMaquette } from "./maquette-outils.mjs";
 import { lireReferentiel } from "./specs.mjs";
 
-export const TOURS = 12, DELAI_MS = 60000, PLAFOND_JETONS = 400000, MAX_FLUX = 8;
+export const TOURS = 12, DELAI_MS = 300000, PLAFOND_JETONS = 400000, MAX_FLUX = 8;
 
 export const SYSTEME_MAQUETTE = `Tu es le lead dev data d'une équipe Data & IA. Tu prépares, sans l'adhérent, la maquette de son dashboard de transport : tu documentes ses exports et tu écris la spec (datasets, flux vers FAITS, contrôles) avec les outils fournis, rien d'autre.
 Règles :

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Met à jour la prod depuis le poste de dev : tests, push, puis pull + npm ci + redémarrage sur le VPS.
 # Usage : deploy/deployer.sh [--sans-tests]
-# Variables : VPS_SSH (défaut michelf@wema-vps-tred), VPS_APP (défaut /home/michelf/tredunion-atelier)
+# Variables : VPS_SSH (défaut vpspublic, alias de ~/.ssh/config), VPS_APP (défaut /home/michelf/tredunion-atelier)
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VPS_SSH="${VPS_SSH:-michelf@wema-vps-tred}"
+VPS_SSH="${VPS_SSH:-vpspublic}"
 VPS_APP="${VPS_APP:-/home/michelf/tredunion-atelier}"
 
 [ -z "$(git status --porcelain)" ] || { echo "Des modifications ne sont pas commitées : commit d'abord." >&2; exit 1; }

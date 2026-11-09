@@ -1,5 +1,5 @@
 /* Client de la passerelle LLM WeMa (API compatible OpenAI, clé virtuelle). */
-export function creerLlm({ baseUrl = "https://llm.wema.fr", cle, modele, fetchImpl = fetch, delaiMs = 30000 }) {
+export function creerLlm({ baseUrl = "https://llm.wema.fr", cle, modele, fetchImpl = fetch, delaiMs = 60000 }) {
   const url = String(baseUrl).replace(/\/+$/, "") + "/v1/chat/completions";
   return {
     async discuter({ systeme, messages, outils, delaiMs: d }) {
