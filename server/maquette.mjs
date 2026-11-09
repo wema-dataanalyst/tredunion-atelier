@@ -176,6 +176,7 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     }
 
     const budget = creerBudget();
+    budget.trace = l => tracer(racine, now, { etape: "outil", ...l });
     if (coupe()) return interrompu();
     const d = await documenterDatasets({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("datasets", d);
     if (d.erreurs) return echec(d.erreurs, "datasets");

@@ -27,7 +27,7 @@ const MSG_PLAFOND = plafond => `Plafond de ${plafond.toLocaleString("fr-FR")} je
 async function tache({ llm, outils, utilisateur, budget }) {
   if (budget.utilises >= budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
   let r;
-  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises }); }
+  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })) }); }
   catch (e) { return { erreurs: [String(e?.message || "agent en échec")] }; }
   budget.utilises += r.jetons;
   if (r.issue === "jetons" || budget.utilises > budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
@@ -41,7 +41,7 @@ export async function documenterDatasets({ espace, racine, llm, rapporter = () =
   const cibles = ids || espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {})).filter(d => !String(d.desc || "").trim()).map(d => d.id);
   const outils = creerOutilsMaquette({ espace, racine }), boucles = [];
   for (const [k, id] of cibles.entries()) {
-    rapporter({ etape: "datasets", i: k + 1, n: cibles.length });
+    rapporter({ etape: "datasets", i: k + 1, n: cibles.length }); budget.cible = id;
     const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset, cherche dans la mémoire commune, puis écris desc, grain, colonnes, règles et questions avec ecrire_dataset (et ecrire_relation si une relation est évidente). Termine par terminer.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, id, r);
@@ -55,12 +55,12 @@ export async function ecrireFluxEtControles({ espace, racine, llm, rapporter = (
   const categories = espace.couverture().manque.filter(x => admis.has(x.categorie)).slice(0, max);
   const outils = creerOutilsMaquette({ espace, racine }), boucles = [], n = categories.length;
   for (const [k, c] of categories.entries()) {
-    rapporter({ etape: "flux", i: k + 1, n });
+    rapporter({ etape: "flux", i: k + 1, n }); budget.cible = c.categorie;
     const r = await tache({ llm, outils, budget, utilisateur: `Catégorie à débloquer : « ${c.categorie} » (mesures concernées : ${c.mesures.slice(0, 6).join(", ")}). Trouve dans les datasets la source de cette catégorie (lire_dataset, lire_comptes) et écris le flux avec ecrire_flux et son hypothese. Si aucune source ne convient, termine sans rien écrire en le disant dans le résumé.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, c.categorie, r);
   }
-  rapporter({ etape: "controles", i: 1, n: 1 });
+  rapporter({ etape: "controles", i: 1, n: 1 }); budget.cible = "controles";
   const r = await tache({ llm, outils, budget, utilisateur: "Écris les contrôles : au moins un par flux existant (ecart_somme, rapprochement ou mensuel) avec ecrire_controle, et renseigne porte_sur. Termine par terminer." });
   if (r.erreurs) return bilan(boucles, budget, r.erreurs);
   suivi(boucles, "controles", r);
@@ -71,7 +71,7 @@ export async function ecrireFluxEtControles({ espace, racine, llm, rapporter = (
 export async function proposerPerimetre({ espace, racine, llm, rapporter = () => {}, budget = creerBudget() }) {
   const candidats = espace.candidatsPerimetre(), boucles = [];
   if (!candidats.length) return bilan(boucles, budget);
-  rapporter({ etape: "perimetre", i: 1, n: 1 });
+  rapporter({ etape: "perimetre", i: 1, n: 1 }); budget.cible = "perimetre";
   const outils = creerOutilsMaquette({ espace, racine });
   const r = await tache({ llm, outils, budget, utilisateur: `${candidats.length} mesures du dashboard n'ont aucune donnée (lire_candidats_perimetre). Pour chaque ensemble, lis les datasets utiles (lire_dataset) : si la donnée existe mais n'est pas branchée, n'écris rien ; si aucun export ne la porte, regroupe par cause et écris le groupe avec ecrire_perimetre. Termine par terminer.` });
   if (r.erreurs) return bilan(boucles, budget, r.erreurs);
@@ -83,7 +83,7 @@ export async function proposerPerimetre({ espace, racine, llm, rapporter = () =>
 export async function proposerLibelles({ espace, racine, llm, rapporter = () => {}, budget = creerBudget() }) {
   const codes = espace.codesSansLibelle(), boucles = [];
   if (!codes.length) return bilan(boucles, budget);
-  rapporter({ etape: "libelles", i: 1, n: 1 });
+  rapporter({ etape: "libelles", i: 1, n: 1 }); budget.cible = "libelles";
   const outils = creerOutilsMaquette({ espace, racine });
   const r = await tache({ llm, outils, budget, utilisateur: `${codes.length} codes catégorie utilisés par les flux n'ont pas de libellé lisible (lire_codes_sans_libelle). Pour chacun, lis le flux et le dataset qui l'alimente (lire_dataset), puis propose son libellé avec ecrire_libelles et son hypothese. Termine par terminer.` });
   if (r.erreurs) return bilan(boucles, budget, r.erreurs);
@@ -95,7 +95,7 @@ export async function proposerLibelles({ espace, racine, llm, rapporter = () => 
 export async function proposerMesures({ espace, racine, llm, rapporter = () => {}, budget = creerBudget() }) {
   const boucles = [];
   if (!espace.reponsesAdherent().length) return bilan(boucles, budget);
-  rapporter({ etape: "propositions", i: 1, n: 1 });
+  rapporter({ etape: "propositions", i: 1, n: 1 }); budget.cible = "propositions";
   const outils = creerOutilsMaquette({ espace, racine });
   const r = await tache({
     llm,

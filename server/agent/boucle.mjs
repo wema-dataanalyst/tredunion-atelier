@@ -1,5 +1,5 @@
 /* Boucle d'outils bornée : le modèle ne peut qu'appeler les outils fournis. */
-export async function boucle({ llm, systeme, utilisateur, outils, tours = 6, delaiMs = 30000, jetonsMax = 20000, now = Date.now }) {
+export async function boucle({ llm, systeme, utilisateur, outils, tours = 6, delaiMs = 30000, jetonsMax = 20000, now = Date.now, trace }) {
   const debut = now(); let jetons = 0, n = 0;
   const messages = [{ role: "user", content: utilisateur }];
   const defs = Object.values(outils).map(o => ({ type: "function", function: { name: o.nom, description: o.description, parameters: o.parametres } }));
@@ -19,6 +19,8 @@ export async function boucle({ llm, systeme, utilisateur, outils, tours = 6, del
         if (args == null || typeof args !== "object" || Array.isArray(args)) res = { erreur: "arguments illisibles (objet JSON attendu)" };
         else { try { res = await o.executer(args); } catch { res = { erreur: "outil en échec" }; } }
       }
+      const taille = JSON.stringify(res ?? null).length;
+      if (trace) try { const err = res?.erreur ?? res?.erreurs; trace({ outil: String(nom).slice(0, 40), tour: n, jetons, taille, ...(err ? { erreur: String(Array.isArray(err) ? err[0] : err).slice(0, 160) } : {}) }); } catch { /* le journal ne doit jamais casser la boucle */ }
       if (res && res.final) return { issue: res.final, ...(res.donnees || {}), tours: n, jetons };
       messages.push({ role: "tool", tool_call_id: a.id, content: JSON.stringify(res).slice(0, 8000) });
     }
