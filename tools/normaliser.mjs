@@ -33,7 +33,7 @@ export function lireFeuille(lignes, logiciels) {
   return t.erreur ? t : { ...t, lecteur: "tableau", meta: lireMeta(lignes) };
 }
 
-export async function normaliserSociete({ brut, bronze, logiciels }) {
+export async function normaliserSociete({ brut, bronze, logiciels, progres = () => {} }) {
   fs.mkdirSync(bronze, { recursive: true });
   const ecrits = [], nonLus = [], ids = new Map();
   const ecrire = (id, relatif, meta, corps) => {
@@ -46,6 +46,7 @@ export async function normaliserSociete({ brut, bronze, logiciels }) {
     const relatif = path.relative(brut, f).split(path.sep).join("/");
     const parts = relatif.split("/"); const domaine = parts.length > 1 ? parts[0] : "";
     const ext = path.extname(f).toLowerCase();
+    progres(`Lecture de ${relatif}`);
     if (ext === ".csv") {
       const lignes = Math.max(0, fs.readFileSync(f, "utf8").split(/\r?\n/).filter(l => l.trim()).length - 1);
       ecrire(idDataset(domaine, f, ""), relatif, { source: relatif, domaine, lecteur: "copie", lignes }, cible => fs.copyFileSync(f, cible));

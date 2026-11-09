@@ -190,22 +190,25 @@ function cmdEvaluer(args) {
 
 async function cmdMaquette(args) {
   const soc = societeValide(args);
-  if (!args.includes("--sans-collecte")) cmdCollecte(args);
-  await cmdNormaliser(args);
+  if (!args.includes("--sans-collecte")) { console.log("Collecte SFTP en cours…"); cmdCollecte(args); } else console.log("Collecte SFTP ignorée (pas de .env)");
+  console.log("Lecture des exports bruts…");
+  await cmdNormaliser(args, true);
   const bronze = P("data/bronze", soc);
+  console.log("Profil des exports (documentation des colonnes)…");
   fs.readdirSync(bronze).filter(f => f.endsWith(".csv")).sort().forEach(f => {
+    console.log(`Profil de ${f}`);
     const plan = planProfil(listYaml(P("spec/datasets")).map(g => readYaml(g, {})), rel(path.join(bronze, f)), soc);
     if (plan) cmdProfile([rel(path.join(bronze, f)), "--societe", soc, ...(plan.id ? ["--id", plan.id] : [])]);
   });
-  console.log(""); cmdCheck([]);
+  console.log("Contrôle de la spec…"); cmdCheck([]);
 }
 
-async function cmdNormaliser(args) {
+async function cmdNormaliser(args, enDirect = false) {
   const soc = societeValide(args);
   const brut = P("data/raw", soc); if (!exists(brut)) throw new Error(`Dossier introuvable : data/raw/${soc} (lance d'abord npm run collecte)`);
   const memoire = lireMemoire(cheminMemoire(APP));
   if (!memoire.existe) console.warn(`${C.yellow}Mémoire introuvable (${memoire.dir}) : seul le lecteur tableau sera utilisé.${C.reset}`);
-  const { ecrits, nonLus } = await normaliserSociete({ brut, bronze: P("data/bronze", soc), logiciels: memoire.logiciels });
+  const { ecrits, nonLus } = await normaliserSociete({ brut, bronze: P("data/bronze", soc), logiciels: memoire.logiciels, progres: enDirect ? console.log : undefined });
   console.log(`${ecrits.length} fichiers CSV écrits dans data/bronze/${soc}/`);
   ecrits.forEach(e => console.log(`  ${e.id}.csv  ${e.lignes} lignes · ${e.lecteur}${e.hors_recette ? ` · ${C.yellow}${e.hors_recette} valeurs hors recette${C.reset}` : ""}`));
   if (nonLus.length) { console.log(`\n${C.yellow}${nonLus.length} non lus${C.reset}`); nonLus.forEach(n => console.log(`  ${n.fichier}${n.feuille ? " · " + n.feuille : ""} : ${n.raison}`)); }
