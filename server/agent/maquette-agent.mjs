@@ -60,10 +60,16 @@ export async function documenterDatasets({ espace, racine, llm, rapporter = () =
   return bilan(boucles, budget);
 }
 
+/* Index compact des datasets (id, description, colonnes) : donné au modèle pour qu'il ne devine jamais un nom de dataset. */
+function indexDatasets(espace, avecDesc = false) {
+  const lignes = [];
+  for (const f of espace.listYaml(espace.P("spec/datasets"))) { const d = espace.readYaml(f, {}); lignes.push(`${d.id}${avecDesc && d.desc ? ` (${String(d.desc).slice(0, 80)})` : ""} : ${(d.columns || []).map(c => `${c.name}${c.role === "key" || c.role === "fk" ? `(${c.role})` : ""}`).join(", ")}`); }
+  return lignes;
+}
+
 /* Une boucle : les relations entre datasets, d'après un index compact (colonnes de tous les datasets). Moins de 2 datasets : aucun appel. */
 export async function ecrireRelations({ espace, racine, llm, rapporter = () => {}, budget = creerBudget() }) {
-  const boucles = [], index = [];
-  for (const f of espace.listYaml(espace.P("spec/datasets"))) { const d = espace.readYaml(f, {}); index.push(`${d.id} : ${(d.columns || []).map(c => `${c.name}${c.role === "key" || c.role === "fk" ? `(${c.role})` : ""}`).join(", ")}`); }
+  const boucles = [], index = indexDatasets(espace);
   if (index.length < 2) return bilan(boucles, budget);
   rapporter({ etape: "relations", i: 1, n: 1 }); budget.cible = "relations";
   const tous = creerOutilsMaquette({ espace, racine }), outils = { ecrire_relation: tous.ecrire_relation, terminer: tous.terminer };
@@ -77,10 +83,12 @@ export async function ecrireRelations({ espace, racine, llm, rapporter = () => {
 export async function ecrireFluxEtControles({ espace, racine, llm, rapporter = () => {}, budget = creerBudget(), max = MAX_FLUX }) {
   const admis = new Set(lireReferentiel(racine));
   const categories = espace.couverture().manque.filter(x => admis.has(x.categorie)).slice(0, max);
-  const outils = creerOutilsMaquette({ espace, racine }), boucles = [], n = categories.length;
+  const tous = creerOutilsMaquette({ espace, racine }), boucles = [], n = categories.length;
+  const index = indexDatasets(espace, true).join("\n").slice(0, 12000);
+  const outilsFlux = Object.fromEntries(["lire_dataset", "lire_comptes", "lire_memoire", "ecrire_flux", "terminer"].map(k => [k, tous[k]])), outils = tous;
   for (const [k, c] of categories.entries()) {
     rapporter({ etape: "flux", i: k + 1, n }); budget.cible = c.categorie;
-    const r = await tache({ llm, outils, budget, utilisateur: `Catégorie à débloquer : « ${c.categorie} » (mesures concernées : ${c.mesures.slice(0, 6).join(", ")}). Trouve dans les datasets la source de cette catégorie (lire_dataset, lire_comptes) et écris le flux avec ecrire_flux et son hypothese. Si aucune source ne convient, termine sans rien écrire en le disant dans le résumé.` });
+    const r = await tache({ llm, outils: outilsFlux, budget, utilisateur: `Catégorie à débloquer : « ${c.categorie} » (mesures concernées : ${c.mesures.slice(0, 6).join(", ")}).\nDatasets de l'adhérent (seuls ids valides pour lire_dataset), avec leurs colonnes :\n${index}\nChoisis dans cette liste la source de cette catégorie, lis-la avec lire_dataset si besoin, puis écris le flux avec ecrire_flux et son hypothese. Si aucun dataset ne convient, appelle terminer sans rien écrire en le disant dans le résumé.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, c.categorie, r);
   }

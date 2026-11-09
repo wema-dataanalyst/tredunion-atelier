@@ -10,7 +10,7 @@ export function creerOutilsMaquette({ espace, racine }) {
   const ecriture = (nom, description, fn) => { const x = outil(nom, description, { id: TXT }, ["id"], a => fn(racine, a)); x.parametres.additionalProperties = true; return x; };
   const o = [
     outil("lire_dataset", "Profil d'un dataset de l'adhérent : colonnes (sans valeurs des colonnes personnelles), relations, flux liés, questions ouvertes.", { id: TXT }, ["id"],
-      a => typeof a.id === "string" && ID.test(a.id) ? (espace.profilDataset(a.id) || { erreur: `dataset inconnu : ${a.id}` }) : { erreur: "dataset inconnu : id invalide" }),
+      a => typeof a.id === "string" && ID.test(a.id) ? (espace.profilDataset(a.id) || { erreur: `dataset inconnu : ${a.id}. Datasets valides : ${espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {}).id).join(", ")}` }) : { erreur: "dataset inconnu : id invalide" }),
     outil("lire_memoire", "Sens connus d'un nom de colonne dans la mémoire commune (anonymisé).", { colonne: TXT }, ["colonne"], a => ({ entrees: espace.memoireColonne(a.colonne) })),
     outil("lire_comptes", "Catégorie connue pour un préfixe de compte dans la mémoire commune (anonymisé).", { prefixe: TXT }, ["prefixe"], a => ({ entrees: espace.memoireComptes(a.prefixe) })),
     outil("lire_couverture", "Catégories manquantes classées par nombre de mesures débloquées, et codes admis du référentiel.", {}, [],
