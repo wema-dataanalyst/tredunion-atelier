@@ -171,6 +171,10 @@ function creerCache(racine) {
 export function ecrireDataset(racine, entree) {
   const p = preparer(entree); if (p.erreurs) return p;
   const e = p.e, f = fichierId(racine, "datasets", e.id);
+  /* Tolérances sans ambiguïté : « WHERE » en tête d'une condition, « label » pour « libelle ». */
+  const sansWhere = x => { if (obj(x) && typeof x.sql === "string") x.sql = x.sql.replace(/^\s*where\s+/i, ""); };
+  (Array.isArray(e.regles) ? e.regles : []).forEach(sansWhere);
+  (Array.isArray(e.questions) ? e.questions : []).forEach(q => { sansWhere(q); if (obj(q) && Array.isArray(q.options)) q.options = q.options.map(o => obj(o) && o.label !== undefined && o.libelle === undefined ? { libelle: o.label, ...Object.fromEntries(Object.entries(o).filter(([k]) => k !== "label")) } : o); });
   if (!f || !fs.existsSync(f)) return { erreurs: [`dataset « ${e.id} » inconnu : il est créé par npm run profil`] };
   const doc = lireYaml(f), map = racineMap(doc), errs = [];
   const colonnes = YAML.isSeq(map.get("columns", true)) ? map.get("columns", true) : null;
@@ -184,7 +188,7 @@ export function ecrireDataset(racine, entree) {
     if (c.pii !== undefined && typeof c.pii !== "boolean") errs.push(`${ou} : pii doit être vrai ou faux`);
     if (c.format !== undefined && typeof c.format !== "string") errs.push(`${ou} : format doit être un texte`);
     if (c.decimalComma !== undefined && typeof c.decimalComma !== "boolean") errs.push(`${ou} : decimalComma doit être vrai ou faux`);
-    if (c.codes !== undefined && !(obj(c.codes) && Object.values(c.codes).every(v => typeof v === "string"))) errs.push(`${ou} : codes doit associer un code à un libellé`);
+    if (c.codes !== undefined && !(obj(c.codes) && Object.values(c.codes).every(v => typeof v === "string"))) errs.push(`${ou} : codes doit être un objet {code: libellé}, par exemple {"L": "Livrée"}`);
     const h = c.hypothese !== undefined ? hypotheseNette(c.hypothese, errs, `${ou}.hypothese`, hypExistante(noeud)) : undefined;
     if (errs.length) return;
     for (const k of ["desc", "role", "type", "pii", "codes", "format", "decimalComma"]) if (c[k] !== undefined) poser(doc, noeud, k, c[k]);
@@ -206,7 +210,7 @@ export function ecrireDataset(racine, entree) {
     if (q.reponse_type !== undefined && !REPONSES.includes(q.reponse_type)) errs.push(`${ou} : reponse_type « ${q.reponse_type} » invalide (${REPONSES.join(", ")})`);
     for (const k of ["text", "titre", "contexte", "reponse_cible", "sql"]) if (q[k] !== undefined && typeof q[k] !== "string") errs.push(`${ou} : ${k} doit être un texte`);
     if (typeof q.sql === "string" && q.sql) { const ec = erreurCond(racine, q.sql, colonnesDe(doc.toJS()), `${ou}.sql`); if (ec) errs.push(ec); }
-    if (q.options !== undefined && !(Array.isArray(q.options) && q.options.length <= 10 && q.options.every(o => obj(o) && str(o.libelle)))) errs.push(`${ou} : options mal formées`);
+    if (q.options !== undefined && !(Array.isArray(q.options) && q.options.length <= 10 && q.options.every(o => obj(o) && str(o.libelle)))) errs.push(`${ou} : options mal formées : liste de {libelle, valeur} (10 au plus)`);
     if (errs.length) return;
     const seq = sequence(doc, map, "questions"), item = trouver(seq, "id", q.id);
     if (q.couverte === true) { if (item) seq.items.splice(seq.items.indexOf(item), 1); return; }

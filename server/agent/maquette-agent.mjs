@@ -52,7 +52,7 @@ export async function documenterDatasets({ espace, racine, llm, rapporter = () =
   for (const [k, id] of cibles.entries()) {
     rapporter({ etape: "datasets", i: k + 1, n: cibles.length }); budget.cible = id;
     const connus = memoireDuDataset(espace, id);
-    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset. Mémoire commune : ${connus || "aucune entrée pour ses colonnes (inutile de l'interroger)"}. Puis écris en deux appels ecrire_dataset : 1) desc, grain et TOUTES les colonnes ; 2) regles et questions. Ajoute ecrire_relation si une relation est évidente. Lis la réponse de l'outil : quand tout est documenté, appelle terminer. Ne renvoie jamais un appel identique.` });
+    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset. Mémoire commune : ${connus || "aucune entrée pour ses colonnes (inutile de l'interroger)"}. Puis écris en deux appels ecrire_dataset : 1) desc, grain et TOUTES les colonnes ; 2) regles et questions. Datasets de l'adhérent : ${espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {}).id).join(", ")}. Ajoute ecrire_relation seulement si la cible est dans cette liste. Lis la réponse de l'outil : quand tout est documenté, appelle terminer. Ne renvoie jamais un appel identique.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, id, r);
   }
