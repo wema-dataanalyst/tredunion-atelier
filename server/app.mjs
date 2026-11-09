@@ -79,7 +79,7 @@ export function creerApp({ adherents, comptes, cookieSecure = false, trustProxy 
   const connexionHtml = () => pageConnexion ??= fs.readFileSync(path.join(ICI, "connexion.html"), "utf8").replace("/*WEMA*/", () => fs.readFileSync(path.join(APP, "viewer/wema.css"), "utf8"));
   const erreurInterne = (res, x) => { console.error(x); if (!res.headersSent) refus(res, 500, "erreur interne"); };
   for (const i of adherentsConnus(adherents)) { try { recupererInterrompu(racineDe(adherents, i)); } catch (x) { console.error(nettoyer(x?.message || x)); } }
-  const vueMaquette = id => { if (!id) return null; const m = lireStatutMaquette(racineDe(adherents, id)); if (!m) return null; const { etape, i, n, debut, fin, ok, erreurs, resume } = m; return { etape, i, n, debut, fin, ok, erreurs, resume }; };
+  const vueMaquette = id => { if (!id) return null; const m = lireStatutMaquette(racineDe(adherents, id)); if (!m) return null; const { etape, i, n, debut, fin, ok, erreurs, resume, journal } = m; return { etape, i, n, debut, fin, ok, erreurs, resume, journal }; };
   const vueApprentissage = id => {
     if (!id) return { faits: [] };
     const c = apprentissages.get(id); if (c && now() - c.t < 5000) return c.v;

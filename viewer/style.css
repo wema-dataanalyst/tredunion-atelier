@@ -489,3 +489,7 @@ body:not([data-role="admin"]) #t-adh,body:not([data-role="admin"]) #view-adh{dis
 .apq td.pii{color:var(--muted);letter-spacing:.1em}
 @media (min-width:1101px){ .qapercu summary{pointer-events:none;cursor:default} .qapercu summary::marker{content:""} }
 @media (max-width:1100px){ .qcorps.qa{display:block} .qapercu{position:static;margin-top:12px} }
+
+/* journal en direct de la maquette */
+.maq-journal{margin:8px 0 0;padding:12px;max-height:240px;overflow:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;font-family:var(--f-mono);font-size:11.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:var(--fg)}
+.maq-det summary{cursor:pointer;color:var(--muted);font-size:12.5px;margin-top:8px}

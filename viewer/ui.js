@@ -302,14 +302,20 @@ const impactClair=q=>{ const m=q.mesures||[]; if(!m.length) return ""; return `<
 /* Maquette automatique : bloc réservé à l'admin (S.vue.maquette absent pour un adhérent), alimenté par l'événement SSE « maquette ». */
 function etapeMaquette(m){ const k=m.n?` ${m.i}/${m.n}`:"";
   return {copie:"Préparation…",collecte:"Collecte et lecture des exports…",datasets:`Documentation des datasets${k}…`,flux:`Flux et contrôles${k}…`,controles:"Flux et contrôles…",perimetre:"Périmètre du tableau de bord…",libelles:"Libellés des catégories…",propositions:"Mesures propres à l'adhérent…",verification:"Vérification…",construction:"Construction des livrables…"}[m.etape]||"En cours…"; }
+/* Journal en direct : les dernières lignes du run, repliable une fois terminé ; défile jusqu'en bas sauf si l'admin a remonté. */
+function journalMaquette(m,replie){ const j=m.journal||[]; if(!j.length) return "";
+  const corps=`<pre class="maq-journal" tabindex="0" aria-label="Journal de la maquette">${j.map(l=>`${esc(l.t)}  ${esc(l.texte)}`).join("\n")}</pre>`;
+  return replie?`<details class="maq-det"><summary>Journal (${j.length} lignes)</summary>${corps}</details>`:corps; }
+function suivreJournal(){ const p=document.querySelector(".maq-journal"); if(!p) return; if(S.journalSuit!==false) p.scrollTop=p.scrollHeight;
+  p.addEventListener("scroll",()=>{ S.journalSuit=p.scrollTop+p.clientHeight>=p.scrollHeight-8; }); }
 function blocMaquette(){
   const v=S.vue; if(!v||v.role!=="admin") return ""; const m=v.maquette, enCours=!!m&&!m.fin, adh=new URLSearchParams(location.search).get("adherent")||$("#sel-adh").value;
   let etat="";
-  if(enCours) etat=`<p class="maq-etape" role="status">${esc(etapeMaquette(m))}</p>`;
+  if(enCours) etat=`<p class="maq-etape" role="status">${esc(etapeMaquette(m))}</p>`+journalMaquette(m);
   else if(S.maqErr) etat=`<p class="qerr">${esc(S.maqErr)}</p>`;
   else if(m&&m.ok){ const r=m.resume||{}, h=r.hypotheses||{};
     etat=`<div class="maq-ok"><p>Maquette terminée : mesures alimentées ${esc(r.mesuresAvant)} → ${esc(r.mesuresApres)}.</p><p>Hypothèses à valider : ${esc(h.basse)} basses · ${esc(h.moyenne)} moyennes · ${esc(h.haute)} hautes.</p><p>Contrôles en écart : ${esc(r.controlesEnEcart)}. ${r.fiche?`<a href="/api/livrable?adherent=${encodeURIComponent(adh)}&f=${encodeURIComponent(String(r.fiche).replace(/^generated\//,""))}" download>Fiche de séance</a>`:""}</p></div>`; }
-  else if(m) etat=`<div class="maq-ko"><p><b>La maquette a échoué : la spec est restée telle qu'avant.</b></p><ul>${(m.erreurs||[]).map(e=>`<li>${esc(e)}</li>`).join("")}</ul></div>`;
+  else if(m) etat=`<div class="maq-ko"><p><b>La maquette a échoué : la spec est restée telle qu'avant.</b></p><ul>${(m.erreurs||[]).map(e=>`<li>${esc(e)}</li>`).join("")}</ul></div>`+journalMaquette(m,true);
   return `<section class="maq"><h3>Maquette automatique</h3><p class="note">L'agent lit les exports, documente les datasets et écrit les flux. Rien n'est gardé si la vérification échoue.</p>
    <button class="btn" type="button" data-maq="lancer"${v.agent&&!enCours?"":" disabled"}>Lancer la maquette</button>${v.agent?"":' <span class="note">L\'agent n\'est pas disponible.</span>'}${etat}</section>`; }
 $("#qv").addEventListener("click",async e=>{ const b=e.target.closest("[data-maq]"); if(!b||b.disabled) return; b.disabled=true; S.maqErr=null;
@@ -363,7 +369,7 @@ function renderQ(){
     body=(done?carte(done,false):"")+(cur?carte(cur,true):`<p class="lede qfin">${nOuv?"Les questions restantes demandent l'équipe WeMa.":"Merci, vous avez répondu à toutes les questions."}</p>`); }
   else { const keep=q=>f==="toutes"||q.statut==="traitee"; body=qs.some(keep)?[...new Set(qs.map(q=>q.lot))].map(lot=>{ const l=qs.filter(q=>q.lot===lot&&keep(q)); return l.length?`<section class="qlot"><h3>${esc(nomFichier(lot))}</h3>${l.map(q=>carte(q,false)).join("")}</section>`:""; }).join(""):`<p class="lede">Aucune réponse pour l'instant.</p>`; }
   const sv={}; $("#qv").querySelectorAll(".qform").forEach(f=>{ const t=f.querySelector('[name="texte"]'); if(t&&t.value) sv[f.dataset.qid]={t:t.value,o:!!f.querySelector(".qautre")?.open}; });
-  $("#qv").innerHTML=head+body;
+  $("#qv").innerHTML=head+body; suivreJournal();
   observerApq();
   $("#qv").querySelectorAll(".qform").forEach(f=>{ const x=sv[f.dataset.qid]; if(!x) return; f.querySelector('[name="texte"]').value=x.t; const d=f.querySelector(".qautre"); if(d&&x.o) d.open=true; });
 }

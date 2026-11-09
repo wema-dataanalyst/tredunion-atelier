@@ -41,10 +41,13 @@ export function masquer(texte, pii = []) {
 }
 
 const piiDe = racine => { try { return valeursPiiAdherent(racine); } catch { return []; } };
+/* Même liste, relue au plus toutes les 15 s : le journal en direct masque chaque ligne sans relire les données à chaque fois. */
+const piiRecents = new Map();
+const piiJournal = racine => { const c = piiRecents.get(racine); if (c && Date.now() - c.t < 15000) return c.v; const v = piiDe(racine); piiRecents.set(racine, { t: Date.now(), v }); return v; };
 
 /* ───────── processus enfant ───────── */
 /* `commande` : [exécutable, ...arguments], pour les tests ; par défaut `atelier maquette --societe <s> [--sans-collecte]`. */
-export function lancerEnfant({ racine, societe, sansCollecte = true, delaiMs = DELAI_ENFANT_MS, commande, signal }) {
+export function lancerEnfant({ racine, societe, sansCollecte = true, delaiMs = DELAI_ENFANT_MS, commande, signal, surLigne }) {
   const args = commande || [process.execPath, ATELIER, "maquette", "--societe", societe, ...(sansCollecte ? ["--sans-collecte"] : [])];
   const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => ENV_ENFANT.test(k))); env.ATELIER_ROOT = racine;
   const secrets = secretsDe(racine);
@@ -56,8 +59,13 @@ export function lancerEnfant({ racine, societe, sansCollecte = true, delaiMs = D
     const minuteur = setTimeout(() => { delai = true; enfant.kill("SIGKILL"); }, delaiMs);
     const couper = () => { if (!fini) { enfant.kill("SIGKILL"); clore(false, "Interrompu"); } };
     if (signal?.aborted) couper(); else signal?.addEventListener("abort", couper, { once: true });
-    enfant.stdout.on("data", c => { sortie = garder(sortie, c); });
-    enfant.stderr.on("data", c => { err = garder(err, c); });
+    // Lignes en direct pour le journal affiché à l'admin : nettoyées des secrets et des valeurs pii avant de sortir d'ici.
+    const lignes = { o: "", e: "" };
+    const flux = k => c => { lignes[k] += c; const l = lignes[k].split(/\r?\n/); lignes[k] = l.pop().slice(-500);
+      for (const x of l) { const t = masquer(nettoyer(x, secrets), piiJournal(racine)).trim(); if (t && surLigne) try { surLigne(t.slice(0, 300)); } catch { /* le journal ne doit jamais casser la collecte */ } } };
+    const lireOut = flux("o"), lireErr = flux("e");
+    enfant.stdout.on("data", c => { sortie = garder(sortie, c); lireOut(c); });
+    enfant.stderr.on("data", c => { err = garder(err, c); lireErr(c); });
     enfant.on("error", e => clore(false, `Lancement impossible : ${e.message}`));
     // Le `check` final de la maquette met le code à 1 sans rien écrire sur stderr : ce n'est pas une panne.
     // Le `check` final de la maquette met le code à 1 sans rien écrire sur stderr : ce n'est pas une panne.
@@ -105,6 +113,7 @@ function restaurer(racine) {
   vides(spec);
   return true;
 }
+const LIB_ETAPE = { datasets: "Documentation du dataset", flux: "Écriture du flux", controles: "Contrôles croisés", perimetre: "Périmètre du tableau de bord", libelles: "Libellés des catégories", propositions: "Mesures propres à l'adhérent" };
 const MSG_PLAFOND = "La maquette a dépassé la durée maximale (30 min) : elle a été arrêtée et la spec remise dans son état d'avant.";
 const MSG_INTERROMPU = "La maquette a été interrompue (redémarrage du serveur) : la spec a été remise dans son état d'avant.";
 /* Au démarrage : un run « en cours » n'a plus de processus derrière lui. */
@@ -137,7 +146,9 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
   async function corpsMaquette() {
   let st = { etape: "copie", i: 0, n: 0, debut: iso(now), fin: null, ok: null, erreurs: [], resume: null };
   const maj = patch => { st = { ...st, ...patch }; ecrireStatut(racine, st); rapporter({ ...st }); };
-  const etapeAgent = ({ etape, i, n }) => maj({ etape, i, n });
+  // Journal en direct (200 lignes au plus) : affiché à l'admin pendant le run, jamais de valeur pii ni de secret.
+  const note = texte => maj({ journal: [...(st.journal || []), { t: iso(now).slice(11), texte: masquer(nettoyer(texte, secrets), piiJournal(racine)).slice(0, 300) }].slice(-200) });
+  const etapeAgent = ({ etape, i, n }) => { if (etape !== st.etape || i !== st.i) note(`${LIB_ETAPE[etape] || etape}${n > 1 ? ` ${i}/${n}` : ""}`); maj({ etape, i, n }); };
   const boucles = (etape, r) => (r.boucles || []).forEach(b => tracer(racine, now, { etape, cible: b.cible, issue: b.issue, tours: b.tours, jetons: b.jetons }));
   const secrets = secretsDe(racine); let sauve = false;
   const coupe = () => signal?.aborted;
@@ -162,21 +173,22 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     const projet = espace.readYaml(espace.P("spec/projet.yml"), {}), societes = (projet.societes || []).map(s => String(s.id));
     if (!societes.length || !societes.every(s => SOCIETE.test(s))) { maj({ etape: "fin", fin: iso(now), ok: false, erreurs: ["spec/projet.yml : aucune société valide à traiter."] }); return st; }
     if (coupe()) return interrompu();
-    sauvegarder(racine); sauve = true;
+    sauvegarder(racine); sauve = true; note("Copie de sécurité de spec/ faite");
     const avant = bilan(espace);
     maj({ etape: "collecte", i: 0, n: societes.length }); tracer(racine, now, { etape: "copie", issue: "ok" });
 
     const sansCollecte = !fs.existsSync(path.join(racine, ".env"));
     for (const [k, societe] of societes.entries()) {
       if (coupe()) return interrompu();
-      maj({ etape: "collecte", i: k + 1, n: societes.length });
-      const debut = Date.now(), e = await lancerEnfant({ racine, societe, sansCollecte, signal });
+      maj({ etape: "collecte", i: k + 1, n: societes.length }); note(`Collecte et lecture des exports de ${societe}${sansCollecte ? " (sans SFTP)" : ""}`);
+      const debut = Date.now(), e = await lancerEnfant({ racine, societe, sansCollecte, signal, surLigne: t => note(`  ${t}`) });
       tracer(racine, now, { etape: "collecte", cible: societe, issue: e.ok ? "ok" : "echec", duree_ms: Date.now() - debut });
+      note(`Collecte ${societe} : ${e.ok ? "terminée" : "en échec"} (${Math.round((Date.now() - debut) / 1000)} s)`);
       if (!e.ok) return echec([`Collecte ou lecture des exports (${societe}) : ${e.erreur}`], "collecte");
     }
 
     const budget = creerBudget();
-    budget.trace = l => tracer(racine, now, { etape: "outil", ...l });
+    budget.trace = l => { tracer(racine, now, { etape: "outil", ...l }); note(`  ${l.cible ? l.cible + " : " : ""}${l.outil}${l.erreur ? ` → ${l.erreur}` : ""}`); };
     if (coupe()) return interrompu();
     const d = await documenterDatasets({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("datasets", d);
     if (d.erreurs) return echec(d.erreurs, "datasets");
@@ -197,12 +209,12 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     if (pr.erreurs) return echec(pr.erreurs, "propositions");
 
     if (coupe()) return interrompu();
-    maj({ etape: "verification", i: 0, n: 0 });
+    note("Vérification de la spec"); maj({ etape: "verification", i: 0, n: 0 });
     const apres = bilan(espace); tracer(racine, now, { etape: "verification", issue: apres.erreurs.length ? "echec" : "ok", erreurs: apres.erreurs.length, jetons: budget.utilises });
     if (apres.erreurs.length) return echec(apres.erreurs, "verification");
 
     if (coupe()) return interrompu();
-    maj({ etape: "construction" });
+    note("Construction des livrables"); maj({ etape: "construction" });
     const resume = { mesuresAvant: avant.mesures, mesuresApres: apres.mesures, hypotheses: apres.hypotheses, controlesEnEcart: apres.ecarts, fiche: "generated/fiche_seance.md" };
     const journal = path.join(racine, "spec/journal.yml"), h = apres.hypotheses;
     const texte = fs.existsSync(journal) ? fs.readFileSync(journal, "utf8") : "# Journal des décisions : une entrée par question tranchée\n";
@@ -214,7 +226,7 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     const b = espace.construire();
     if (!b.ok) return echec(b.erreurs.map(x => `${x.fichier} : ${x.msg}`), "construction");
     tracer(racine, now, { etape: "construction", issue: "ok", jetons: budget.utilises });
-    maj({ etape: "fin", fin: iso(now), ok: true, erreurs: [], resume });
+    note("Maquette terminée"); maj({ etape: "fin", fin: iso(now), ok: true, erreurs: [], resume });
     return st;
   } catch (e) {
     return echec([`Maquette en échec : ${e?.message || e}`], "exception");

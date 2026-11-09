@@ -137,6 +137,18 @@ test("enfant : environnement filtré et sortie nettoyée des secrets", async () 
   } finally { delete process.env.LLM_API_KEY; delete process.env.SFTP_PASSWORD; }
 });
 
+test("enfant : les lignes sortent en direct, nettoyées des secrets et des longs nombres", async () => {
+  const racine = fs.mkdtempSync(path.join(os.tmpdir(), "enfant-"));
+  fs.writeFileSync(path.join(racine, ".env"), `SFTP_PASSWORD=${FAUX_MDP}\n`);
+  const script = `console.log("lecture tms_missions");console.log("mdp=${FAUX_MDP} 12345678901");console.log("fin sans retour")`;
+  const lignes = [];
+  const e = await lancerEnfant({ racine, societe: "kf", commande: [process.execPath, "-e", script], surLigne: l => lignes.push(l) });
+  assert.equal(e.ok, true);
+  assert.equal(lignes[0], "lecture tms_missions");
+  assert.ok(lignes.every(l => !l.includes(FAUX_MDP) && !l.includes("12345678901")), lignes.join("|"));
+  assert.equal(lignes.length, 3);
+});
+
 test("enfant : délai dépassé → arrêt et message", async () => {
   const racine = fs.mkdtempSync(path.join(os.tmpdir(), "enfant-"));
   const e = await lancerEnfant({ racine, societe: "kf", delaiMs: 300, commande: [process.execPath, "-e", "setTimeout(()=>{},60000)"] });

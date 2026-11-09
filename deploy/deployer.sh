@@ -14,5 +14,6 @@ if [ "${1:-}" != "--sans-tests" ]; then npm test --silent; fi
 git push origin main
 
 # -t : sudo peut demander le mot de passe
-ssh -t "$VPS_SSH" "set -e; cd '$VPS_APP' && git pull --ff-only && npm ci --silent && sudo systemctl restart tredunion && sleep 2 && systemctl is-active tredunion && curl -s -o /dev/null -w 'HTTP local : %{http_code}\n' http://127.0.0.1:4400/"
+# Une session non interactive ne lit pas le .bashrc du VPS : on recharge l'agent SSH qui porte la clé GitHub.
+ssh -t "$VPS_SSH" "set -e; . ~/.ssh/agent.env >/dev/null; ssh-add -l >/dev/null 2>&1 || ssh-add ~/.ssh/github-wema; cd '$VPS_APP' && git pull --ff-only && npm ci --silent && sudo systemctl restart tredunion && sleep 2 && systemctl is-active tredunion && curl -s -o /dev/null -w 'HTTP local : %{http_code}\n' http://127.0.0.1:4400/"
 echo "Déployé. Les sessions ont été fermées par le redémarrage."
