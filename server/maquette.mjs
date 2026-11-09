@@ -193,7 +193,13 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     }
 
     const budget = creerBudget();
-    budget.trace = l => { tracer(racine, now, { etape: "outil", ...l }); note(`  ${l.cible ? l.cible + " : " : ""}${l.outil} (tour ${l.tour}/${TOURS})${l.erreur ? ` → ${l.erreur}` : ""}`); };
+    // Ce qui part vers le modèle, appel par appel : .atelier/llm.jsonl (hors git), pour comprendre d'où vient la consommation de jetons.
+    budget.capture = l => { const taille = m => typeof m === "string" ? m.length : JSON.stringify(m ?? "").length;
+      const lignes = [{ role: "system", contenu: l.systeme }, ...l.messages.map(m => ({ role: m.role, contenu: m.content ?? null, ...(m.tool_calls ? { appels: m.tool_calls.map(a => ({ outil: a.function?.name, arguments: a.function?.arguments })) } : {}) }))];
+      const ligne = { date: iso(now), cible: l.cible, tour: l.tour, usage: l.usage, caracteres_envoyes: lignes.reduce((t, x) => t + taille(x.contenu) + taille(x.appels), 0), messages: lignes, reponse: { contenu: l.reponse.content ?? null, appels: (l.reponse.tool_calls || []).map(a => ({ outil: a.function?.name, arguments: a.function?.arguments })) } };
+      fs.appendFileSync(path.join(dossier(racine), "llm.jsonl"), nettoyer(JSON.stringify(ligne), secrets) + "\n", { mode: 0o600 });
+      const u = l.usage || {}; if (u.prompt_tokens) note(`  → ${l.cible} tour ${l.tour} : ${u.prompt_tokens} jetons envoyés, ${u.completion_tokens ?? "?"} reçus`); };
+    budget.trace = l => { tracer(racine, now, { etape: "outil", ...l }); note(`  ${l.cible ? l.cible + " : " : ""}${l.outil} (tour ${l.tour}/${TOURS}, ${Math.round(((budget.utilises || 0) + (l.jetons || 0)) / 1000)}k jetons au total)${l.erreur ? ` → ${l.erreur}` : ""}`); };
     if (coupe()) return interrompu();
     const d = await documenterDatasets({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("datasets", d);
     if (d.erreurs) return echec(d.erreurs, "datasets");

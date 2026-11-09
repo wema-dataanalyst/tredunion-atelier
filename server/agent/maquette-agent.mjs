@@ -27,7 +27,7 @@ const MSG_PLAFOND = plafond => `Plafond de ${plafond.toLocaleString("fr-FR")} je
 async function tache({ llm, outils, utilisateur, budget }) {
   if (budget.utilises >= budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
   let r;
-  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })) }); }
+  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })), capture: budget.capture && (l => budget.capture({ ...l, cible: budget.cible })) }); }
   catch (e) { return { erreurs: [String(e?.message || "agent en échec")] }; }
   budget.utilises += r.jetons;
   if (r.issue === "jetons" || budget.utilises > budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
@@ -42,7 +42,7 @@ export async function documenterDatasets({ espace, racine, llm, rapporter = () =
   const outils = creerOutilsMaquette({ espace, racine }), boucles = [];
   for (const [k, id] of cibles.entries()) {
     rapporter({ etape: "datasets", i: k + 1, n: cibles.length }); budget.cible = id;
-    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset, cherche dans la mémoire commune, puis écris desc, grain, colonnes, règles et questions avec ecrire_dataset (et ecrire_relation si une relation est évidente). Termine par terminer.` });
+    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset, cherche dans la mémoire commune, puis écris desc, grain, toutes les colonnes, les règles et les questions en UN SEUL appel ecrire_dataset (deux au plus si l'écriture est refusée et à corriger ; jamais une colonne par appel), et ecrire_relation si une relation est évidente. Dès que l'écriture est acceptée ({ok: true}), appelle terminer : ne relis pas et ne réécris pas.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, id, r);
   }
