@@ -1,6 +1,7 @@
 /* Serveur multi-adhérent : connexion, session, un espace par adhérent. */
 import http from "node:http";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ouvrirEspace } from "../tools/espace.mjs";
@@ -11,6 +12,7 @@ import { interpreter } from "./agent/interpreter.mjs";
 import { lancerMaquette, lireStatutMaquette, recupererInterrompu, nettoyer } from "./maquette.mjs";
 import { adherentsConnus, racineDe, adherentsRoot, comptesFile } from "./adherents.mjs";
 import { creerAdherent } from "./nouvel-adherent.mjs";
+import { gabaritSpec } from "../tools/gabarit.mjs";
 import { ecrireBesoins } from "./agent/specs.mjs";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url)), APP = path.resolve(ICI, "..");
@@ -64,13 +66,22 @@ export function creerApp({ adherents, comptes, cookieSecure = false, trustProxy 
     veilleurs.push(() => { clearTimeout(timer); w.close(); }); espaces.set(id, e);
     return e;
   }
+  let vide = null; // espace jetable (spec vide dans /tmp) pour servir la page à l'admin tant qu'aucun adhérent n'existe
+  function espaceVide() {
+    if (vide) return vide;
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tredunion-vide-"));
+    gabaritSpec(path.join(dir, "spec"), { adherent: "Aucun adhérent", societes: [] });
+    veilleurs.push(() => fs.rmSync(dir, { recursive: true, force: true }));
+    return (vide = ouvrirEspace(dir));
+  }
   const originOk = req => { const o = req.headers.origin; return !o || o === `http://${req.headers.host}` || o === `https://${req.headers.host}`; };
   let pageConnexion = null; // lue une fois
   const connexionHtml = () => pageConnexion ??= fs.readFileSync(path.join(ICI, "connexion.html"), "utf8").replace("/*WEMA*/", () => fs.readFileSync(path.join(APP, "viewer/wema.css"), "utf8"));
   const erreurInterne = (res, x) => { console.error(x); if (!res.headersSent) refus(res, 500, "erreur interne"); };
   for (const i of adherentsConnus(adherents)) { try { recupererInterrompu(racineDe(adherents, i)); } catch (x) { console.error(nettoyer(x?.message || x)); } }
-  const vueMaquette = id => { const m = lireStatutMaquette(racineDe(adherents, id)); if (!m) return null; const { etape, i, n, debut, fin, ok, erreurs, resume } = m; return { etape, i, n, debut, fin, ok, erreurs, resume }; };
+  const vueMaquette = id => { if (!id) return null; const m = lireStatutMaquette(racineDe(adherents, id)); if (!m) return null; const { etape, i, n, debut, fin, ok, erreurs, resume } = m; return { etape, i, n, debut, fin, ok, erreurs, resume }; };
   const vueApprentissage = id => {
+    if (!id) return { faits: [] };
     const c = apprentissages.get(id); if (c && now() - c.t < 5000) return c.v;
     let v; try { v = espace(id).apercuApprentissage(); } catch (x) { console.error(nettoyer(x?.message || x)); v = { faits: [] }; }
     apprentissages.set(id, { t: now(), v }); return v;
@@ -132,8 +143,11 @@ export function creerApp({ adherents, comptes, cookieSecure = false, trustProxy 
       if (p === "/api/adherents") { if (s.role !== "admin") return refus(res, 403, "réservé à l'administrateur"); return json(res, 200, adherentsConnus(adherents).map(apercuDe)); }
       const liste = adherentsConnus(adherents);
       const id = s.role === "admin" ? (url.searchParams.get("adherent") || liste[0]) : s.id;
-      if (!id) { res.writeHead(200, { "content-type": "text/html; charset=utf-8" }); return res.end("<p>Aucun adhérent.</p>"); }
-      let e; try { e = espace(id); } catch { return refus(res, 404, "adhérent introuvable"); }
+      let e;
+      if (!id) { // aucun adhérent : l'admin garde la page (onglet Adhérents pour en créer un), le reste est refusé
+        if (s.role !== "admin" || !["/", "/api/state", "/events"].includes(p)) { res.writeHead(200, { "content-type": "text/html; charset=utf-8" }); return res.end("<p>Aucun adhérent.</p>"); }
+        e = espaceVide();
+      } else try { e = espace(id); } catch { return refus(res, 404, "adhérent introuvable"); }
       if (p === "/api/livrables" || p === "/api/livrable") {
         if (s.role !== "admin") return refus(res, 403, "réservé à l'administrateur");
         if (p === "/api/livrables") return json(res, 200, e.livrables());

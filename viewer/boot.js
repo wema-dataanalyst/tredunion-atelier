@@ -45,7 +45,7 @@ async function loadState(){
     const r=await fetch("/api/state"+location.search,{cache:"no-store"}); const j=await r.json();
     S.st=hydrate(j.state); S.ver++; S.check=(j.errors||[]).concat(checkSpec()); S.loadedAt=j.at; S.online=true;
     S.vue=j.vue||null;
-    if(S.vue&&!S.vueInit){ S.vueInit=true; const sel=$("#sel-adh"); sel.innerHTML=S.vue.adherents.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join(""); sel.value=new URLSearchParams(location.search).get("adherent")||S.vue.adherents[0]||""; if(S.vue.role==="adherent") setTab("q"); }
+    if(S.vue&&!S.vueInit){ S.vueInit=true; const sel=$("#sel-adh"); sel.innerHTML=S.vue.adherents.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join(""); sel.value=new URLSearchParams(location.search).get("adherent")||S.vue.adherents[0]||""; if(S.vue.role==="adherent") setTab("q"); else if(!S.vue.adherents.length) setTab("adh"); }
     if(S.sel){ const ok=S.sel.type==="ds"?DS(S.sel.id):S.sel.type==="flux"?FX(S.sel.id):S.sel.type==="gold"?GT(S.sel.id):S.st.relations.find(r=>r.id===S.sel.id); if(!ok) S.sel=null; }
     const now=sig(S.st); const changedKeys=lastSig?[...now.keys()].filter(k=>lastSig.get(k)!==now.get(k)):[]; lastSig=now;
     renderAll(); if(S.tab!=="canvas") renderTab(); 
