@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ouvrirEspace } from "../tools/espace.mjs";
 import { creerOutilsMaquette } from "../server/agent/maquette-outils.mjs";
-import { documenterDatasets, ecrireFluxEtControles, creerBudget } from "../server/agent/maquette-agent.mjs";
+import { documenterDatasets, ecrireRelations, ecrireFluxEtControles, creerBudget } from "../server/agent/maquette-agent.mjs";
 import { racineExemple } from "./aide/racine.mjs";
 import { fauxLlm, appelOutil } from "./aide/faux-llm.mjs";
 
@@ -43,16 +43,15 @@ test("documenterDatasets : un dataset documenté de bout en bout (écriture, hyp
   const { racine, espace } = neuf();
   const suivi = [];
   const llm = fauxLlm([
-    appelOutil("lire_dataset", { id: "tms_conducteurs" }),
     appelOutil("ecrire_dataset", { id: "tms_conducteurs", desc: "Conducteurs du TMS", colonnes: [{ name: "type_contrat", desc: "Type de contrat", hypothese: { ...hyp, valide: true } }] }),
-    appelOutil("terminer", { resume: "fait" }),
   ]);
   const r = await documenterDatasets({ espace, racine, llm, ids: ["tms_conducteurs"], rapporter: x => suivi.push(x) });
-  assert.equal(r.ok, true); assert.deepEqual(r.boucles.map(b => [b.cible, b.issue, b.tours]), [["tms_conducteurs", "termine", 3]]);
+  assert.equal(r.ok, true); assert.deepEqual(r.boucles.map(b => [b.cible, b.issue, b.tours]), [["tms_conducteurs", "termine", 1]]);
   assert.deepEqual(suivi, [{ etape: "datasets", i: 1, n: 1 }]);
   const y = lire(racine, "spec/datasets/tms_conducteurs.yml"); assert.match(y, /desc: Conducteurs du TMS/); assert.match(y, /valide: false/); assert.doesNotMatch(y, /valide: true/);
   assert.match(y, /# Dataset bronze tms_conducteurs/);
-  assert.equal(r.jetons, 30);
+  assert.equal(r.jetons, 10);
+  assert.match(llm.appels[0].messages[0].content, /Profil complet/); assert.deepEqual(llm.appels[0].outils.map(o => o.function.name), ["ecrire_dataset"]);
 });
 
 test("documenterDatasets : par défaut, seuls les datasets sans desc ; une écriture refusée revient au modèle comme erreur", async () => {
@@ -62,7 +61,6 @@ test("documenterDatasets : par défaut, seuls les datasets sans desc ; une écri
   const llm = fauxLlm([
     appelOutil("ecrire_dataset", { id: "tms_conducteurs", colonnes: [{ name: "colonne_inconnue", desc: "x" }] }),
     appelOutil("ecrire_dataset", { id: "tms_conducteurs", desc: "Corrigé" }),
-    appelOutil("terminer", {}),
   ]);
   const r = await documenterDatasets({ espace, racine, llm });
   assert.deepEqual(r.boucles.map(b => b.cible), ["tms_conducteurs"]);
@@ -72,7 +70,7 @@ test("documenterDatasets : par défaut, seuls les datasets sans desc ; une écri
 
 test("plafond de jetons : échec propre avec message clair, plus aucun appel ensuite", async () => {
   const { racine, espace } = neuf();
-  const llm = fauxLlm([{ ...appelOutil("lire_dataset", { id: "tms_conducteurs" }), usage: { total_tokens: 500 } }, ...Array(5).fill({ ...appelOutil("terminer", {}) })]);
+  const llm = fauxLlm([{ ...appelOutil("ecrire_dataset", { id: "tms_conducteurs", colonnes: [{ name: "inconnue", desc: "x" }] }), usage: { total_tokens: 500 } }, ...Array(5).fill({ ...appelOutil("terminer", {}) })]);
   const r = await documenterDatasets({ espace, racine, llm, ids: ["tms_conducteurs", "tms_missions"], budget: creerBudget(400) });
   assert.match(r.erreurs[0], /Plafond de .* jetons atteint/); assert.equal(r.ok, undefined); assert.equal(llm.appels.length, 1);
   const deja = await documenterDatasets({ espace, racine, llm, ids: ["tms_missions"], budget: { plafond: 10, utilises: 10 } });
@@ -104,8 +102,17 @@ test("flux : un code hors référentiel est refusé et renvoyé au modèle", asy
 
 test("aucune valeur pii dans les messages envoyés au modèle (outils de lecture et d'écriture)", async () => {
   const { racine, espace } = neuf();
-  const llm = fauxLlm([appelOutil("lire_dataset", { id: "tms_conducteurs" }), appelOutil("ecrire_dataset", { id: "tms_conducteurs", desc: piiValeurs(racine)[0] }), appelOutil("terminer", {})]);
+  const llm = fauxLlm([appelOutil("ecrire_dataset", { id: "tms_conducteurs", desc: "Conducteurs" })]);
   await documenterDatasets({ espace, racine, llm, ids: ["tms_conducteurs"] });
   const vu = JSON.stringify(llm.appels.at(-1).messages.filter(m => m.role !== "assistant")); piiValeurs(racine).forEach(v => assert.ok(!vu.includes(v), "valeur pii envoyée au modèle"));
   assert.match(vu, /personnelle/);
+});
+
+test("ecrireRelations : un index compact des colonnes, aucun profil complet, outils limités aux relations", async () => {
+  const { racine, espace } = neuf();
+  const llm = fauxLlm([appelOutil("terminer", { resume: "rien d'évident" })]);
+  const r = await ecrireRelations({ espace, racine, llm });
+  assert.equal(r.ok, true); assert.deepEqual(r.boucles.map(b => [b.cible, b.issue, b.tours]), [["relations", "termine", 1]]);
+  assert.deepEqual(llm.appels[0].outils.map(o => o.function.name).sort(), ["ecrire_relation", "terminer"]);
+  assert.match(llm.appels[0].messages[0].content, /tms_conducteurs : /);
 });

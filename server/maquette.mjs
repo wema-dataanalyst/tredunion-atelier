@@ -7,7 +7,7 @@ import { parseEnv } from "node:util";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { valeursPiiAdherent } from "./agent/specs.mjs";
-import { TOURS, documenterDatasets, ecrireFluxEtControles, proposerPerimetre, proposerLibelles, proposerMesures, creerBudget } from "./agent/maquette-agent.mjs";
+import { TOURS, documenterDatasets, ecrireRelations, ecrireFluxEtControles, proposerPerimetre, proposerLibelles, proposerMesures, creerBudget } from "./agent/maquette-agent.mjs";
 
 const ATELIER = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../tools/atelier.mjs");
 const DELAI_ENFANT_MS = 15 * 60 * 1000, PLAFOND_RUN_MS = 30 * 60 * 1000, SORTIE_MAX = 1500;
@@ -113,7 +113,7 @@ function restaurer(racine) {
   vides(spec);
   return true;
 }
-const LIB_ETAPE = { datasets: "Documentation du dataset", flux: "Écriture du flux", controles: "Contrôles croisés", perimetre: "Périmètre du tableau de bord", libelles: "Libellés des catégories", propositions: "Mesures propres à l'adhérent" };
+const LIB_ETAPE = { datasets: "Documentation du dataset", relations: "Relations entre datasets", flux: "Écriture du flux", controles: "Contrôles croisés", perimetre: "Périmètre du tableau de bord", libelles: "Libellés des catégories", propositions: "Mesures propres à l'adhérent" };
 const MSG_PLAFOND = "La maquette a dépassé la durée maximale (30 min) : elle a été arrêtée et la spec remise dans son état d'avant.";
 const MSG_INTERROMPU = "La maquette a été interrompue (redémarrage du serveur) : la spec a été remise dans son état d'avant.";
 /* Au démarrage : un run « en cours » n'a plus de processus derrière lui. */
@@ -203,6 +203,9 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     if (coupe()) return interrompu();
     const d = await documenterDatasets({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("datasets", d);
     if (d.erreurs) return echec(d.erreurs, "datasets");
+    if (coupe()) return interrompu();
+    const rl = await ecrireRelations({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("relations", rl);
+    if (rl.erreurs) return echec(rl.erreurs, "relations");
     if (coupe()) return interrompu();
     const f = await ecrireFluxEtControles({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("flux", f);
     if (f.erreurs) return echec(f.erreurs, "flux");

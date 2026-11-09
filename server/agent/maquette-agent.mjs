@@ -11,7 +11,7 @@ Règles :
 - Aucune déduction sans bloc hypothese : source, preuves, question. source vaut « agent » ou « memoire:<comptes|colonnes|logiciels>/<id> » ; cherche d'abord dans la mémoire commune (lire_memoire par colonne, lire_comptes par préfixe de compte) et cite-la quand elle s'applique.
 - preuves : des faits mesurés lus dans le profil (sommes, nombres de lignes, % de vides, taux de rapprochement), jamais une valeur d'une colonne personnelle.
 - question : ce qu'il faudra demander à l'adhérent, en langage d'exploitant, sans nom de colonne ni jargon.
-- Pour un dataset : renseigne desc, grain, role ; pii: true pour noms, prénoms, téléphones, adresses, e-mails, numéros de carte ; chaque sens déduit (unité, HT ou TTC, codes, règle d'exclusion) reçoit son hypothese. Retire (couverte: true) les questions automatiques auxquelles une hypothèse répond ; donne aux autres un reponse_type (codes, choix avec reponse_cible et options, exclure avec sql, libre en dernier recours).
+- Pour un dataset : renseigne desc, grain, role ; pii: true pour noms, prénoms, téléphones, adresses, e-mails, numéros de carte ; chaque sens déduit (unité, HT ou TTC, codes, règle d'exclusion) reçoit son hypothese. Retire (couverte: true) les questions automatiques auxquelles une hypothèse répond ; donne aux autres un reponse_type (codes, choix avec reponse_cible et options, exclure avec sql = condition des lignes gardées, libre en dernier recours).
 - Pour un flux : codes de catégorie pris dans le référentiel (lire_couverture) uniquement ; en codMode regles, une hypothese par règle de compte. Une source sans date par ligne (balance annuelle) n'alimente pas FAITS.
 - Pour les contrôles : au moins un par flux (ecart_somme, rapprochement, mensuel) avec porte_sur.
 - Ne cite jamais de nom de personne ni de numéro de carte. Tu n'invalides ni ne valides jamais une hypothèse : seul l'adhérent tranche.
@@ -24,10 +24,10 @@ export const creerBudget = (plafond = PLAFOND_JETONS) => ({ plafond, utilises: 0
 const MSG_PLAFOND = plafond => `Plafond de ${plafond.toLocaleString("fr-FR")} jetons atteint : la maquette s'arrête, la spec est vérifiée telle quelle.`;
 
 /* Une boucle bornée ; met à jour le budget. Renvoie {issue, resume?, tours, jetons} ou {erreurs} (passerelle, plafond). */
-async function tache({ llm, outils, utilisateur, budget }) {
+async function tache({ llm, outils, utilisateur, budget, finSur }) {
   if (budget.utilises >= budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
   let r;
-  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })), capture: budget.capture && (l => budget.capture({ ...l, cible: budget.cible })) }); }
+  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, finSur, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })), capture: budget.capture && (l => budget.capture({ ...l, cible: budget.cible })) }); }
   catch (e) { return { erreurs: [String(e?.message || "agent en échec")] }; }
   budget.utilises += r.jetons;
   if (r.issue === "jetons" || budget.utilises > budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
@@ -37,25 +37,39 @@ const suivi = (boucles, nom, r) => boucles.push({ cible: nom, issue: r.issue, to
 const bilan = (boucles, budget, erreurs) => ({ ...(erreurs ? { erreurs } : { ok: true }), boucles, jetons: budget.utilises });
 
 /* Mémoire commune lue côté serveur, une fois par colonne : évite autant d'appels du modèle. */
-function memoireDuDataset(espace, id) {
+function memoireDuDataset(espace, id, p) {
   try {
-    const p = espace.profilDataset(id), sortie = [];
+    const sortie = [];
     for (const c of p?.colonnes || []) { const e = espace.memoireColonne(c.nom); if (e?.length) sortie.push(`${c.nom} → ${JSON.stringify(e).slice(0, 300)}`); }
     return sortie.join(" ; ").slice(0, 3000);
   } catch { return ""; }
 }
 
-/* Un dataset à la fois : par défaut ceux qui n'ont pas encore de desc. */
+/* Un dataset à la fois, en un seul appel : le profil complet est dans la consigne, le modèle répond par un ecrire_dataset
+   (un second tour seulement si l'écriture est refusée). Par défaut : les datasets sans desc. */
 export async function documenterDatasets({ espace, racine, llm, rapporter = () => {}, budget = creerBudget(), ids }) {
   const cibles = ids || espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {})).filter(d => !String(d.desc || "").trim()).map(d => d.id);
-  const outils = creerOutilsMaquette({ espace, racine }), boucles = [];
+  const tous = creerOutilsMaquette({ espace, racine }), outils = { ecrire_dataset: tous.ecrire_dataset }, boucles = [];
   for (const [k, id] of cibles.entries()) {
     rapporter({ etape: "datasets", i: k + 1, n: cibles.length }); budget.cible = id;
-    const connus = memoireDuDataset(espace, id);
-    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset. Mémoire commune : ${connus || "aucune entrée pour ses colonnes (inutile de l'interroger)"}. Puis écris en deux appels ecrire_dataset : 1) desc, grain et TOUTES les colonnes ; 2) regles et questions. Datasets de l'adhérent : ${espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {}).id).join(", ")}. Ajoute ecrire_relation seulement si la cible est dans cette liste. Lis la réponse de l'outil : quand tout est documenté, appelle terminer. Ne renvoie jamais un appel identique.` });
+    const p = espace.profilDataset(id), connus = memoireDuDataset(espace, id, p);
+    const r = await tache({ llm, outils, budget, finSur: ["ecrire_dataset"], utilisateur: `Documente le dataset « ${id} ». Profil complet (sans valeurs des colonnes personnelles) : ${JSON.stringify(p).slice(0, 16000)}\nMémoire commune : ${connus || "aucune entrée pour ses colonnes"}.\nRéponds par UN SEUL appel ecrire_dataset qui contient tout : desc, grain, TOUTES les colonnes, regles et questions. Si l'outil refuse, corrige et rappelle-le.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, id, r);
   }
+  return bilan(boucles, budget);
+}
+
+/* Une boucle : les relations entre datasets, d'après un index compact (colonnes de tous les datasets). Moins de 2 datasets : aucun appel. */
+export async function ecrireRelations({ espace, racine, llm, rapporter = () => {}, budget = creerBudget() }) {
+  const boucles = [], index = [];
+  for (const f of espace.listYaml(espace.P("spec/datasets"))) { const d = espace.readYaml(f, {}); index.push(`${d.id} : ${(d.columns || []).map(c => `${c.name}${c.role === "key" || c.role === "fk" ? `(${c.role})` : ""}`).join(", ")}`); }
+  if (index.length < 2) return bilan(boucles, budget);
+  rapporter({ etape: "relations", i: 1, n: 1 }); budget.cible = "relations";
+  const tous = creerOutilsMaquette({ espace, racine }), outils = { ecrire_relation: tous.ecrire_relation, terminer: tous.terminer };
+  const r = await tache({ llm, outils, budget, utilisateur: `Datasets de l'adhérent et leurs colonnes :\n${index.join("\n").slice(0, 12000)}\nÉcris, en un seul tour, toutes les relations évidentes entre ces datasets (une colonne qui référence la clé d'un autre : véhicule, conducteur, client, compte…) avec ecrire_relation et son hypothese ; une seule relation par couple de colonnes. Puis appelle terminer. Sans relation évidente, appelle seulement terminer.` });
+  if (r.erreurs) return bilan(boucles, budget, r.erreurs);
+  suivi(boucles, "relations", r);
   return bilan(boucles, budget);
 }
 
