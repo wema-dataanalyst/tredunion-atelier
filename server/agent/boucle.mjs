@@ -1,6 +1,6 @@
 /* Boucle d'outils bornée : le modèle ne peut qu'appeler les outils fournis. */
 export async function boucle({ llm, systeme, utilisateur, outils, tours = 6, delaiMs = 30000, jetonsMax = 20000, now = Date.now, trace, capture }) {
-  const debut = now(); let jetons = 0, n = 0;
+  const debut = now(); let jetons = 0, n = 0, derniere = "", repetes = 0;
   const messages = [{ role: "user", content: utilisateur }];
   const defs = Object.values(outils).map(o => ({ type: "function", function: { name: o.nom, description: o.description, parameters: o.parametres } }));
   while (n < tours) {
@@ -17,8 +17,11 @@ export async function boucle({ llm, systeme, utilisateur, outils, tours = 6, del
       if (!o) res = { erreur: `outil inconnu : ${nom}` };
       else {
         let args; try { args = JSON.parse(a.function.arguments || "{}"); } catch { args = null; }
-        if (args == null || typeof args !== "object" || Array.isArray(args)) res = { erreur: "arguments illisibles (objet JSON attendu)" };
-        else { try { res = await o.executer(args); } catch { res = { erreur: "outil en échec" }; } }
+        const sig = `${nom}:${a.function?.arguments}`;
+        if (sig === derniere) { repetes++; if (repetes >= 2) return { issue: "repetition", tours: n, jetons }; res = { erreur: "appel identique au précédent : ne le répète pas, passe à l'étape suivante ou appelle terminer" }; }
+        else if (args == null || typeof args !== "object" || Array.isArray(args)) res = { erreur: "arguments illisibles (objet JSON attendu)" };
+        else { repetes = 0; try { res = await o.executer(args); } catch { res = { erreur: "outil en échec" }; } }
+        derniere = sig;
       }
       const taille = JSON.stringify(res ?? null).length;
       if (trace) try { const err = res?.erreur ?? res?.erreurs; trace({ outil: String(nom).slice(0, 40), tour: n, jetons, taille, ...(err ? { erreur: String(Array.isArray(err) ? err[0] : err).slice(0, 160) } : {}) }); } catch { /* le journal ne doit jamais casser la boucle */ }

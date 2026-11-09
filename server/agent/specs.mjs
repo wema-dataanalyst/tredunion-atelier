@@ -219,7 +219,14 @@ export function ecrireDataset(racine, entree) {
   const fusion = { ...doc.toJS(), id: e.id };
   const pii = erreursPii(racine, { desc: e.desc, grain: e.grain, colonnes: e.colonnes, regles: e.regles, questions: e.questions }, [fusion]);
   if (pii.length) return { erreurs: pii };
-  ecrire(f, doc); return { ok: true };
+  const avant = fs.readFileSync(f, "utf8"), apres = doc.toString();
+  if (avant === apres) return { ok: true, rien_de_nouveau: true, ...etatDataset(fusion), suite: "Identique à l'existant : ne le renvoie pas ; complète ce qui manque ou appelle terminer." };
+  ecrire(f, doc); return { ok: true, ...etatDataset(fusion) };
+}
+/* Ce qui reste à documenter : retour de l'outil, pour que le modèle ne répète pas le même appel. */
+function etatDataset(d) {
+  const cols = d.columns || [], sans = cols.filter(c => !String(c.desc || "").trim()).map(c => c.name);
+  return { colonnes_documentees: `${cols.length - sans.length}/${cols.length}`, ...(sans.length ? { colonnes_sans_desc: sans.slice(0, 40) } : {}), desc: !!String(d.desc || "").trim(), grain: !!String(d.grain || "").trim(), regles: (d.rules || []).length, questions_ouvertes: (d.questions || []).filter(q => !q.done).length };
 }
 
 /* ───── flux ───── */

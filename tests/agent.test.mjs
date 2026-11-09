@@ -34,12 +34,18 @@ test("boucle : une exception d'outil devient une erreur d'outil, la réponse tex
 });
 
 test("boucle : plafonds de tours, de jetons et de temps", async () => {
-  const boucleInfinie = n => fauxLlm(Array.from({ length: n }, () => appelOutil("echo", { x: "a" })));
+  const boucleInfinie = n => fauxLlm(Array.from({ length: n }, (_, i) => appelOutil("echo", { x: i })));
   assert.equal((await boucle({ llm: boucleInfinie(10), systeme: "S", utilisateur: "U", outils: { echo: outilEcho }, tours: 3 })).issue, "tours");
-  const gros = fauxLlm(Array.from({ length: 5 }, () => ({ ...appelOutil("echo", { x: "a" }), usage: { total_tokens: 9000 } })));
+  const gros = fauxLlm(Array.from({ length: 5 }, (_, i) => ({ ...appelOutil("echo", { x: i }), usage: { total_tokens: 9000 } })));
   assert.equal((await boucle({ llm: gros, systeme: "S", utilisateur: "U", outils: { echo: outilEcho }, jetonsMax: 20000 })).issue, "jetons");
-  let t = 0; const lent = fauxLlm(Array.from({ length: 5 }, () => () => { t += 20000; return appelOutil("echo", { x: "a" }); }));
+  let t = 0; const lent = fauxLlm(Array.from({ length: 5 }, (_, i) => () => { t += 20000; return appelOutil("echo", { x: i }); }));
   assert.equal((await boucle({ llm: lent, systeme: "S", utilisateur: "U", outils: { echo: outilEcho }, delaiMs: 30000, now: () => t })).issue, "delai");
+});
+
+test("boucle : un appel identique répété est refusé puis la boucle s'arrête", async () => {
+  const llm = fauxLlm(Array.from({ length: 6 }, () => appelOutil("echo", { x: "a" })));
+  const r = await boucle({ llm, systeme: "S", utilisateur: "U", outils: { echo: outilEcho }, tours: 6 });
+  assert.equal(r.issue, "repetition"); assert.equal(r.tours, 3);
 });
 
 test("decrire : une ligne lisible par opération", () => {
@@ -82,7 +88,7 @@ test("interpreter : opération invalide renvoyée au modèle, qui corrige", asyn
 test("interpreter : précision, échec de la boucle, texte vide ou trop long, question inconnue : sans appel inutile", async () => {
   const espace = ouvrirEspace(racineExemple());
   assert.equal((await interpreter({ espace, llm: fauxLlm([appelOutil("demander_precision", { question: "Quelle colonne ?" })]), id: ID, texte: "hum" })).precision, "Quelle colonne ?");
-  const echec = await interpreter({ espace, llm: fauxLlm(Array.from({ length: 8 }, () => appelOutil("lire_question", {}))), id: ID, texte: "hum" });
+  const echec = await interpreter({ espace, llm: fauxLlm(Array.from({ length: 8 }, (_, i) => appelOutil("lire_question", { n: i }))), id: ID, texte: "hum" });
   assert.ok(echec.erreurs && echec.meta.issue === "tours");
   const sans = fauxLlm([]);
   for (const texte of ["", "   ", "x".repeat(2001)]) assert.ok((await interpreter({ espace, llm: sans, id: ID, texte })).erreurs);

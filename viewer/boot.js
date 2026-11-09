@@ -72,6 +72,8 @@ async function suivreMaquette(){
   finally{ majMaq=false; if(majMaqEncore){ majMaqEncore=false; suivreMaquette(); } }
 }
 es.addEventListener("maquette",()=>suivreMaquette());
+/* Filet de sécurité : si le flux d'événements ne livre rien (proxy, onglet en veille, trop de flux ouverts), on interroge l'état léger toutes les 2 s tant que la maquette tourne. */
+setInterval(()=>{ const m=S.vue&&S.vue.maquette; if(m&&!m.fin&&S.tab==="q"&&!document.hidden) suivreMaquette(); },2000);
 es.addEventListener("apprentissage",()=>loadState().then(()=>{ if(S.tab==="adh") renderAdh(); }));
 es.addEventListener("code",()=>location.reload());
 es.onopen=()=>{ if(S.st&&!S.online){ S.online=true; loadState(); } };

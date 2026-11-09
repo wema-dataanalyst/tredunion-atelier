@@ -106,3 +106,16 @@ test("arrêt : le run est annulé, aucune écriture dans spec/ après close", as
   await new Promise(ok => setTimeout(ok, 1200));
   assert.deepEqual(lire(spec), avant);
 });
+
+test("GET /api/maquette : état léger avec journal, admin seul", async t => {
+  const m = await monter(t, { llm: termine(10, 200) }); brut(m, "alpha");
+  const admin = (await m.connecter("admin-michel")).cookie, alpha = (await m.connecter("alpha")).cookie;
+  assert.equal((await get(m, AUCUN, alpha)).status, 403);
+  assert.equal((await post(m, AUCUN, admin, {})).status, 202);
+  const r = await get(m, AUCUN, admin); assert.equal(r.status, 200);
+  const j = await r.json(); assert.equal(j.enCours, true); assert.equal(j.maquette.fin, null);
+  await m.srv.attendreMaquette("alpha");
+  const f = await (await get(m, AUCUN, admin)).json(); assert.equal(f.enCours, false); assert.equal(f.maquette.ok, true);
+  assert.ok(f.maquette.journal.length > 3, "le journal est transmis");
+  assert.ok(f.maquette.journal.some(l => /Collecte/.test(l.texte)));
+});

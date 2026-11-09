@@ -8,7 +8,7 @@ export function creerLlm({ baseUrl = "https://llm.wema.fr", cle, modele, fetchIm
         r = await fetchImpl(url, {
           method: "POST", signal: AbortSignal.timeout(Math.max(1, Math.min(delaiMs, d ?? delaiMs))),
           headers: { "content-type": "application/json", authorization: `Bearer ${cle}` },
-          body: JSON.stringify({ model: modele, temperature: 0, max_tokens: 1500, messages: [{ role: "system", content: systeme }, ...messages], tools: outils, tool_choice: "auto" }),
+          body: JSON.stringify({ model: modele, temperature: 0, max_tokens: 3000, messages: [{ role: "system", content: systeme }, ...messages], tools: outils, tool_choice: "auto" }),
         });
       } catch (e) { throw new Error(e?.name === "TimeoutError" ? "passerelle LLM : délai dépassé" : "passerelle LLM injoignable"); }
       if (!r.ok) throw new Error(`passerelle LLM : HTTP ${r.status}`);

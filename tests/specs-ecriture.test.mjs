@@ -22,7 +22,7 @@ test("ecrireDataset : fusionne, garde commentaires et ordre, force valide/refuse
   const res = ecrireDataset(r, { id: "tms_missions", desc: "Ordres du TMS (nouvelle desc)",
     colonnes: [{ name: "ca_ht", desc: "Chiffre d'affaires de l'ordre", role: "measure", type: "decimal", decimalComma: true, hypothese: hyp() }],
     regles: [{ text: "Exclure les annulés", sql: "statut <> 'A'" }] });
-  assert.deepEqual(res, { ok: true });
+  assert.equal(res.ok, true);
   const apres = lire(r, f);
   assert.match(apres, /^# Dataset bronze tms_missions\n/);
   assert.ok(apres.indexOf("name: num_ot") < apres.indexOf("name: ca_ht"));
@@ -49,7 +49,7 @@ test("ecrireDataset : questions couvertes retirées, autres typées, type de ré
   const r = racineExemple(); const f = "spec/datasets/tms_missions.yml";
   assert.ok(ecrireDataset(r, { id: "tms_missions", questions: [{ id: "q1", reponse_type: "magie" }] }).erreurs);
   const res = ecrireDataset(r, { id: "tms_missions", questions: [{ id: "q1", couverte: true }, { id: "q2", reponse_type: "confirmer" }] });
-  assert.deepEqual(res, { ok: true });
+  assert.equal(res.ok, true);
   const q = YAML.parse(lire(r, f)).questions;
   assert.ok(!q.some(x => x.id === "q1")); assert.equal(q.find(x => x.id === "q2").reponse_type, "confirmer");
   assert.ok(ecrireDataset(r, { id: "tms_missions", questions: [{ id: "q99", reponse_type: "libre" }] }).erreurs);
@@ -63,13 +63,13 @@ test("pii : une valeur d'une colonne personnelle dans un texte est refusée, san
   const res = ecrireDataset(r, { id: "tms_conducteurs", desc: `Conducteurs dont ${nom} le chef` });
   assert.ok(res.erreurs); assert.ok(!JSON.stringify(res).includes(nom));
   assert.ok(ecrireDataset(r, { id: "tms_conducteurs", colonnes: [{ name: "code_cond", hypothese: hyp({ preuves: [`vu ${nom.toUpperCase()}`] }) }] }).erreurs);
-  assert.deepEqual(ecrireDataset(r, { id: "tms_conducteurs", desc: "Référentiel des conducteurs" }), { ok: true });
+  assert.equal(ecrireDataset(r, { id: "tms_conducteurs", desc: "Référentiel des conducteurs" }).ok, true);
 });
 
 test("ecrireFlux : crée un flux valide, check reste à 0 erreur", () => {
   const r = racineExemple();
   const res = ecrireFlux(r, { id: "f9", ds: "tms_missions", codMode: "fixe", cod: "DISTANCE", lib: "Km prévus", valeur: "km_prevus", agg: "sum", champ: "MontantReel", unite: "km", date: "date_charg", hypothese: hyp() });
-  assert.deepEqual(res, { ok: true });
+  assert.equal(res.ok, true);
   const fl = YAML.parse(lire(r, "spec/flux/f9.yml"));
   assert.equal(fl.hypothese.valide, false); assert.equal(fl.cod, "DISTANCE");
   const c = check(r); assert.equal(c.status, 0, c.stdout + c.stderr);
@@ -78,7 +78,7 @@ test("ecrireFlux : crée un flux valide, check reste à 0 erreur", () => {
 test("ecrireFlux : fusion sur flux existant garde les commentaires et les règles", () => {
   const r = racineExemple(); const f = "spec/flux/f1.yml";
   const res = ecrireFlux(r, { id: "f1", note: "Balance au mois", rules: [{ prefix: "7061", cod: "CA TPS", lib: "CA transport (maj)" }, { prefix: "7064", cod: "CA TOTAL", lib: "CA divers" }] });
-  assert.deepEqual(res, { ok: true });
+  assert.equal(res.ok, true);
   const t = lire(r, f); assert.match(t, /^# Flux f1/);
   const fl = YAML.parse(t); assert.equal(fl.rules.find(x => x.prefix === "7061").lib, "CA transport (maj)");
   assert.ok(fl.rules.some(x => x.prefix === "7064")); assert.ok(fl.rules.some(x => x.prefix === "6041")); assert.equal(fl.note, "Balance au mois");

@@ -36,13 +36,23 @@ async function tache({ llm, outils, utilisateur, budget }) {
 const suivi = (boucles, nom, r) => boucles.push({ cible: nom, issue: r.issue, tours: r.tours, jetons: r.jetons });
 const bilan = (boucles, budget, erreurs) => ({ ...(erreurs ? { erreurs } : { ok: true }), boucles, jetons: budget.utilises });
 
+/* Mémoire commune lue côté serveur, une fois par colonne : évite autant d'appels du modèle. */
+function memoireDuDataset(espace, id) {
+  try {
+    const p = espace.profilDataset(id), sortie = [];
+    for (const c of p?.colonnes || []) { const e = espace.memoireColonne(c.nom); if (e?.length) sortie.push(`${c.nom} → ${JSON.stringify(e).slice(0, 300)}`); }
+    return sortie.join(" ; ").slice(0, 3000);
+  } catch { return ""; }
+}
+
 /* Un dataset à la fois : par défaut ceux qui n'ont pas encore de desc. */
 export async function documenterDatasets({ espace, racine, llm, rapporter = () => {}, budget = creerBudget(), ids }) {
   const cibles = ids || espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {})).filter(d => !String(d.desc || "").trim()).map(d => d.id);
   const outils = creerOutilsMaquette({ espace, racine }), boucles = [];
   for (const [k, id] of cibles.entries()) {
     rapporter({ etape: "datasets", i: k + 1, n: cibles.length }); budget.cible = id;
-    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset, cherche dans la mémoire commune, puis écris desc, grain, toutes les colonnes, les règles et les questions en UN SEUL appel ecrire_dataset (deux au plus si l'écriture est refusée et à corriger ; jamais une colonne par appel), et ecrire_relation si une relation est évidente. Dès que l'écriture est acceptée ({ok: true}), appelle terminer : ne relis pas et ne réécris pas.` });
+    const connus = memoireDuDataset(espace, id);
+    const r = await tache({ llm, outils, budget, utilisateur: `Documente le dataset « ${id} » : lis-le avec lire_dataset. Mémoire commune : ${connus || "aucune entrée pour ses colonnes (inutile de l'interroger)"}. Puis écris en deux appels ecrire_dataset : 1) desc, grain et TOUTES les colonnes ; 2) regles et questions. Ajoute ecrire_relation si une relation est évidente. Lis la réponse de l'outil : quand tout est documenté, appelle terminer. Ne renvoie jamais un appel identique.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, id, r);
   }
