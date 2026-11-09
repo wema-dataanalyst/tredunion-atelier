@@ -7,7 +7,7 @@ import { parseEnv } from "node:util";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { valeursPiiAdherent } from "./agent/specs.mjs";
-import { documenterDatasets, ecrireFluxEtControles, proposerPerimetre, proposerLibelles, proposerMesures, creerBudget } from "./agent/maquette-agent.mjs";
+import { TOURS, documenterDatasets, ecrireFluxEtControles, proposerPerimetre, proposerLibelles, proposerMesures, creerBudget } from "./agent/maquette-agent.mjs";
 
 const ATELIER = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../tools/atelier.mjs");
 const DELAI_ENFANT_MS = 15 * 60 * 1000, PLAFOND_RUN_MS = 30 * 60 * 1000, SORTIE_MAX = 1500;
@@ -147,7 +147,12 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
   let st = { etape: "copie", i: 0, n: 0, debut: iso(now), fin: null, ok: null, erreurs: [], resume: null };
   const maj = patch => { st = { ...st, ...patch }; ecrireStatut(racine, st); rapporter({ ...st }); };
   // Journal en direct (200 lignes au plus) : affiché à l'admin pendant le run, jamais de valeur pii ni de secret.
-  const note = texte => maj({ journal: [...(st.journal || []), { t: iso(now).slice(11), texte: masquer(nettoyer(texte, secrets), piiJournal(racine)).slice(0, 300) }].slice(-200) });
+  const note = texte => {
+    const t = masquer(nettoyer(texte, secrets), piiJournal(racine)).slice(0, 300), j = st.journal || [], der = j[j.length - 1];
+    // Une même ligne répétée (sept lire_memoire d'affilée) devient une seule ligne « ×7 ».
+    if (der && der.base === t) { const x = (der.x || 1) + 1; return maj({ journal: [...j.slice(0, -1), { ...der, texte: `${t} ×${x}`, x }] }); }
+    maj({ journal: [...j, { t: iso(now).slice(11), texte: t, base: t }].slice(-200) });
+  };
   const etapeAgent = ({ etape, i, n }) => { if (etape !== st.etape || i !== st.i) note(`${LIB_ETAPE[etape] || etape}${n > 1 ? ` ${i}/${n}` : ""}`); maj({ etape, i, n }); };
   const boucles = (etape, r) => (r.boucles || []).forEach(b => tracer(racine, now, { etape, cible: b.cible, issue: b.issue, tours: b.tours, jetons: b.jetons }));
   const secrets = secretsDe(racine); let sauve = false;
@@ -188,7 +193,7 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     }
 
     const budget = creerBudget();
-    budget.trace = l => { tracer(racine, now, { etape: "outil", ...l }); note(`  ${l.cible ? l.cible + " : " : ""}${l.outil}${l.erreur ? ` → ${l.erreur}` : ""}`); };
+    budget.trace = l => { tracer(racine, now, { etape: "outil", ...l }); note(`  ${l.cible ? l.cible + " : " : ""}${l.outil} (tour ${l.tour}/${TOURS})${l.erreur ? ` → ${l.erreur}` : ""}`); };
     if (coupe()) return interrompu();
     const d = await documenterDatasets({ espace, racine, llm: llmCoupe, rapporter: etapeAgent, budget }); boucles("datasets", d);
     if (d.erreurs) return echec(d.erreurs, "datasets");

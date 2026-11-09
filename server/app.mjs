@@ -199,6 +199,10 @@ export function creerApp({ adherents, comptes, cookieSecure = false, trustProxy 
           const { meta, ...sortie } = r; json(res, sortie.erreurs ? 400 : 200, sortie);
         });
       }
+      if (p === "/api/maquette" && req.method === "GET") { // état léger pour le suivi en direct : évite de recharger toute la spec à chaque ligne du journal
+        if (s.role !== "admin") return refus(res, 403, "réservé à l'administrateur");
+        return json(res, 200, { maquette: vueMaquette(id), enCours: runs.has(id) });
+      }
       if (p === "/api/maquette" && req.method === "POST") {
         req.resume();
         if (s.role !== "admin") return refus(res, 403, "réservé à l'administrateur");

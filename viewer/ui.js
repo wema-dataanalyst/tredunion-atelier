@@ -306,6 +306,8 @@ function etapeMaquette(m){ const k=m.n?` ${m.i}/${m.n}`:"";
 function journalMaquette(m,replie){ const j=m.journal||[]; if(!j.length) return "";
   const corps=`<pre class="maq-journal" tabindex="0" aria-label="Journal de la maquette">${j.map(l=>`${esc(l.t)}  ${esc(l.texte)}`).join("\n")}</pre>`;
   return replie?`<details class="maq-det"><summary>Journal (${j.length} lignes)</summary>${corps}</details>`:corps; }
+/* Suivi en direct : met à jour le seul bloc maquette (pas toute la spec ni les formulaires de questions en cours de saisie). */
+function majBlocMaquette(){ const b=document.getElementById("maq-bloc"); if(!b||!S.vue) return false; b.outerHTML=blocMaquette(); suivreJournal(); return true; }
 function suivreJournal(){ const p=document.querySelector(".maq-journal"); if(!p) return; if(S.journalSuit!==false) p.scrollTop=p.scrollHeight;
   p.addEventListener("scroll",()=>{ S.journalSuit=p.scrollTop+p.clientHeight>=p.scrollHeight-8; }); }
 function blocMaquette(){
@@ -316,7 +318,7 @@ function blocMaquette(){
   else if(m&&m.ok){ const r=m.resume||{}, h=r.hypotheses||{};
     etat=`<div class="maq-ok"><p>Maquette terminée : mesures alimentées ${esc(r.mesuresAvant)} → ${esc(r.mesuresApres)}.</p><p>Hypothèses à valider : ${esc(h.basse)} basses · ${esc(h.moyenne)} moyennes · ${esc(h.haute)} hautes.</p><p>Contrôles en écart : ${esc(r.controlesEnEcart)}. ${r.fiche?`<a href="/api/livrable?adherent=${encodeURIComponent(adh)}&f=${encodeURIComponent(String(r.fiche).replace(/^generated\//,""))}" download>Fiche de séance</a>`:""}</p></div>`; }
   else if(m) etat=`<div class="maq-ko"><p><b>La maquette a échoué : la spec est restée telle qu'avant.</b></p><ul>${(m.erreurs||[]).map(e=>`<li>${esc(e)}</li>`).join("")}</ul></div>`+journalMaquette(m,true);
-  return `<section class="maq"><h3>Maquette automatique</h3><p class="note">L'agent lit les exports, documente les datasets et écrit les flux. Rien n'est gardé si la vérification échoue.</p>
+  return `<section class="maq" id="maq-bloc"><h3>Maquette automatique</h3><p class="note">L'agent lit les exports, documente les datasets et écrit les flux. Rien n'est gardé si la vérification échoue.</p>
    <button class="btn" type="button" data-maq="lancer"${v.agent&&!enCours?"":" disabled"}>Lancer la maquette</button>${v.agent?"":' <span class="note">L\'agent n\'est pas disponible.</span>'}${etat}</section>`; }
 $("#qv").addEventListener("click",async e=>{ const b=e.target.closest("[data-maq]"); if(!b||b.disabled) return; b.disabled=true; S.maqErr=null;
   try{ const r=await fetch("/api/maquette"+location.search,{method:"POST",headers:{"content-type":"application/json"},body:"{}"}); if(!r.ok){ let j={}; try{ j=await r.json(); }catch(_){} S.maqErr=(j.erreurs||[j.erreur||"Lancement impossible."]).join(" · "); } }

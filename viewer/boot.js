@@ -59,7 +59,19 @@ const es=new EventSource("/events"+location.search);
 es.addEventListener("spec",()=>loadState());
 es.addEventListener("statut",()=>{ if(S.tab==="adh") renderAdh(); });
 es.addEventListener("adherents",()=>{ if(S.tab==="adh"&&(!N||N.resultat)) renderAdh(); });
-es.addEventListener("maquette",()=>loadState());
+/* Maquette : une requête légère à la fois (au plus une en vol, une de plus en attente), état complet une fois le run terminé. */
+let majMaq=false, majMaqEncore=false;
+async function suivreMaquette(){
+  if(majMaq){ majMaqEncore=true; return; } majMaq=true;
+  try{
+    const r=await fetch("/api/maquette"+location.search,{cache:"no-store"}); if(!r.ok) throw new Error("statut");
+    const j=await r.json(), fini=!!(S.vue&&S.vue.maquette&&!S.vue.maquette.fin)&&j.maquette&&j.maquette.fin;
+    if(S.vue) S.vue.maquette=j.maquette;
+    if(fini||!(S.tab==="q"&&majBlocMaquette())) await loadState();
+  }catch(_){ await loadState(); }
+  finally{ majMaq=false; if(majMaqEncore){ majMaqEncore=false; suivreMaquette(); } }
+}
+es.addEventListener("maquette",()=>suivreMaquette());
 es.addEventListener("apprentissage",()=>loadState().then(()=>{ if(S.tab==="adh") renderAdh(); }));
 es.addEventListener("code",()=>location.reload());
 es.onopen=()=>{ if(S.st&&!S.online){ S.online=true; loadState(); } };
