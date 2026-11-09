@@ -1,0 +1,49 @@
+# Dataset bronze tms_conducteurs
+id: tms_conducteurs
+societe: kf
+file: data/bronze/kf/tms_conducteurs.csv
+desc: Référentiel conducteurs du TMS
+grain: Un conducteur
+columns:
+  - name: code_cond
+    type: text
+    role: key
+    desc: Code conducteur interne au TMS
+  - name: nom
+    type: text
+    role: attr
+    desc: Nom
+    pii: true
+  - name: prenom
+    type: text
+    role: attr
+    desc: Prénom
+    pii: true
+  - name: matricule_paie
+    type: text
+    role: attr
+    desc: Matricule dans le logiciel de paie
+  - name: date_entree
+    type: date
+    role: attr
+    desc: Date d'entrée dans l'entreprise
+    format: DD/MM/YYYY
+  - name: type_contrat
+    type: text
+    role: attr
+    desc: Type de contrat
+    codes:
+      CDI: CDI
+      CDD: CDD
+      MAD: Mise à disposition
+rules: []
+questions:
+  - id: q1
+    text: "date_entree : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "type_contrat : valeurs CDI, MAD, CDD. Que signifie chacune ? Faut-il en exclure ?"
+    done: true
+    answer: MAD = chauffeur de Rhin Logistique mis à disposition ; son matricule de paie est celui de Rhin Logistique.
+cases: []

@@ -1,0 +1,26 @@
+/* Charte WeMa 2024 : polices servies localement (/fonts/), tokens --wm-*, alias des variables de l'atelier */
+@font-face{font-family:Montserrat;font-weight:700;font-display:swap;src:url(/fonts/montserrat-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:Montserrat;font-weight:800;font-display:swap;src:url(/fonts/montserrat-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:400;font-display:swap;src:url(/fonts/nunito-sans-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:600;font-display:swap;src:url(/fonts/nunito-sans-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:700;font-display:swap;src:url(/fonts/nunito-sans-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:400;font-display:swap;src:url(/fonts/jetbrains-mono-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format("woff2")}
+:root{
+  --wm-marine:#223260; --wm-marine-deep:#1B2851; --wm-violet:#59358B; --wm-magenta:#E5007D; --wm-magenta-dark:#B80064; --wm-magenta-veil:#FDEAF4;
+  --wm-success:#54A932; --wm-success-ink:#3C7A24; --wm-success-bg:#EEF7E9; --wm-error:#BD1C1D; --wm-error-bg:#FBEDED;
+  --wm-warning:#EF7D00; --wm-warning-ink:#A85700; --wm-warning-bg:#FEF3E6; --wm-info:#4A96D1; --wm-info-bg:#EDF4FB;
+  --wm-bg:#F4F6FA; --wm-ink-soft:#5C6784; --wm-border:#DDE3EF; --wm-border-hair:#EDF1F7;
+  --wm-gradient-side:linear-gradient(168deg,#1B2851 0%,#223260 45%,#59358B 100%); --wm-gradient-pill:linear-gradient(135deg,#E5007D 0%,#C0006A 100%);
+  --wm-radius-card:14px; --wm-shadow:0 1px 3px rgba(34,50,96,.06),0 6px 18px rgba(34,50,96,.06);
+  --wm-font-heading:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  /* alias : les composants de l'atelier lisent ces variables */
+  --bg:var(--wm-bg); --surface:#FFFFFF; --surface-2:#F8F9FC; --line:var(--wm-border); --line-2:var(--wm-border-hair);
+  --fg:var(--wm-marine); --muted:var(--wm-ink-soft); --accent:var(--wm-magenta); --accent-fg:#FFFFFF;
+  --soc-0:var(--wm-info); --soc-1:var(--wm-warning-ink); --soc-2:var(--wm-violet); --soc-3:var(--wm-success-ink);
+  --gold:#A85700; --gold-soft:var(--wm-warning-bg);
+  --ok:var(--wm-success-ink); --warn:var(--wm-warning-ink); --bad:var(--wm-error);
+  --grid:#E3E8F2; --shadow:var(--wm-shadow);
+  --f-ui:"Nunito Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}

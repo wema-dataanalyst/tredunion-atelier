@@ -1,0 +1,35 @@
+{
+  "name": "tredunion-atelier",
+  "version": "0.1.0",
+  "description": "Atelier silver → gold Tredunion : spec YAML pilotée par un agent Cursor, prévisualisation en direct",
+  "scripts": {
+    "serve": "node tools/atelier.mjs serve",
+    "check": "node tools/atelier.mjs check",
+    "build": "node tools/atelier.mjs build",
+    "questions": "node tools/atelier.mjs questions",
+    "question": "node tools/atelier.mjs question",
+    "profil": "node tools/atelier.mjs profil",
+    "exemple": "node tools/atelier.mjs exemple",
+    "reset": "node tools/atelier.mjs reset",
+    "couverture": "node tools/atelier.mjs couverture",
+    "normaliser": "node tools/atelier.mjs normaliser",
+    "controles": "node tools/atelier.mjs controles",
+    "collecte": "node tools/atelier.mjs collecte",
+    "maquette": "node tools/atelier.mjs maquette",
+    "apprendre": "node tools/atelier.mjs apprendre",
+    "memoire": "node tools/atelier.mjs memoire",
+    "evaluer": "node tools/atelier.mjs evaluer",
+    "compte": "node tools/atelier.mjs compte",
+    "serveur": "node server/app.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "read-excel-file": "^9.3.14",
+    "yaml": "^2.8.1"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,713 @@
+version: 2
+
+sources:
+  - name: bronze_eurotranschanet
+    description: "Euro Trans Chanet — Akanea, Sage 100, COFI, Silae"
+    schema: bronze_eurotranschanet
+    tables:
+      - name: carburant_cofi_consommations_tipp_detail
+        description: ""
+      - name: carburant_cofi_etat_synthese_detail
+        description: ""
+      - name: carburant_cofi_table1_detailconso
+        description: ""
+      - name: carburant_export
+        description: ""
+      - name: carburant_table
+        description: "Pleins de carburant 2025 (export COFI, mêmes lignes que COFI_Table1_DetailConso)"
+      - name: carburant_table1
+        description: "Rangé dans Carburant, mais colonnes identiques à l'export Entretien Tabletotalcout : famille « Consommation carburants » uniquement"
+      - name: carburant_table3
+        description: ""
+      - name: comptabilite_balance
+        description: "Balance des comptes Sage 100, exercice 2025 en un seul bloc (période dans le .meta.json)"
+      - name: comptabilite_balance_des_tiers
+        description: ""
+      - name: comptabilite_plan_comptable
+        description: ""
+      - name: comptabilite_plan_comptable_des_tiers
+        description: ""
+      - name: entretien_tabletotalcout
+        description: "Coûts par véhicule 2025 (entretien, péages, carburant, financement…)"
+      - name: paie_silae_cout_salariaux
+        description: "Coûts salariaux Silae par salarié, export de janvier 2025 seulement"
+      - name: tms_akanea
+        description: "Ordres de transport 2025 exportés d'Akanea (feuille Suivi)"
+      - name: tms_akanea_donnees_activites_achats
+        description: ""
+      - name: tms_akanea_donnees_activites_ventes
+        description: ""
+      - name: tms_akanea_donnees_articles
+        description: ""
+      - name: tms_akanea_donnees_tiers
+        description: ""
+
+models:
+  - name: stg_carburant_cofi_consommations_tipp_detail
+    description: ""
+    columns:
+      - name: date
+        description: ""
+      - name: vehicule
+        description: ""
+      - name: pays
+        description: ""
+      - name: montant_ht
+        description: ""
+      - name: quantite
+        description: ""
+      - name: kms_compteur
+        description: ""
+      - name: petrolier
+        description: ""
+  - name: stg_carburant_cofi_etat_synthese_detail
+    description: ""
+    columns:
+      - name: date
+        description: ""
+      - name: materiel
+        description: ""
+      - name: famille
+        description: ""
+      - name: nature_operation
+        description: ""
+      - name: cout_total
+        description: ""
+      - name: couts_main_d_oeuvre
+        description: ""
+      - name: couts_matieres
+        description: ""
+      - name: couts_divers
+        description: ""
+      - name: observations
+        description: ""
+  - name: stg_carburant_cofi_table1_detailconso
+    description: ""
+    columns:
+      - name: petrolier
+        description: ""
+      - name: date
+        description: ""
+      - name: vehicule
+        description: ""
+      - name: quantite
+        description: ""
+      - name: chauffeur
+        description: ""
+      - name: produit_consomme
+        description: ""
+      - name: montant_ht
+        description: ""
+      - name: compteur
+        description: ""
+      - name: n_bon
+        description: ""
+  - name: stg_carburant_export
+    description: ""
+    columns:
+      - name: date
+        description: ""
+      - name: materiel
+        description: ""
+      - name: pays
+        description: ""
+      - name: montant_ht
+        description: ""
+      - name: quantite
+        description: ""
+      - name: kms_compteur
+        description: ""
+      - name: region
+        description: ""
+      - name: petrolier
+        description: ""
+  - name: stg_carburant_table
+    description: "Pleins de carburant 2025 (export COFI, mêmes lignes que COFI_Table1_DetailConso) Grain : Un plein (bon) par ligne"
+    columns:
+      - name: petrolier
+        description: "Pétrolier ou réseau de la carte"
+      - name: date_heure
+        description: "Date du plein"
+      - name: code_parc
+        description: "Numéro de parc du véhicule"
+      - name: materiel
+        description: "Immatriculation du véhicule"
+      - name: n_carte_import
+        description: ""
+      - name: marque
+        description: ""
+      - name: modele
+        description: ""
+      - name: plein_partiel
+        description: ""
+      - name: quantite
+        description: "Quantité livrée (litres d'après le nom de produit GO, à confirmer)"
+      - name: chauffeur
+        description: ""
+      - name: n_carte_import_2
+        description: ""
+      - name: produit_consomme
+        description: "Produit (GO sur toutes les lignes)"
+      - name: montant_ht
+        description: "Montant hors taxe du plein, en €"
+      - name: compteur
+        description: "Kilométrage compteur au plein"
+      - name: n_bon
+        description: "Numéro de bon"
+        data_tests:
+          - unique
+          - not_null
+      - name: reference_import
+        description: ""
+      - name: agence
+        description: ""
+      - name: site
+        description: ""
+      - name: activite
+        description: ""
+      - name: achat
+        description: ""
+      - name: vente
+        description: ""
+      - name: compta
+        description: ""
+      - name: fichier_importe
+        description: ""
+      - name: code_import
+        description: ""
+      - name: compteur_importe
+        description: ""
+      - name: observations
+        description: ""
+      - name: conso_theo
+        description: ""
+      - name: pays
+        description: ""
+      - name: region
+        description: ""
+  - name: stg_carburant_table1
+    description: "Rangé dans Carburant, mais colonnes identiques à l'export Entretien Tabletotalcout : famille « Consommation carburants » uniquement Grain : Une opération de coût par ligne"
+    columns:
+      - name: date
+        description: ""
+      - name: materiel
+        description: ""
+      - name: famille_rub
+        description: ""
+      - name: nature_operation
+        description: ""
+      - name: cout_total
+        description: ""
+      - name: cout_mo
+        description: ""
+      - name: cout_mat
+        description: ""
+      - name: cout_div
+        description: ""
+      - name: observations
+        description: ""
+      - name: doc
+        description: ""
+      - name: personnel
+        description: ""
+      - name: operateur_fournisseur_petrolier
+        description: ""
+      - name: kms_parcourus_peage
+        description: ""
+      - name: cnr
+        description: ""
+  - name: stg_carburant_table3
+    description: ""
+    columns:
+      - name: vehicule
+        description: ""
+      - name: date
+        description: ""
+      - name: unite
+        description: ""
+      - name: produit_conso
+        description: ""
+      - name: qte_soute
+        description: ""
+      - name: qte_route
+        description: ""
+      - name: compteur
+        description: ""
+      - name: u_cptr
+        description: ""
+      - name: kms_parc
+        description: ""
+      - name: consom
+        description: ""
+      - name: cumul_kms
+        description: ""
+      - name: cumul_qte
+        description: ""
+      - name: cumul_conso
+        description: ""
+      - name: chauffeur
+        description: ""
+      - name: petrolier
+        description: ""
+  - name: stg_comptabilite_balance
+    description: "Balance des comptes Sage 100, exercice 2025 en un seul bloc (période dans le .meta.json) Grain : Un compte général par ligne, cumul de l'exercice"
+    columns:
+      - name: numero_compte
+        description: "Numéro de compte général (8 chiffres ; 1 ou 2 chiffres sur les lignes de total)"
+        data_tests:
+          - unique
+          - not_null
+      - name: intitule
+        description: "Intitulé du compte"
+      - name: mouvements_debit
+        description: "Total des débits de l'exercice, en €"
+      - name: mouvements_credit
+        description: "Total des crédits de l'exercice, en €"
+      - name: soldes_debit
+        description: "Solde débiteur de fin d'exercice, en €"
+      - name: soldes_credit
+        description: "Solde créditeur de fin d'exercice, en €"
+  - name: stg_comptabilite_balance_des_tiers
+    description: ""
+    columns:
+      - name: numero_compte
+        description: ""
+      - name: intitule
+        description: ""
+      - name: mouvements_anterieurs_debit
+        description: ""
+      - name: mouvements_anterieurs_credit
+        description: ""
+      - name: mouvements_debit
+        description: ""
+      - name: mouvements_credit
+        description: ""
+      - name: soldes_cumules_debit
+        description: ""
+      - name: soldes_cumules_credit
+        description: ""
+  - name: stg_comptabilite_plan_comptable
+    description: ""
+    columns:
+      - name: type
+        description: ""
+      - name: numero_compte
+        description: ""
+      - name: intitule
+        description: ""
+      - name: nature
+        description: ""
+  - name: stg_comptabilite_plan_comptable_des_tiers
+    description: ""
+    columns:
+      - name: type
+        description: ""
+      - name: compte_tiers
+        description: ""
+      - name: intitule
+        description: ""
+      - name: code_postal
+        description: ""
+      - name: ville
+        description: ""
+  - name: stg_entretien_tabletotalcout
+    description: "Coûts par véhicule 2025 (entretien, péages, carburant, financement…) Grain : Une opération de coût par ligne"
+    columns:
+      - name: date
+        description: "Date de l'opération"
+      - name: materiel
+        description: "Véhicule : numéro de parc / immatriculation"
+      - name: famille_rub
+        description: "Famille de coût (PEAGES, Consommation carburants, MOTEUR…)"
+      - name: nature_operation
+        description: "Nature de l'opération"
+      - name: cout_total
+        description: "Coût total de l'opération, en €"
+      - name: cout_mo
+        description: ""
+      - name: cout_mat
+        description: ""
+      - name: cout_div
+        description: ""
+      - name: observations
+        description: ""
+      - name: doc
+        description: ""
+      - name: personnel
+        description: ""
+      - name: operateur_fournisseur_petrolier
+        description: ""
+      - name: kms_parcourus_peage
+        description: ""
+      - name: cnr
+        description: ""
+  - name: stg_paie_silae_cout_salariaux
+    description: "Coûts salariaux Silae par salarié, export de janvier 2025 seulement Grain : Un salarié par mois de paie"
+    columns:
+      - name: matricule
+        description: "Matricule de paie"
+        data_tests:
+          - unique
+          - not_null
+      - name: salarie
+        description: "Nom du salarié"
+      - name: mois
+        description: "Mois de paie (premier jour du mois)"
+      - name: heures_theoriques
+        description: "Heures théoriques du mois"
+      - name: heures_normales
+        description: "Heures normales payées"
+      - name: heures_majorees
+        description: "Heures majorées payées"
+      - name: total_heures
+        description: "Total des heures payées"
+      - name: cp_pris
+        description: "Congés payés pris"
+      - name: rtt_recup_pris
+        description: "RTT et récupérations pris"
+      - name: heures_reelles
+        description: "Heures réelles"
+      - name: brut
+        description: "Salaire brut, en €"
+      - name: charges_salariales
+        description: "Charges salariales, en €"
+      - name: charges_patronales
+        description: "Charges patronales, en €"
+      - name: charges_patronales_2
+        description: "Deuxième colonne « charges patronales » de Silae (valeurs de 5 à 73, sens à confirmer)"
+      - name: supplements_cout_global
+        description: "Suppléments au coût global, en €"
+      - name: cout_global
+        description: "Coût employeur total du salarié sur le mois, en €"
+      - name: cout_horaire_moyen
+        description: "Coût horaire moyen, en €/h"
+      - name: pas
+        description: "Prélèvement à la source"
+      - name: net_a_payer
+        description: "Net à payer, en €"
+      - name: forfait_jour
+        description: "Salarié au forfait jours"
+      - name: entree
+        description: "Date d'entrée"
+      - name: sortie
+        description: "Date de sortie"
+      - name: emploi
+        description: "Emploi du salarié"
+      - name: etablissement
+        description: "Établissement de paie"
+  - name: stg_tms_akanea
+    description: "Ordres de transport 2025 exportés d'Akanea (feuille Suivi) Grain : Une ligne par ordre de transport"
+    columns:
+      - name: n_ordre
+        description: "Numéro d'ordre"
+        data_tests:
+          - unique
+          - not_null
+      - name: code_du_client
+        description: "Code client Akanea"
+      - name: date_chgt
+        description: "Date de chargement"
+      - name: ville_chgt
+        description: ""
+      - name: livraison
+        description: ""
+      - name: differentes_villes_de_livraison
+        description: ""
+      - name: activite
+        description: "Code activité de l'ordre (TN, AN, LN, TI, AI, BE, ST)"
+      - name: article
+        description: ""
+      - name: point_de_livraison_suppl
+        description: ""
+      - name: montant
+        description: "Montant facturé de l'ordre, en €"
+      - name: montant_b
+        description: ""
+      - name: montant_taxe_de_facturation_repartie
+        description: ""
+      - name: majoration_gasoil
+        description: ""
+      - name: montant_total_achat
+        description: "Montant d'achat de l'ordre, en €"
+      - name: marge_en_valeur
+        description: ""
+      - name: reference
+        description: ""
+      - name: poids
+        description: ""
+      - name: palette
+        description: ""
+      - name: longueur
+        description: ""
+      - name: n_feuille_de_route
+        description: ""
+      - name: affrete
+        description: "Affrété (sous-traitant) de l'ordre, vide si fait par le parc"
+      - name: nom_du_chauffeur
+        description: ""
+      - name: plaque_moteur
+        description: "Immatriculation du tracteur"
+      - name: km_cartographique
+        description: ""
+      - name: nombre_de_chargement
+        description: ""
+      - name: nombre_de_livraison
+        description: ""
+      - name: surcharge
+        description: ""
+  - name: stg_tms_akanea_donnees_activites_achats
+    description: ""
+    columns:
+      - name: code
+        description: ""
+      - name: libelle
+        description: ""
+      - name: code_tva
+        description: ""
+      - name: taux
+        description: ""
+      - name: n_de_compte
+        description: ""
+      - name: actif
+        description: ""
+      - name: societes_autorisees
+        description: ""
+  - name: stg_tms_akanea_donnees_activites_ventes
+    description: ""
+    columns:
+      - name: code_activite
+        description: ""
+      - name: libelle
+        description: ""
+      - name: code_tva
+        description: ""
+      - name: taux
+        description: ""
+      - name: n_de_compte
+        description: ""
+      - name: actif
+        description: ""
+      - name: societes_autorisees
+        description: ""
+  - name: stg_tms_akanea_donnees_articles
+    description: ""
+    columns:
+      - name: code_article
+        description: ""
+      - name: libelle
+        description: ""
+      - name: activite_vente
+        description: ""
+      - name: activite_achat
+        description: ""
+      - name: societes_autorisees
+        description: ""
+  - name: stg_tms_akanea_donnees_tiers
+    description: ""
+    columns:
+      - name: type
+        description: ""
+      - name: code
+        description: ""
+      - name: nom
+        description: "Raison sociale du tiers (entreprise)"
+      - name: adresse_1
+        description: ""
+      - name: cp
+        description: ""
+      - name: ville
+        description: ""
+      - name: region
+        description: ""
+      - name: telephone
+        description: ""
+      - name: adresse_mail
+        description: ""
+      - name: fax
+        description: ""
+      - name: adresse_2
+        description: ""
+      - name: m_regl
+        description: ""
+      - name: tarif_as
+        description: ""
+      - name: nb_exempl
+        description: ""
+      - name: statut
+        description: ""
+      - name: n_siret
+        description: ""
+  - name: faits
+    description: "Table longue FAITS du modèle Qlik"
+    columns:
+      - name: "%KEY_VEHICULE"
+        description: "Véhicule (immatriculation normalisée)"
+        quote: true
+        data_tests:
+          - relationships:
+              to: ref('dim_vehicule')
+              field: '"%KEY_VEHICULE"'
+              config:
+                severity: warn
+      - name: "%LIB_SITE"
+        description: "Site"
+        quote: true
+      - name: "%COD_CATEGORIE"
+        description: "Code catégorie"
+        quote: true
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["AFFR", "AMORT", "ASS", "ASS ST", "AUTRES", "CA AFF", "CA LOG", "CA PARTIEL", "CA POLE", "CA TOTAL", "CA TPS", "CA TPS TOT", "CH EXEP", "DISTANCE", "DIV", "Egal", "ENERGIE", "ENT", "ENTR", "ENTRE", "ENTRETIEN", "ESSENCE", "FOUR", "FRAIS", "FRAIS FI", "FRAIS PASS", "GAZ", "GO", "INFO", "JOUR", "LOC", "LOCATION", "MASSE", "PEAGE", "PNEU", "PR EXEP", "SALAIRE", "ST AFF", "ST POLE", "ST TPS", "ST TPS TOT", "STRUCT", "SYNTHESE", "TAXE", "TAXE ESS", "TAXE FON", "TAXE PRO", "TEL", "TEL+INFO", "TICPE"]
+              config:
+                severity: warn
+      - name: "LIB_Categorie"
+        description: "Libellé catégorie"
+        quote: true
+      - name: "Mois"
+        description: "Mois"
+        quote: true
+      - name: "Annee"
+        description: "Année"
+        quote: true
+      - name: "MontantReel"
+        description: "Montant réel"
+        quote: true
+      - name: "LIB_COLLABORATEUR"
+        description: "Collaborateur"
+        quote: true
+      - name: "TYP_UNITE"
+        description: "Unité"
+        quote: true
+      - name: "FLG_CATEGORIE"
+        description: "Indicateur catégorie"
+        quote: true
+      - name: "LIB_CLIENT"
+        description: "Client"
+        quote: true
+      - name: "matricule"
+        description: "Matricule chauffeur"
+        quote: true
+      - name: "%Date"
+        description: "Mois (1er jour)"
+        quote: true
+      - name: "%KEY_CHAUFFEUR"
+        description: "Chauffeur"
+        quote: true
+      - name: "Date"
+        description: "Date"
+        quote: true
+      - name: "MontantLoc"
+        description: "Montant de location"
+        quote: true
+      - name: "BudgetNextN"
+        description: "Budget de l'année suivante"
+        quote: true
+      - name: "Source_Faits"
+        description: "Dataset d'origine"
+        quote: true
+  - name: dim_chauffeur
+    description: "Un chauffeur. Clé reliée à FAITS.%KEY_CHAUFFEUR"
+    columns:
+      - name: "%KEY_CHAUFFEUR"
+        description: "Identifiant unique du chauffeur"
+        quote: true
+        data_tests:
+          - unique
+          - not_null
+      - name: "matricule"
+        description: "Matricule de paie"
+        quote: true
+      - name: "LIB_CHAUFFEUR"
+        description: "Nom et prénom"
+        quote: true
+      - name: "LIB_SITE"
+        description: "Site de rattachement"
+        quote: true
+      - name: "TYP_CONTRAT"
+        description: "CDI, CDD, intérim, mise à disposition"
+        quote: true
+      - name: "DAT_ENTREE"
+        description: "Date d'entrée"
+        quote: true
+      - name: "DAT_SORTIE"
+        description: "Date de sortie"
+        quote: true
+  - name: dim_site
+    description: "Un site (établissement). Clé reliée à FAITS.%LIB_SITE"
+    columns:
+      - name: "%LIB_SITE"
+        description: "Nom du site"
+        quote: true
+        data_tests:
+          - unique
+          - not_null
+      - name: "COD_POSTAL"
+        description: "Code postal"
+        quote: true
+  - name: dim_vehicule
+    description: "Un véhicule. Clé reliée à FAITS.%KEY_VEHICULE (immatriculation normalisée)"
+    columns:
+      - name: "%KEY_VEHICULE"
+        description: "Immatriculation normalisée (lettres et chiffres, majuscules)"
+        quote: true
+        data_tests:
+          - unique
+          - not_null
+      - name: "NUM_VEHICULE"
+        description: "Numéro interne"
+        quote: true
+      - name: "COD_TYPE"
+        description: "TR, SR, PL…"
+        quote: true
+      - name: "NUM_IMAT"
+        description: "Immatriculation lisible"
+        quote: true
+      - name: "DAT_ENTREE"
+        description: "Entrée dans le parc"
+        quote: true
+      - name: "DAT_SORTIE"
+        description: "Sortie du parc"
+        quote: true
+      - name: "SOC_LOC"
+        description: "Loueur"
+        quote: true
+      - name: "LIB_CHAUFFEUR"
+        description: "Chauffeur attitré"
+        quote: true
+      - name: "LIB_ACTIVITE"
+        description: "Activité"
+        quote: true
+      - name: "Source"
+        description: "Source"
+        quote: true
+      - name: "DAT_MISE_EN_CIRC"
+        description: "Mise en circulation (nom tronqué sur la capture)"
+        quote: true
+      - name: "LIB_PROPRIETAIRE"
+        description: "Propriétaire"
+        quote: true
+      - name: "LIB_MOTIF_SORTIE"
+        description: "Motif de sortie"
+        quote: true
+      - name: "LIB_COMMENTAIRES"
+        description: "Commentaires"
+        quote: true
+      - name: "LIB_EXPLOITANT"
+        description: "Exploitant"
+        quote: true
+      - name: "LIB_MARQUE"
+        description: "Marque"
+        quote: true
+      - name: "LIB_CARROSERIE"
+        description: "Carrosserie"
+        quote: true
+      - name: "LIB_DIVERS"
+        description: "Divers"
+        quote: true
+      - name: "FLAG_TR"
+        description: "1 si tracteur"
+        quote: true
+      - name: "FLAG_SR"
+        description: "1 si semi-remorque"
+        quote: true

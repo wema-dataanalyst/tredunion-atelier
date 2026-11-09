@@ -1,0 +1,1862 @@
+[
+  {
+    "qInfo": {
+      "qId": "tred-charges_vs_ca_reel-0",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "% Charges Vs CA Réel",
+      "qDef": "Charges / [CA Réel]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "% Charges Vs CA Réel",
+      "description": "« Charges » écrit sans crochets : Qlik le lit comme un champ inexistant",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-evol_ca-1",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "% Evol CA",
+      "qDef": "(([CA Réel] / [CA Réel N-1]*100)-100)/100",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "% Evol CA",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-interim_vs_reel-2",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "% Intérim Vs Réel",
+      "qDef": "([Masse Intérim Réel] / [Masse Réel])",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "% Intérim Vs Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_vs_ca_reel-3",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "% Masse Vs CA Réel",
+      "qDef": "([Masse Réel] / [CA Réel])",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "% Masse Vs CA Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-budget-4",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Budget",
+      "qDef": "If(\nGetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Budget",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-budget_affretement-5",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Budget affrètement",
+      "qDef": "If(\nGetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Budget affrètement",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-budget_logistique-6",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Budget logistique",
+      "qDef": "If(\nGetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Budget logistique",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-budget_parc-7",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Budget parc",
+      "qDef": "If(\nGetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Budget parc",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-budget_resultat-8",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Budget résultat",
+      "qDef": "If(\nGetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vSET_N-1)\n>}\nBudgetNextN)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vSET_N-1)\n>}\nBudgetNextN)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vSET_N-1)\n>}\nBudgetNextN)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Budget résultat",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_heure_travaillee_annee-9",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA / Heure travaillée Année",
+      "qDef": "// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)\n/\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA / Heure travaillée Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_affretement-10",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Affrètement",
+      "qDef": "If(\nGetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Affrètement",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_affretement_annee-11",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Affrètement année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Affrètement année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_affretement_m_1-12",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Affrètement M-1",
+      "qDef": "sum({<\t\t\t$(vSET_M-1),    \n    [%COD_CATEGORIE] = {'CA AFF'}\n>}\nMontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Affrètement M-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_affretement_n_1-13",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Affrètement N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n        $(vSET_N-1)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA AFF'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Affrètement N-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_budget_heure_travaillee_annee-14",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Budget / Heure travaillée Année",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))\n/\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Budget / Heure travaillée Année",
+      "description": "Les branches mois / année ne filtrent pas les mêmes catégories",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_logistique-15",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Logistique",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Logistique",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_logistique_annee-16",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Logistique Année",
+      "qDef": "if(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Logistique Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_logistique_m_1-17",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Logistique M-1",
+      "qDef": "sum({<\t\t\t$(vSET_M-1),    \n    [%COD_CATEGORIE] = {'CA LOG'}\n>}\nMontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Logistique M-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_logistique_n_1-18",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Logistique N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n        $(vSET_N-1)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA LOG'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Logistique N-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_parc-19",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA parc",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA parc",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_parc_annee-20",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA parc Année",
+      "qDef": "// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA parc Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_parc_m_1-21",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA parc M-1",
+      "qDef": "sum({<\t\t\t$(vSET_M-1),    \n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n>}\nMontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA parc M-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_parc_n_1-22",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA parc N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n        $(vSET_N-1)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TPS TOT'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA parc N-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_reel-23",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_reel_annee-24",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Réel Année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Réel Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_reel_m-25",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Réel M",
+      "qDef": "sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL','PR EXEP'}\n>}\nMontantReel)\n-\nsum(\n{<\n    [%COD_CATEGORIE] = {'CH EXEP'}\n>}\nMontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Réel M",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_reel_m_1-26",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Réel M-1",
+      "qDef": "sum({<\t\t\t$(vSET_M-1),    [%COD_CATEGORIE]={'CA TOTAL'}>}MontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Réel M-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ca_reel_n_1-27",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "CA Réel N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n        $(vSET_N-1)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CA TOTAL'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "CA Réel N-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-charges-28",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Charges",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'MASSE','FOUR','LOC','ENTR','AMORT','GO','ASS','TEL','DIV','AMORT','Autres','AUTRES','ENERGIE','TAXE FON','ENTRE','LOC','PEAGE','FRAIS'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'MASSE','FOUR','LOC','ENTR','AMORT','GO','ASS','TEL','DIV','AMORT','Autres','AUTRES','ENERGIE','TAXE FON','ENTRE','LOC','PEAGE','FRAIS'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'MASSE','FOUR','LOC','ENTR','AMORT','GO','ASS','TEL','DIV','AMORT','Autres','AUTRES','ENERGIE','TAXE FON','ENTRE','LOC','PEAGE','FRAIS'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Charges",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-charges_affretement-29",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Charges affrètement",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'ST AFF'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST AFF'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST AFF'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Charges affrètement",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-charges_logistiques-30",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Charges logistiques",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'ST LOG'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST LOG'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST LOG'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Charges logistiques",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-charges_reelles-31",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Charges réelles",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] -= {'CA TOTAL','PR EXEP','CA POLE','CA TPS TOT','CA AFF','CA LOG','CA TPS','Egal','FRAIS FI','STRUCT'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] -= {'CA TOTAL','PR EXEP','CA POLE','CA TPS TOT','CA AFF','CA LOG','CA TPS','Egal','FRAIS FI','STRUCT'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] -= {'CA TOTAL','PR EXEP','CA POLE','CA TPS TOT','CA AFF','CA LOG','CA TPS','Egal','FRAIS FI','STRUCT'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Charges réelles",
+      "description": "Somme « tout sauf … » : garde DISTANCE, JOUR, donc des km ou des jours s'ajoutent aux euros (filtrer TYP_UNITE={'€'})",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-charges_vs_km-32",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Charges VS KM",
+      "qDef": "Charges / [KM Réel]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Charges VS KM",
+      "description": "« Charges » écrit sans crochets : Qlik le lit comme un champ inexistant",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-consommation-33",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Consommation",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie= {'Moyenne Conso/Tr'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie= {'Moyenne Conso/Tr'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie= {'Moyenne Conso/Tr'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Consommation",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-consommation_annee-34",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Consommation année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie= {'Moyenne Conso/Tr'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie= {'Moyenne Conso/Tr'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Consommation année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-cout_adm_parc-35",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Cout ADM parc",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'COUT ADM PARC','Masse Adm','Crédit Bail Tracteur','Crédit Bail Remorque','Assurance engins','Assurance camions'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'COUT ADM PARC','Masse Adm','Crédit Bail Tracteur','Crédit Bail Remorque','Assurance engins','Assurance camions'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'COUT ADM PARC','Masse Adm','Crédit Bail Tracteur','Crédit Bail Remorque','Assurance engins','Assurance camions'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Cout ADM parc",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-cout_adm_parc_moteur-36",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Cout ADM Parc / moteur",
+      "qDef": "[Coût ADM Parc]\n/\n(If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    Count(\n{<\n    $(vSET_M)\n>}\nTOTAL distinct NUM_IMAT),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Count(\n{<\n    $(vMaxAnneeVar)\n>}\nTOTAL distinct NUM_IMAT),\n// Sinon afficher l'année max\n    Count(\n{<\n    $(vMaxAnnee)\n>}\nTOTAL distinct NUM_IMAT),\n))\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Cout ADM Parc / moteur",
+      "description": "Référence introuvable : [Coût ADM Parc]",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-cout_loyer_par_vehicule_sr-37",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Coût Loyer par véhicule SR",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    Avg(\n{<\n    COD_TYPE = {'SR'},\n    $(vSET_M)\n>}\nMontantLoc),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Avg(\n{<\n    COD_TYPE = {'SR'},\n    $(vMaxAnneeVar)\n>}\nMontantLoc),\n// Sinon afficher l'année max\n    Avg(\n{<\n    COD_TYPE = {'SR'},\n    $(vMaxAnnee)\n>}\nMontantLoc)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Coût Loyer par véhicule SR",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-cout_loyer_par_vehicule_sr_annee-38",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Coût Loyer par véhicule SR Année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Avg(\n{<\n    COD_TYPE = {'SR'},\n    $(vMaxAnneeVar)\n>}\nMontantLoc),\n// Sinon afficher l'année max\n    Avg(\n{<\n    COD_TYPE = {'SR'},\n    $(vMaxAnnee)\n>}\nMontantLoc)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Coût Loyer par véhicule SR Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-cout_loyer_par_vehicule_tr-39",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Coût Loyer par véhicule TR",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    Avg(\n{<\n    COD_TYPE = {'TR'},\n    $(vSET_M)\n>}\nMontantLoc),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Avg(\n{<\n    COD_TYPE = {'TR'},\n    $(vMaxAnneeVar)\n>}\nMontantLoc),\n// Sinon afficher l'année max\n    Avg(\n{<\n    COD_TYPE = {'TR'},\n    $(vMaxAnnee)\n>}\nMontantLoc)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Coût Loyer par véhicule TR",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-cout_loyer_par_vehicule_tr_annee-40",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Coût Loyer par véhicule TR Année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Avg(\n{<\n    COD_TYPE = {'TR'},\n    $(vMaxAnneeVar)\n>}\nMontantLoc),\n// Sinon afficher l'année max\n    Avg(\n{<\n    COD_TYPE = {'TR'},\n    $(vMaxAnnee)\n>}\nMontantLoc)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Coût Loyer par véhicule TR Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ecart_budget_vs_reel-41",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Ecart Budget VS Réel",
+      "qDef": "[CA Réel] - [Budget]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Ecart Budget VS Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ecart_budget_vs_resultat_reel-42",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Ecart Budget vs résultat réel",
+      "qDef": "[Résultat Avec Exceptionnel Réel] - [Budget Résultat]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Ecart Budget vs résultat réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-entretien-43",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Entretien",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Entretien",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-entretien_annee-44",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Entretien Année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Entretien Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-frais_parc_propre-45",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Frais Parc propre",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Frais de Parc Propre'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Frais de Parc Propre'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Frais de Parc Propre'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Frais Parc propre",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-frais_parc_propre_annee-46",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Frais parc propre Année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Frais de Parc Propre'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Frais de Parc Propre'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Frais parc propre Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-frais_sous_traitance-47",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Frais sous traitance",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'ST TPS'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST TPS'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST TPS'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Frais sous traitance",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-frais_sous_traitance_annee-48",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Frais sous traitance année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST TPS'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'ST TPS'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Frais sous traitance année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-km_reel-49",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "KM Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Km','Nbre de kms parcourus'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Km','Nbre de kms parcourus'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Km','Nbre de kms parcourus'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "KM Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-km_reel_annee-50",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "KM Réel année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Km','Nbre de kms parcourus'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Km','Nbre de kms parcourus'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "KM Réel année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-location_logidis-51",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Location Logidis",
+      "qDef": "If(WildMatch(LIB_EXPLOITANT,'*LOG*'),\nSum(\n{<LIB_Categorie = {'Location véhicule'}\n>}MontantReel)*[Ratio Logidis]\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Location Logidis",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-location_materiel_roulant-52",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Location matériel roulant",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Matériel Roulant'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Matériel Roulant'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Matériel Roulant'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Location matériel roulant",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-location_materiel_roulant_annee-53",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Location matériel roulant année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Matériel Roulant'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Matériel Roulant'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Location matériel roulant année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-marge_affretement-54",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Marge affrètement",
+      "qDef": "[CA Affrètement] - [Charges Affrètement]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Marge affrètement",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-marge_affretement_annee-55",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Marge affrètement année",
+      "qDef": "[CA Affrètement Année] - [Charges Affrètement Année]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Marge affrètement année",
+      "description": "Référence introuvable : [Charges Affrètement Année]",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-marge_logistique-56",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Marge logistique",
+      "qDef": "[CA Logistique] - [Charges Logistique]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Marge logistique",
+      "description": "Référence introuvable : [Charges Logistique]",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-marge_parc_propre-57",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Marge parc propre",
+      "qDef": "[CA Parc] - [Frais Parc Propre] - [Frais Sous Traitance]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Marge parc propre",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-marge_parc_propre_annee-58",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Marge parc propre année",
+      "qDef": "[CA Parc Année] - [Frais Parc Propre Année] - [Frais Sous Traitance Année]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Marge parc propre année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_budget_interim_reel-59",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse Budget Intérim Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse Budget Intérim Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_budget_interim_reel_annee-60",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse Budget Intérim Réel année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse Budget Intérim Réel année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-marge_budget_reel-61",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Marge budget réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n        $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Marge budget réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_chargeur-62",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse chargeur",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Masse chargeur'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Masse chargeur'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Masse chargeur'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse chargeur",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_interim_reel-63",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse intérim Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse intérim Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_interim_reel_annee-64",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse intérim Réel année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse intérim Réel année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_reel-65",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_reel_annee-66",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse réel année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse réel année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_reel_intermin_m_1-67",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse réel intermin M-1",
+      "qDef": "sum({<\t\t\t$(vSET_N-1),    \tLIB_Categorie = {'Dont Intérim'}>}MontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse réel intermin M-1",
+      "description": "Nommée M-1, mais calcule N-1 (vSET_N-1)",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_reel_intermin_n_1-68",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse réel intermin N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vSET_N-1)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Dont Intérim'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse réel intermin N-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_reel_m_1-69",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse réel M-1",
+      "qDef": "sum({<\t\t\t$(vSET_M-1),    \n    LIB_Categorie = {'Masse parc'}\n    >}\nMontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse réel M-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-masse_reel_n_1-70",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Masse réel N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vSET_N-1)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Masse parc'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Masse réel N-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nbre_heure_budget_reel-71",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nbre Heure Budget Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vSET_N-1)\n>}\nBudgetNextN),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},    \n    $(vMaxAnneeVar-1)\n>}\nBudgetNextN),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnnee-1)\n>}\nBudgetNextN)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nbre Heure Budget Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nbre_heure_reel-72",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nbre Heure Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nbre Heure Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nbre_heure_reel_annee-73",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nbre Heure Réel année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nbre Heure Réel année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nbre_heure_reel_m_1-74",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nbre Heure Réel M-1",
+      "qDef": "sum({<\t\t\t$(vSET_M-1),    \tLIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'}>}MontantReel)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nbre Heure Réel M-1",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nbre_heure_reel_n_1-75",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nbre Heure Réel N-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vSET_N-1)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nbre Heure Réel N-1",
+      "description": "Nommée N-1, mais une branche calcule la période courante",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nb_sr-76",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "NB SR",
+      "qDef": "Count({<\tLIB_Categorie = {'Location véhicule'},\tFLAG_SR = {'1'}>}FLAG_SR)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "NB SR",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nb_sr_logidis-77",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "NB SR Logidis",
+      "qDef": "Count({<\tLIB_Categorie = {'Location véhicule'},\tFLAG_SR = {'1'}>}FLAG_SR)*[Ratio Logidis]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "NB SR Logidis",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nb_tr-78",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "NB TR",
+      "qDef": "Count({<\tLIB_Categorie = {'Location véhicule'},\tFLAG_TR = {'1'}>}FLAG_TR)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "NB TR",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nr_tr_logidis-79",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "NR Tr Logidis",
+      "qDef": "Count({<\tLIB_Categorie = {'Location véhicule'},\tFLAG_TR = {'1'}>}FLAG_TR)*[Ratio Logidis]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "NR Tr Logidis",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nb_vehicules-80",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nb Véhicules",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    Count(\n{<\n    $(vSET_M)\n>}\ndistinct NUM_IMAT),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Count(\n{<\n    $(vMaxAnneeVar)\n>}\ndistinct NUM_IMAT),\n// Sinon afficher l'année max\n    Count(\n{<\n    $(vMaxAnnee)\n>}\ndistinct NUM_IMAT),\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nb Véhicules",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-nb_vehicules_annee-81",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Nb Véhicules Année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Count(\n{<\n    $(vMaxAnneeVar)\n>}\ndistinct NUM_IMAT),\n// Sinon afficher l'année max\n    Count(\n{<\n    $(vMaxAnnee)\n>}\ndistinct NUM_IMAT),\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Nb Véhicules Année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-peage-82",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Peage",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE] = {'PEAGE'},\n    $(vSET_M)\n>}\nMontantReel),\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'PEAGE'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'PEAGE'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Peage",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-peage_annee-83",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Péage année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'PEAGE'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'PEAGE'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Péage année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-prix_carburant_annee-84",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Prix carburant année",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Prix Moyen du Litre'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Prix Moyen du Litre'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Prix carburant année",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-ratio_logidis-85",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Ratio logidis",
+      "qDef": "Num#(If(WildMatch(LIB_EXPLOITANT, '*LOGIDIS*'),1,\n    If(WildMatch(LIB_EXPLOITANT, '*LOG 3%*'),'0,03',\n        If(WildMatch(LIB_EXPLOITANT, '*LOG 30%*'),'0,30',\n            If(WildMatch(LIB_EXPLOITANT, '*LOG 33%*'),'0,33',\n                If(WildMatch(LIB_EXPLOITANT, '*LOG 90%*'),'0,90',\n                    If(WildMatch(LIB_EXPLOITANT, '*LOG 93%*'),'0,93',\n                        If(WildMatch(LIB_EXPLOITANT, '*LOG 97%*'),'0,97'\n                \n\n))))))))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Ratio logidis",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-resultat_avec_exceptionnel_reel-86",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Résultat Avec Exceptionnel Réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vSET_M)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vSET_M)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnneeVar)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnneeVar)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Résultat Avec Exceptionnel Réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-resultat_reel_m_1-87",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Résultat réel M-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vSET_M-1)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vSET_M-1)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vSET_M-1)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnneeVar)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnneeVar)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Résultat réel M-1",
+      "description": "Nom en double (2 définitions)",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-resultat_reel_m_1-88",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Résultat réel M-1",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vSET_N-1)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vSET_N-1)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vSET_N-1)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnneeVar-1)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    sum(\n{<\n    LIB_Categorie  = {'Résultat Net filiale'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n-\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'CH EXEP'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n+\n    sum(\n{<\n    [%COD_CATEGORIE]  = {'PR EXEP'},\n    $(vMaxAnnee-1)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Résultat réel M-1",
+      "description": "Nom en double (2 définitions) ; Nommée M-1, mais calcule N-1 (vSET_N-1)",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-resultat_sans_exceptionnel_reel-89",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Résultat sans exceptionnel réel",
+      "qDef": "If(\n    GetSelectedCount(MoisVar) > 0,\n// Si un mois est sélectionné -> Calculer pour le mois\n    sum(\n{<\n    LIB_Categorie = {'Résultat Net filiale'},\n    $(vSET_M)\n>}\nMontantReel)\n,\n// Si une année est sélectionnée -> Calculer l'année\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    LIB_Categorie = {'Résultat Net filiale'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    LIB_Categorie = {'Résultat Net filiale'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n))",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Résultat sans exceptionnel réel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-taxe_a_l_essieu_logidis-90",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Taxe à l'essieu Logidis",
+      "qDef": "If(WildMatch(LIB_EXPLOITANT,'*LOG*'),\nSum(\n{<LIB_Categorie = {'Taxe à l essieu'}\n>}MontantReel)*[Ratio Logidis]\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Taxe à l'essieu Logidis",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-total_cout_fixe-91",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Total cout fixe",
+      "qDef": "[Coût ADM Parc] + [Location Matériel Roulant Année]",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Total cout fixe",
+      "description": "Référence introuvable : [Coût ADM Parc]",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  },
+  {
+    "qInfo": {
+      "qId": "tred-total_exceptionnel-92",
+      "qType": "measure"
+    },
+    "qMeasure": {
+      "qLabel": "Total exceptionnel",
+      "qDef": "If(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'PR EXEP'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'PR EXEP'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)\n-\nIf(\n    GetSelectedCount(AnneeVar) > 0,\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CH EXEP'},\n    $(vMaxAnneeVar)\n>}\nMontantReel),\n// Sinon afficher l'année max\n    Sum(\n{<\n    [%COD_CATEGORIE] = {'CH EXEP'},\n    $(vMaxAnnee)\n>}\nMontantReel)\n)",
+      "qGrouping": "N",
+      "qExpressions": [],
+      "qActiveExpression": 0
+    },
+    "qMetaDef": {
+      "title": "Total exceptionnel",
+      "description": "",
+      "tags": [
+        "tredunion"
+      ]
+    }
+  }
+]

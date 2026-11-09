@@ -1,0 +1,42 @@
+# Dataset bronze tele_trajets
+id: tele_trajets
+societe: rl
+file: data/bronze/rl/tele_trajets.csv
+desc: ""
+grain: ""
+columns:
+  - name: vehicle_id
+    type: ""
+    role: attr
+    desc: ""
+  - name: driver_card
+    type: ""
+    role: attr
+    desc: ""
+  - name: start_ts
+    type: ""
+    role: attr
+    desc: ""
+  - name: end_ts
+    type: ""
+    role: attr
+    desc: ""
+  - name: distance_km
+    type: ""
+    role: attr
+    desc: ""
+  - name: fuel_l
+    type: ""
+    role: attr
+    desc: ""
+  - name: idle_min
+    type: ""
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "driver_card : 6 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+cases: []

@@ -1,0 +1,25 @@
+apiVersion: v3.0.2
+kind: DataContract
+id: tredunion-euro_trans_chanet-dim_site
+name: DIM_SITE
+version: 0.1.0
+status: draft
+domain: tredunion
+description:
+  purpose: "Un site (établissement). Clé reliée à FAITS.%LIB_SITE"
+  usage: "Dashboards Qlik Tredunion — Euro Trans Chanet"
+schema:
+  - name: DIM_SITE
+    physicalName: gold_euro_trans_chanet.dim_site
+    logicalType: object
+    properties:
+      - name: "%LIB_SITE"
+        logicalType: string
+        physicalType: text
+        description: "Nom du site"
+        primaryKey: true
+        required: true
+      - name: "COD_POSTAL"
+        logicalType: string
+        physicalType: text
+        description: "Code postal"

@@ -1,0 +1,144 @@
+# Dataset bronze sftp_euro_trans_chanet_akanea : profil généré, types détectés à confirmer avec l'adhérent
+id: sftp_euro_trans_chanet_akanea
+societe: eurotranschanet
+file: data/bronze/eurotranschanet/sftp_euro_trans_chanet_akanea.csv
+desc: ""
+grain: ""
+columns:
+  - name: n_ordre
+    type: text
+    role: attr
+    desc: ""
+  - name: code_du_client
+    type: text
+    role: attr
+    desc: ""
+  - name: date_chgt
+    type: date
+    role: attr
+    desc: ""
+    format: DD/MM/YYYY
+  - name: ville_chgt
+    type: text
+    role: attr
+    desc: ""
+  - name: livraison
+    type: date
+    role: attr
+    desc: ""
+    format: DD/MM/YYYY
+  - name: differentes_villes_de_livraison
+    type: text
+    role: attr
+    desc: ""
+  - name: activite
+    type: text
+    role: attr
+    desc: ""
+  - name: article
+    type: text
+    role: attr
+    desc: ""
+  - name: point_de_livraison_suppl
+    type: int
+    role: attr
+    desc: ""
+  - name: montant
+    type: decimal
+    role: attr
+    desc: ""
+  - name: montant_b
+    type: decimal
+    role: attr
+    desc: ""
+  - name: montant_taxe_de_facturation_repartie
+    type: decimal
+    role: attr
+    desc: ""
+  - name: majoration_gasoil
+    type: decimal
+    role: attr
+    desc: ""
+  - name: montant_total_achat
+    type: decimal
+    role: attr
+    desc: ""
+  - name: marge_en_valeur
+    type: decimal
+    role: attr
+    desc: ""
+  - name: reference
+    type: text
+    role: attr
+    desc: ""
+  - name: poids
+    type: decimal
+    role: attr
+    desc: ""
+  - name: palette
+    type: decimal
+    role: attr
+    desc: ""
+  - name: longueur
+    type: decimal
+    role: attr
+    desc: ""
+  - name: n_feuille_de_route
+    type: text
+    role: attr
+    desc: ""
+  - name: affrete
+    type: text
+    role: attr
+    desc: ""
+  - name: nom_du_chauffeur
+    type: text
+    role: attr
+    desc: ""
+  - name: plaque_moteur
+    type: text
+    role: attr
+    desc: ""
+  - name: km_cartographique
+    type: int
+    role: attr
+    desc: ""
+  - name: nombre_de_chargement
+    type: int
+    role: attr
+    desc: ""
+  - name: nombre_de_livraison
+    type: int
+    role: attr
+    desc: ""
+  - name: surcharge
+    type: int
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "date_chgt : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "livraison : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "activite : valeurs TN, AN, LN, TI, AI, BE, ST. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q4
+    text: "reference : 6 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q5
+    text: "n_feuille_de_route : 10 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q6
+    text: "affrete : 79 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+cases: []

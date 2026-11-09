@@ -1,0 +1,42 @@
+# Dataset bronze tms_vehicules
+id: tms_vehicules
+societe: kf
+file: data/bronze/kf/tms_vehicules.csv
+desc: Parc véhicules du TMS
+grain: Un véhicule
+columns:
+  - name: immat
+    type: text
+    role: key
+    desc: Immatriculation
+  - name: type
+    type: text
+    role: attr
+    desc: Type de véhicule
+    codes:
+      TR: Tracteur
+      SR: Semi-remorque
+      PL: Porteur
+  - name: marque
+    type: text
+    role: attr
+    desc: Marque
+  - name: date_mes
+    type: ""
+    role: attr
+    desc: ""
+  - name: parc
+    type: ""
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "type : valeurs TR, SR, PL. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "parc : valeurs KF, LOC. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+cases: []

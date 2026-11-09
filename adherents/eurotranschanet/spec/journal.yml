@@ -1,0 +1,25 @@
+# Journal des décisions de séance
+- date: 2026-11-06T22:25:00
+  question: bascule adhérent
+  decision: Exemple Kessler remplacé par Euro Trans Chanet. Dix-huit exports SFTP convertis en CSV et profilés. Noms, chauffeurs, cartes, téléphones et adresses marqués comme données personnelles.
+  fichiers: [spec/projet.yml, spec/datasets]
+- date: 2026-11-06T23:30:00
+  question: migration normalisation
+  decision: Excel Euro Trans Chanet déplacés dans data/raw, CSV régénérés par npm run normaliser (recettes Sage de la mémoire), datasets reprofilés, données personnelles remarquées.
+  fichiers: [spec/datasets]
+- date: 2026-11-07T00:15:00
+  question: maquette Euro Trans Chanet
+  decision: "Maquette d'avant-séance sans l'adhérent. Sept flux tirés d'Akanea (CA TOTAL, CA AFF, CA TPS TOT, ST AFF), du carburant COFI (GO), des péages de l'outil de parc (PEAGE) et de la paie Silae (MASSE · Masse parc). Mesures alimentées 0 → 26 (6 partielles), FAITS 0 → 11 445 lignes. Hypothèses : 2 basses (f6 péages, f7 masse parc), 6 moyennes (f1 à f5, règle des sous-totaux de la balance), 0 haute (mémoire comptes et colonnes vide). Contrôles en écart : c3 paie Silae contre 641 et 645 (janvier seul, 89,7 %), c5 balance sans date par ligne, c6 péages contre Autoroutes (23,7 %). L'écart Akanea 5,86 M€ contre comptes 70 12,13 M€ venait des lignes de sous-total de la balance comptées deux fois : après exclusion, écart 0,02 %. Carburant/Table1 laissé en question (export d'entretien rangé dans Carburant ?). Taux Kessler (maquette à l'aveugle, mémoire vide, npm run evaluer) : flux 14/14, décodages 6/6, 43 mesures et 826 lignes FAITS contre 38 et 716 au corrigé ; préfixes de compte plus précis que le corrigé (706100 pour 7061), comptés comme retrouvés. Limites : exemples d'AGENTS.md tirés de Kessler (test pas tout à fait à l'aveugle), trajets sans véhicule, DIM_SITE vide."
+  fichiers: [spec/datasets/tms_akanea.yml, spec/datasets/comptabilite_balance.yml, spec/datasets/paie_silae_cout_salariaux.yml, spec/datasets/carburant_table.yml, spec/datasets/carburant_table1.yml, spec/datasets/entretien_tabletotalcout.yml, spec/flux, spec/controles.yml, spec/relations.yml]
+- date: 2026-11-07T09:30:00
+  question: questions de séance
+  decision: Liste unique des questions (npm run questions, onglet Questions), registre spec/reponses.yml, procédure /seance.
+  fichiers: [spec/reponses.yml, .cursor/commands/seance.md, AGENTS.md]
+- date: 2026-11-07T09:50:00
+  question: tms_akanea_donnees_tiers.nom donnée personnelle ?
+  decision: "Michel : les noms de tiers sont des raisons sociales d'entreprises, colonne nom non personnelle. Débloque les questions f5 et carburant qui citent des marques de cartes carburant."
+  fichiers: [spec/datasets/tms_akanea_donnees_tiers.yml]
+- date: 2026-11-08T18:00:00
+  question: projet#q1 activités à suivre
+  decision: "Première question d'adhérent posée (activités principales à suivre séparément). Mécanisme générique : bloc questions de projet.yml, source projet, lot adherent en tête."
+  fichiers: [spec/projet.yml]

@@ -1,0 +1,13 @@
+# Adhérent et sociétés (filiales) traitées dans cette séance
+adherent: Euro Trans Chanet
+societes:
+  - id: eurotranschanet
+    name: Euro Trans Chanet
+    source: Akanea, Sage 100, COFI, Silae
+cases: []
+questions:
+  - id: q1
+    text: "Activités à suivre séparément (regroupement des comptes 70x)"
+    titre: "Quelles sont vos activités principales, à suivre séparément dans le tableau de bord ?"
+    contexte: "Votre comptabilité distingue du transport (national, international), de l'affrètement, de la location, du stockage et des ventes de matériaux de carrières, plus des refacturations, surtaxes, cessions, litiges et formations. Faut-il en regrouper, en retirer ou en ajouter ?"
+    reponse_type: libre

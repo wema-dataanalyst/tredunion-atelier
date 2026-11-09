@@ -1,0 +1,44 @@
+# Dataset bronze compta_balance
+id: compta_balance
+societe: kf
+file: data/bronze/kf/compta_balance.csv
+desc: Balance mensuelle par compte et par établissement (export comptable)
+grain: Un compte, un établissement, un mois
+columns:
+  - name: compte
+    type: text
+    role: attr
+    desc: Compte du plan comptable
+  - name: libelle_compte
+    type: text
+    role: attr
+    desc: Libellé du compte
+  - name: periode
+    type: date
+    role: attr
+    desc: Dernier jour du mois
+    format: DD/MM/YYYY
+  - name: etablissement
+    type: text
+    role: attr
+    desc: Établissement (site)
+  - name: montant
+    type: decimal
+    role: measure
+    desc: Solde du mois en euros, positif
+    decimalComma: true
+rules: []
+questions:
+  - id: q1
+    text: "periode : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "etablissement : valeurs Colmar, Sélestat. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "montant : nombre avec virgule décimale. Unité, HT ou TTC ?"
+    done: false
+    answer: ""
+cases: []

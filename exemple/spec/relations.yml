@@ -1,0 +1,7 @@
+# Relations entre colonnes de datasets (from = colonne qui référence, to = clé référencée)
+- id: r1
+  from: tms_missions.code_cond
+  to: tms_conducteurs.code_cond
+  kind: equal
+  norm: none
+  note: Le TMS identifie le chauffeur par son code interne

@@ -1,0 +1,10 @@
+.env
+node_modules/
+# Données des adhérents : jamais dans git
+data/
+# Positions des cartes dans la prévisualisation
+.atelier/
+# Comptes de connexion (mots de passe hachés)
+comptes.json
+# adherents/<id>/spec est versionné ; data/, .env et .atelier/ restent exclus par les règles ci-dessus
+.superpowers/

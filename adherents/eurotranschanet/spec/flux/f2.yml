@@ -1,0 +1,21 @@
+# Flux f2 : sftp_euro_trans_chanet_akanea → FAITS
+id: f2
+ds: sftp_euro_trans_chanet_akanea
+codMode: fixe
+cod: CA AFF
+lib: CA affrètement
+valeur: montant
+agg: sum
+champ: MontantReel
+unite: €
+date: date_chgt
+client: code_du_client
+filtre: activite in ('AN', 'AI')
+note: Ordres d'activité AN et AI, confiés à un affrété
+hypothese:
+  source: agent
+  preuves:
+    - "2 211 ordres AN ou AI ; les 2 225 ordres avec affrété sont exactement ceux sans véhicule"
+  question: "Les codes AN et AI sont-ils l'affrètement national et international ?"
+  valide: false
+  refuse: false

@@ -1,0 +1,20 @@
+---
+description: Format et conventions des fichiers de spec YAML
+globs: spec/**/*.yml
+alwaysApply: false
+---
+Le format de chaque fichier est décrit dans AGENTS.md, section « Format de la spec ». Rappels :
+
+- Noms de colonnes = en-têtes du CSV en snake_case. Ne renomme jamais une colonne dans la spec : elle ne serait plus trouvée.
+- `type` : text | int | decimal | date | timestamp | bool. Dates en texte : `format: DD/MM/YYYY`. Nombres à virgule : `decimalComma: true`.
+- `role` : attr | key | fk | measure | ignore. Une `key` doit être unique dans les données (`npm run check` le vérifie).
+- Valeurs codées : `codes: {CODE: libellé}` ; le silver ajoute `<colonne>_libelle`, utilisable dans les flux et les dimensions.
+- Règles silver et filtres de flux : conditions simples (`=`, `<>`, `in (...)`, `like '...%'`, `is null`, reliées par `and`). Une condition plus complexe passe en SQL mais n'est pas appliquée dans la prévisualisation : `npm run check` le signale en info.
+- Flux : `date` obligatoire ; `site` est une colonne ou un texte entre apostrophes ; codes de catégorie pris dans `spec/referentiel.yml`.
+- Référentiel : chaque code peut avoir `lib` (libellé lisible, 1–60 car.) et `hypothese` ; cible `categorie:<code>`, correction via `categorie:<code>.lib` ; FAITS expose `LIB_LISIBLE`.
+- Dimensions : `map` = une expression SQL par id de société, sur `dataset.colonne` (colonnes silver).
+- Questions : garde les ids existants ; une nouvelle question prend l'id suivant du dataset.
+- Questions d'adhérent : bloc `questions:` de `projet.yml` (id, text, titre, contexte, reponse_type) ; ids uniques ; pas de bloc `hypothese`.
+- Périmètre : `spec/perimetre.yml`, groupes `{id, cause, mesures, titre, contexte, hypothese}` ; cible de réponse `perimetre:<id>` ; ids uniques, cause et hypothèse obligatoires, mesures prises dans le catalogue.
+- Mesures de l'adhérent : `spec/mesures.yml`, propositions `{id, titre, contexte?, codes[{cod,lib}], mesures[{gabarit: somme|ratio|ecart, …}], feuille?, hypothese}` ; gabarits fermés uniquement ; validée seulement par `valider` sur `mesures:<id>` ou opération registre `mesure` ; code nouveau validé par l'adhérent, pas ajouté à la main dans `referentiel.yml`.
+- Préserve les commentaires et l'ordre des clés ; fais le plus petit changement possible.

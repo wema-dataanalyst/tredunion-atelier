@@ -1,0 +1,10 @@
+---
+description: Catalogue des éléments principaux Qlik (mesures du dashboard Tredunion)
+globs: spec/catalogue/**
+alwaysApply: false
+---
+`spec/catalogue/elements_principaux.txt` reprend les mesures principales de l'app Qlik : le nom sur une ligne, l'expression indentée de 4 espaces en dessous.
+
+- Ne modifie ce fichier que si Michel le demande : c'est la référence de l'app en production.
+- `npm run couverture -- --anomalies` liste les anomalies détectées (références introuvables, noms en double, périodes incohérentes, sommes de moyennes, sommes « tout sauf » qui mélangent km et euros).
+- Pour corriger une mesure, garde le style existant (If sur GetSelectedCount(MoisVar) / GetSelectedCount(AnneeVar), variables $(vSET_M), $(vSET_M-1), $(vSET_N-1), $(vMaxAnnee), $(vMaxAnneeVar)), et annonce la correction à reporter dans Qlik.

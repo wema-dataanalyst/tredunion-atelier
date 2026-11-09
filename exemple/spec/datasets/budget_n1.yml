@@ -1,0 +1,52 @@
+# Dataset bronze budget_n1
+id: budget_n1
+societe: kf
+file: data/bronze/kf/budget_n1.csv
+desc: Budget de l'année suivante saisi par catégorie, mois et établissement
+grain: Une catégorie, un établissement, un mois
+columns:
+  - name: code_categorie
+    type: text
+    role: attr
+    desc: Code catégorie du référentiel
+  - name: libelle
+    type: text
+    role: attr
+    desc: Libellé de la catégorie
+  - name: mois_ref
+    type: date
+    role: attr
+    desc: Mois de l'année N-1 qui porte le budget de N
+    format: DD/MM/YYYY
+  - name: etablissement
+    type: text
+    role: attr
+    desc: Établissement (site)
+  - name: montant
+    type: decimal
+    role: measure
+    desc: Montant budgété en euros
+    decimalComma: true
+rules: []
+questions:
+  - id: q1
+    text: "code_categorie : valeurs MASSE, CA TOTAL, CA TPS, CA AFF, CA LOG. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "libelle : valeurs CA total, CA transport, CA affrètement, CA logistique, Masse parc, Dont Intérim. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "mois_ref : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q4
+    text: "etablissement : valeurs Colmar, Sélestat. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q5
+    text: "montant : nombre avec virgule décimale. Unité, HT ou TTC ?"
+    done: false
+    answer: ""
+cases: []

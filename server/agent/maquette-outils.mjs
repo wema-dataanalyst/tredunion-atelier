@@ -1,0 +1,36 @@
+/* Outils de l'agent de maquette : lecture du profil (sans pii) et écritures validées par specs.mjs. Tout reste dans l'espace de l'adhérent. */
+import { ecrireDataset, ecrireFlux, ecrireControle, ecrireRelation, ecrirePerimetre, ecrireLibelles, ecrireProposition, lireReferentiel } from "./specs.mjs";
+
+const ID = /^[a-z0-9_]+$/;
+const TXT = { type: "string" };
+
+export function creerOutilsMaquette({ espace, racine }) {
+  const outil = (nom, description, proprietes, requis, executer) => ({ nom, description, parametres: { type: "object", properties: proprietes, ...(requis.length ? { required: requis } : {}) }, executer });
+  // Les champs libres des écritures sont décrits en texte ; le schéma strict est vérifié à l'écriture (specs.mjs).
+  const ecriture = (nom, description, fn) => { const x = outil(nom, description, { id: TXT }, ["id"], a => fn(racine, a)); x.parametres.additionalProperties = true; return x; };
+  const o = [
+    outil("lire_dataset", "Profil d'un dataset de l'adhérent : colonnes (sans valeurs des colonnes personnelles), relations, flux liés, questions ouvertes.", { id: TXT }, ["id"],
+      a => typeof a.id === "string" && ID.test(a.id) ? (espace.profilDataset(a.id) || { erreur: `dataset inconnu : ${a.id}` }) : { erreur: "dataset inconnu : id invalide" }),
+    outil("lire_memoire", "Sens connus d'un nom de colonne dans la mémoire commune (anonymisé).", { colonne: TXT }, ["colonne"], a => ({ entrees: espace.memoireColonne(a.colonne) })),
+    outil("lire_comptes", "Catégorie connue pour un préfixe de compte dans la mémoire commune (anonymisé).", { prefixe: TXT }, ["prefixe"], a => ({ entrees: espace.memoireComptes(a.prefixe) })),
+    outil("lire_couverture", "Catégories manquantes classées par nombre de mesures débloquées, et codes admis du référentiel.", {}, [],
+      () => { const c = espace.couverture(); return { mesures: c.mesures, manque: c.manque.slice(0, 25), referentiel: lireReferentiel(racine) }; }),
+    outil("lire_candidats_perimetre", "Mesures du dashboard sans aucune donnée (candidates au retrait) avec leurs catégories manquantes. Seules ces mesures peuvent être écartées.", {}, [],
+      () => ({ candidats: espace.candidatsPerimetre() })),
+    outil("lire_codes_sans_libelle", "Codes catégorie utilisés par un flux et sans libellé lisible, avec les flux qui les alimentent.", {}, [], () => ({ codes: espace.codesSansLibelle() })),
+    outil("lire_reponses_adherent", "Réponses de l'adhérent aux questions sur son activité et les KPI attendus (activités principales…).", {}, [], () => ({ reponses: espace.reponsesAdherent() })),
+    outil("lire_mesures_base", "Noms des mesures du catalogue de base, utilisables dans un ratio ou un écart.", {}, [], () => ({ mesures: espace.nomsCatalogueBase() })),
+    ecriture("ecrire_dataset", "Complète un dataset existant : desc, grain, colonnes[{name, desc, role, type, pii, codes, format, decimalComma, hypothese}], regles[{text, sql, hypothese}], questions[{id, couverte | reponse_type, reponse_cible, options, titre, contexte, sql, text}]. Chaque déduction porte un bloc hypothese {source, preuves[], question}.", ecrireDataset),
+    ecriture("ecrire_flux", "Écrit un flux vers FAITS : ds, codMode, cod, lib, codCol, libCol, rules, valeur, agg, champ, unite, date, vehicule, chauffeur, site, client, collaborateur, filtre, note, hypothese. cod doit être dans le référentiel.", ecrireFlux),
+    ecriture("ecrire_controle", "Écrit un contrôle : type (ecart_somme | rapprochement | mensuel), libelle, annee, tolerance, a, b, from, to, norm, seuil, ds, date, porte_sur.", ecrireControle),
+    ecriture("ecrire_relation", "Écrit une relation : from (dataset.colonne), to, kind, norm, note, hypothese.", ecrireRelation),
+    ecriture("ecrire_perimetre", "Propose un groupe de mesures non applicables chez l'adhérent : id (g1, g2…), cause, mesures (noms issus de lire_candidats_perimetre), titre et contexte en langage d'exploitant, hypothese (source, preuves = exports lus et pourquoi ils ne portent pas la donnée, question). L'adhérent tranche.",
+      (r, a) => ecrirePerimetre(r, a, espace.candidatsPerimetre().map(x => x.mesure))),
+    ecriture("ecrire_libelles", "Propose des libellés lisibles pour des codes catégorie : id (\"libelles\"), libelles[{cod, lib, hypothese}] ; cod issu de lire_codes_sans_libelle, lib de 1 à 60 caractères en langage d'exploitant, hypothese (source, preuves, question). Aucun code ne peut être créé ; l'adhérent tranche.",
+      (r, a) => ecrireLibelles(r, a, espace.codesSansLibelle().map(x => x.cod))),
+    ecriture("ecrire_proposition", "Propose des codes catégorie nouveaux et des mesures pour l'adhérent : id (p1, p2…), titre et contexte en langage d'exploitant, codes[{cod, lib}], mesures[{gabarit: somme|ratio|ecart, nom, categories+periodes (somme : reel,m1,n1,budget) | num+den (ratio) | a+b (ecart)}], feuille, hypothese (source, preuves, question). Aucune formule libre. L'adhérent tranche.",
+      (r, a) => ecrireProposition(r, a, espace.erreursProposition({ ...a, hypothese: undefined }))),
+    outil("terminer", "Termine la tâche en cours avec un résumé court.", { resume: TXT }, [], a => ({ final: "termine", donnees: { resume: String(a.resume || "").slice(0, 500) } })),
+  ];
+  return Object.fromEntries(o.map(x => [x.nom, x]));
+}

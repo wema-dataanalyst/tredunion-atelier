@@ -1,0 +1,50 @@
+# Dataset bronze sftp_euro_trans_chanet_export : profil généré, types détectés à confirmer avec l'adhérent
+id: sftp_euro_trans_chanet_export
+societe: eurotranschanet
+file: data/bronze/eurotranschanet/sftp_euro_trans_chanet_export.csv
+desc: ""
+grain: ""
+columns:
+  - name: date
+    type: text
+    role: attr
+    desc: ""
+  - name: materiel
+    type: text
+    role: attr
+    desc: ""
+  - name: pays
+    type: text
+    role: attr
+    desc: ""
+  - name: montant_ht
+    type: decimal
+    role: attr
+    desc: ""
+  - name: quantite
+    type: decimal
+    role: attr
+    desc: ""
+  - name: kms_compteur
+    type: int
+    role: attr
+    desc: ""
+  - name: region
+    type: text
+    role: attr
+    desc: ""
+  - name: petrolier
+    type: text
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "pays : valeurs FRANCE. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "petrolier : 100 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+cases: []

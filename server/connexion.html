@@ -1,0 +1,19 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connexion · Tredunion</title>
+<style>/*WEMA*/
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--wm-gradient-side);font-family:var(--f-ui)}
+form{background:#fff;border-radius:18px;padding:32px 36px;width:min(380px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+h1{font-family:var(--wm-font-heading);font-size:22px;margin:0 0 4px;color:var(--wm-marine)} p{margin:0 0 20px;color:var(--muted);font-size:13px}
+label{display:block;font-size:12px;font-weight:700;margin:12px 0 4px;color:var(--wm-marine)}
+input{width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;font:inherit}
+button{margin-top:20px;width:100%;padding:12px;border:0;border-radius:999px;background:var(--wm-gradient-pill);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+#err{color:var(--bad);font-size:13px;min-height:18px;margin-top:12px}
+</style></head><body>
+<form id="f"><h1>Vos questions Tredunion</h1><p>Connectez-vous avec l'identifiant reçu de WeMa.</p>
+<label for="id">Identifiant</label><input id="id" autocomplete="username" required>
+<label for="mdp">Mot de passe</label><input id="mdp" type="password" autocomplete="current-password" required>
+<button type="submit">Se connecter</button><div id="err" role="alert"></div></form>
+<script>
+document.getElementById("f").onsubmit=async e=>{ e.preventDefault();
+  const r=await fetch("/api/connexion",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:document.getElementById("id").value.trim(),mdp:document.getElementById("mdp").value})});
+  if(r.ok) return location.href="/"; const j=await r.json().catch(()=>({})); document.getElementById("err").textContent=(j.erreurs||["Erreur de connexion"])[0]; };
+</script></body></html>

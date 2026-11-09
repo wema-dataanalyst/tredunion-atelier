@@ -1,0 +1,12 @@
+# Journal des décisions : une entrée par question tranchée
+- date: 2026-11-05T09:00:00
+  question: "compta_balance : comment classer les comptes ?"
+  decision: Correspondance par préfixe de compte vers les codes du référentiel (flux f1) ; CA TOTAL = comptes 706 (flux f2).
+  fichiers:
+    - spec/flux/f1.yml
+    - spec/flux/f2.yml
+- date: 2026-11-05T09:10:00
+  question: "budget_n1 : où est le budget 2026 ?"
+  decision: Saisi sur les mois 2025, conformément à la convention BudgetNextN de l'app (flux f3).
+  fichiers:
+    - spec/flux/f3.yml

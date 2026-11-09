@@ -1,0 +1,21 @@
+# Flux f1 : sftp_euro_trans_chanet_akanea → FAITS
+id: f1
+ds: sftp_euro_trans_chanet_akanea
+codMode: fixe
+cod: CA TOTAL
+lib: CA total
+valeur: montant
+agg: sum
+champ: MontantReel
+unite: €
+date: date_chgt
+vehicule: plaque_moteur
+client: code_du_client
+note: Tous les ordres Akanea, rattachés au mois de chargement
+hypothese:
+  source: agent
+  preuves:
+    - "10 596 ordres, tous chargés en 2025, de 737 à 1 049 par mois ; aucun montant vide"
+  question: "Le montant Akanea d'un ordre est-il hors taxe, et le mois de chargement est-il le bon mois de CA ?"
+  valide: false
+  refuse: false

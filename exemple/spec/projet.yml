@@ -1,0 +1,10 @@
+# Adhérent et sociétés (filiales) traitées dans cette séance
+adherent: Groupe Kessler-Rhin
+societes:
+  - id: kf
+    name: Kessler Frères
+    source: TMS + comptabilité
+  - id: rl
+    name: Rhin Logistique
+    source: Télématique + paie
+cases: []

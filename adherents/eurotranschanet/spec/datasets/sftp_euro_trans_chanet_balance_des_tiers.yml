@@ -1,0 +1,66 @@
+# Dataset bronze sftp_euro_trans_chanet_balance_des_tiers : profil généré, types détectés à confirmer avec l'adhérent
+id: sftp_euro_trans_chanet_balance_des_tiers
+societe: eurotranschanet
+file: data/bronze/eurotranschanet/sftp_euro_trans_chanet_balance_des_tiers.csv
+desc: ""
+grain: ""
+columns:
+  - name: numero_compte
+    type: text
+    role: attr
+    desc: ""
+  - name: intitule
+    type: text
+    role: attr
+    desc: ""
+  - name: mouvements_anterieurs_debit
+    type: decimal
+    role: attr
+    desc: ""
+  - name: mouvements_anterieurs_credit
+    type: decimal
+    role: attr
+    desc: ""
+  - name: mouvements_debit
+    type: decimal
+    role: attr
+    desc: ""
+  - name: mouvements_credit
+    type: decimal
+    role: attr
+    desc: ""
+  - name: soldes_cumules_debit
+    type: decimal
+    role: attr
+    desc: ""
+  - name: soldes_cumules_credit
+    type: decimal
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "mouvements_anterieurs_debit : 72 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "mouvements_anterieurs_credit : 85 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "mouvements_debit : 18 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q4
+    text: "mouvements_credit : 9 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q5
+    text: "soldes_cumules_debit : 83 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q6
+    text: "soldes_cumules_credit : 86 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+cases: []

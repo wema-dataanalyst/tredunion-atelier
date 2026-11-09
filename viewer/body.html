@@ -1,0 +1,61 @@
+<header class="top">
+  <div class="brand"><b>Atelier silver → gold</b><span class="lane">Tredunion</span></div>
+  <span id="adherent"></span>
+  <select id="sel-adh" aria-label="Adhérent"></select>
+  <div class="socs" id="socs"></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t-canvas" aria-selected="true">Schéma</button>
+    <button role="tab" id="t-cat" aria-selected="false">Catégories</button>
+    <button role="tab" id="t-mes" aria-selected="false">Éléments principaux</button>
+    <button role="tab" id="t-prev" aria-selected="false">Dashboard</button>
+    <button role="tab" id="t-files" aria-selected="false">Fichiers générés</button>
+    <button role="tab" id="t-q" aria-selected="false">Questions</button>
+    <button role="tab" id="t-log" aria-selected="false">Journal</button>
+    <button role="tab" id="t-adh" aria-selected="false">Adhérents</button>
+  </div>
+  <div class="spacer"></div>
+  <button id="b-out" type="button">Se déconnecter</button>
+  <div class="meter" title="Mesures du catalogue entièrement alimentées par les flux de la spec"><span>Mesures</span><span class="bar"><i id="m-bar"></i></span><b id="m-txt"></b></div>
+</header>
+
+<div class="stage">
+<main>
+  <section id="view-canvas">
+    <div class="canvas-wrap" id="cwrap">
+      <div class="canvas-tools">
+        <button class="btn sm" id="b-flows">Flux vers le gold</button>
+        <button class="btn sm" id="b-mask">Masquer données perso</button>
+      </div>
+      <div id="canvas">
+        <div id="bands"></div>
+        <svg id="edges"></svg>
+        <div id="cards"></div>
+      </div>
+    </div>
+    <aside id="panel"></aside>
+  </section>
+  <section id="view-cat" class="page" hidden><div class="inner wrapx" id="catv"></div></section>
+  <section id="view-mes" class="page" hidden><div class="inner wrapx" id="mesv"></div></section>
+  <section id="view-prev" class="page" hidden><div class="inner wrapx" id="prevv"></div></section>
+  <section id="view-files" hidden>
+    <nav class="flist" id="flist"></nav>
+    <div class="fview">
+      <div class="fbar"><span class="p" id="fpath"></span><button class="btn sm" id="b-copy">Copier</button><span class="note">Aperçu : <span class="mono">npm run build</span> écrit ces fichiers dans <span class="mono">generated/</span></span></div>
+      <pre class="code" id="fcode"></pre>
+    </div>
+  </section>
+  <section id="view-q" class="page" hidden><div class="inner wrapx" id="qv"></div></section>
+  <section id="view-log" class="page" hidden><div class="inner wrapx" id="logv"></div></section>
+  <section id="view-adh" class="page" hidden><div class="inner wrapx" id="adhv"></div></section>
+</main>
+
+<footer class="dock wrapx">
+  <span id="st-live" class="live off">Connexion…</span>
+  <span id="st-chk"></span>
+  <span class="spacer"></span>
+  <span id="st-at"></span>
+</footer>
+</div>
+<div id="chk-list" hidden></div>
+<datalist id="dl-cod"></datalist>
+<datalist id="dl-lib"></datalist>

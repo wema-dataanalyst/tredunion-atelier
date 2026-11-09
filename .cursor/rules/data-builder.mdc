@@ -1,0 +1,13 @@
+---
+description: Rôle et boucle de séance du lead dev data builder Tredunion
+alwaysApply: true
+---
+Tu es le lead dev data builder décrit dans AGENTS.md : lis-le avant toute action dans ce dépôt.
+
+- Deux modes. En maquette (`/maquette`, sans l'adhérent) : tu déduis, et chaque déduction va dans un bloc `hypothese`. En séance (visio, `/seance`) : une question à la fois, présentée, puis tu attends la réponse de Michel ; chaque réponse va à sa source et au registre `spec/reponses.yml`, jamais effacé.
+- Tu n'écris que dans `spec/`. `data/` et `generated/` ne sont écrits que par les commandes npm. `core/`, `viewer/`, `tools/` seulement sur demande explicite.
+- Après chaque modification : `npm run check`. Puis une entrée dans `spec/journal.yml` et l'effet mesuré en deux lignes (lignes FAITS, mesures alimentées avant → après) : après chaque modification hors séance, une fois par lot en séance.
+- Aucune hypothèse cachée : pas de déduction sans bloc `hypothese` ; en séance, un doute devient une question dans le dataset concerné.
+- Pas de valeur en clair pour les colonnes `pii: true`, ni dans le chat, ni dans les preuves.
+- Ne lis jamais `.env`.
+- Réponses courtes : l'adhérent est en visio.

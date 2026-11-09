@@ -1,0 +1,71 @@
+# Dataset bronze sftp_euro_trans_chanet_cofi_etat_synthese_detail : profil généré, types détectés à confirmer avec l'adhérent
+id: sftp_euro_trans_chanet_cofi_etat_synthese_detail
+societe: eurotranschanet
+file: data/bronze/eurotranschanet/sftp_euro_trans_chanet_cofi_etat_synthese_detail.csv
+desc: ""
+grain: ""
+columns:
+  - name: date
+    type: date
+    role: attr
+    desc: ""
+    format: DD/MM/YYYY
+  - name: materiel
+    type: text
+    role: attr
+    desc: ""
+  - name: famille
+    type: text
+    role: attr
+    desc: ""
+  - name: nature_operation
+    type: text
+    role: attr
+    desc: ""
+  - name: cout_total
+    type: decimal
+    role: attr
+    desc: ""
+  - name: couts_main_d_oeuvre
+    type: text
+    role: attr
+    desc: ""
+  - name: couts_matieres
+    type: decimal
+    role: attr
+    desc: ""
+  - name: couts_divers
+    type: text
+    role: attr
+    desc: ""
+  - name: observations
+    type: text
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "date : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "famille : valeurs Consommation carburants. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "nature_operation : valeurs Consommations. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q4
+    text: "couts_main_d_oeuvre : 100 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q5
+    text: "couts_divers : 100 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q6
+    text: "observations : 100 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+cases: []

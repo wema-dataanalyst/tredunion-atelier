@@ -1,0 +1,66 @@
+# Dataset bronze tms_missions
+id: tms_missions
+societe: kf
+file: data/bronze/kf/tms_missions.csv
+desc: Ordres de transport exportés du TMS
+grain: Une ligne par ordre de transport
+columns:
+  - name: num_ot
+    type: text
+    role: key
+    desc: Numéro d'ordre de transport
+  - name: date_charg
+    type: ""
+    role: attr
+    desc: ""
+  - name: date_livr
+    type: ""
+    role: attr
+    desc: ""
+  - name: code_cond
+    type: text
+    role: fk
+    desc: Code conducteur du TMS
+  - name: immat_tracteur
+    type: ""
+    role: attr
+    desc: ""
+  - name: client_code
+    type: ""
+    role: attr
+    desc: ""
+  - name: km_prevus
+    type: ""
+    role: attr
+    desc: ""
+  - name: ca_ht
+    type: ""
+    role: attr
+    desc: ""
+  - name: statut
+    type: ""
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "date_charg : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "date_livr : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "immat_tracteur : majuscules et minuscules mélangées. Même référence ?"
+    done: false
+    answer: ""
+  - id: q4
+    text: "ca_ht : nombre avec virgule décimale. Unité, HT ou TTC ?"
+    done: false
+    answer: ""
+  - id: q5
+    text: "statut : valeurs L, C, A, R. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+cases: []

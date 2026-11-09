@@ -1,0 +1,20 @@
+# Flux f5 : sftp_euro_trans_chanet_table → FAITS
+id: f5
+ds: sftp_euro_trans_chanet_table
+codMode: fixe
+cod: GO
+lib: Gazole
+valeur: montant_ht
+agg: sum
+champ: MontantReel
+unite: €
+date: date_heure
+vehicule: materiel
+note: Pleins de gazole COFI, montant hors taxe
+hypothese:
+  source: agent
+  preuves:
+    - "1 832 pleins 2025, tous GO, 799 486 L ; 38 des 41 véhicules retrouvés dans Akanea (92,7 %)"
+  question: "Tous vos pleins passent-ils par ces cartes (DKV, Leclerc, Super U) ? L'écart de 27 k€ avec la compta vient-il d'autres achats de gazole ?"
+  valide: false
+  refuse: false

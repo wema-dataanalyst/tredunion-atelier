@@ -1,0 +1,30 @@
+# Dataset bronze tele_vehicules
+id: tele_vehicules
+societe: rl
+file: data/bronze/rl/tele_vehicules.csv
+desc: ""
+grain: ""
+columns:
+  - name: vehicle_id
+    type: ""
+    role: attr
+    desc: ""
+  - name: plate
+    type: ""
+    role: attr
+    desc: ""
+  - name: model
+    type: ""
+    role: attr
+    desc: ""
+  - name: odometer_km
+    type: ""
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "model : valeurs Scania R450, Mercedes Actros, DAF XF, Volvo FH. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+cases: []

@@ -1,0 +1,1985 @@
+% Charges Vs CA Réel
+    Charges / [CA Réel]
+
+% Evol CA
+    (([CA Réel] / [CA Réel N-1]*100)-100)/100
+
+% Intérim Vs Réel
+    ([Masse Intérim Réel] / [Masse Réel])
+
+% Masse Vs CA Réel
+    ([Masse Réel] / [CA Réel])
+
+Budget
+    If(
+    GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+
+Budget affrètement
+    If(
+    GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+Budget logistique
+    If(
+    GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+Budget parc
+    If(
+    GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+Budget résultat
+    If(
+    GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vSET_N-1)
+    >}
+    BudgetNextN)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vSET_N-1)
+    >}
+    BudgetNextN)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vSET_N-1)
+    >}
+    BudgetNextN)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+
+CA / Heure travaillée Année
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+    /
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+CA Affrètement 
+    If(
+    GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+CA Affrètement année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+CA Affrètement M-1
+    sum({<			$(vSET_M-1),    
+        [%COD_CATEGORIE] = {'CA AFF'}
+    >}
+    MontantReel)
+
+CA Affrètement N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+            $(vSET_N-1)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA AFF'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+CA Budget / Heure travaillée Année
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+    /
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    )
+
+
+CA Logistique
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+
+CA Logistique Année
+    if(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+CA Logistique M-1
+    sum({<			$(vSET_M-1),    
+        [%COD_CATEGORIE] = {'CA LOG'}
+    >}
+    MontantReel)
+
+CA Logistique N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+            $(vSET_N-1)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA LOG'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+CA parc
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+CA parc Année
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+CA parc M-1
+    sum({<			$(vSET_M-1),    
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+    >}
+    MontantReel)
+
+CA parc N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+            $(vSET_N-1)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TPS TOT'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+CA Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+
+CA Réel Année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+CA Réel M
+    sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL','PR EXEP'}
+    >}
+    MontantReel)
+    -
+    sum(
+    {<
+        [%COD_CATEGORIE] = {'CH EXEP'}
+    >}
+    MontantReel)
+
+CA Réel M-1
+    sum({<			$(vSET_M-1),    [%COD_CATEGORIE]={'CA TOTAL'}>}MontantReel)
+
+
+CA Réel N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+            $(vSET_N-1)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CA TOTAL'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+Charges
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'MASSE','FOUR','LOC','ENTR','AMORT','GO','ASS','TEL','DIV','AMORT','Autres','AUTRES','ENERGIE','TAXE FON','ENTRE','LOC','PEAGE','FRAIS'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'MASSE','FOUR','LOC','ENTR','AMORT','GO','ASS','TEL','DIV','AMORT','Autres','AUTRES','ENERGIE','TAXE FON','ENTRE','LOC','PEAGE','FRAIS'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'MASSE','FOUR','LOC','ENTR','AMORT','GO','ASS','TEL','DIV','AMORT','Autres','AUTRES','ENERGIE','TAXE FON','ENTRE','LOC','PEAGE','FRAIS'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Charges affrètement
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'ST AFF'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST AFF'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST AFF'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Charges logistiques
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'ST LOG'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST LOG'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST LOG'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Charges réelles
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] -= {'CA TOTAL','PR EXEP','CA POLE','CA TPS TOT','CA AFF','CA LOG','CA TPS','Egal','FRAIS FI','STRUCT'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] -= {'CA TOTAL','PR EXEP','CA POLE','CA TPS TOT','CA AFF','CA LOG','CA TPS','Egal','FRAIS FI','STRUCT'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] -= {'CA TOTAL','PR EXEP','CA POLE','CA TPS TOT','CA AFF','CA LOG','CA TPS','Egal','FRAIS FI','STRUCT'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Charges VS KM
+    Charges / [KM Réel]
+
+Consommation
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie= {'Moyenne Conso/Tr'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie= {'Moyenne Conso/Tr'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie= {'Moyenne Conso/Tr'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Consommation année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie= {'Moyenne Conso/Tr'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie= {'Moyenne Conso/Tr'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Cout ADM parc
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'COUT ADM PARC','Masse Adm','Crédit Bail Tracteur','Crédit Bail Remorque','Assurance engins','Assurance camions'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'COUT ADM PARC','Masse Adm','Crédit Bail Tracteur','Crédit Bail Remorque','Assurance engins','Assurance camions'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'COUT ADM PARC','Masse Adm','Crédit Bail Tracteur','Crédit Bail Remorque','Assurance engins','Assurance camions'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Cout ADM Parc / moteur
+    [Coût ADM Parc]
+    /
+    (If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        Count(
+    {<
+        $(vSET_M)
+    >}
+    TOTAL distinct NUM_IMAT),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Count(
+    {<
+        $(vMaxAnneeVar)
+    >}
+    TOTAL distinct NUM_IMAT),
+    // Sinon afficher l'année max
+        Count(
+    {<
+        $(vMaxAnnee)
+    >}
+    TOTAL distinct NUM_IMAT),
+    ))
+    )
+
+Coût Loyer par véhicule SR
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        Avg(
+    {<
+        COD_TYPE = {'SR'},
+        $(vSET_M)
+    >}
+    MontantLoc),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Avg(
+    {<
+        COD_TYPE = {'SR'},
+        $(vMaxAnneeVar)
+    >}
+    MontantLoc),
+    // Sinon afficher l'année max
+        Avg(
+    {<
+        COD_TYPE = {'SR'},
+        $(vMaxAnnee)
+    >}
+    MontantLoc)
+    ))
+
+Coût Loyer par véhicule SR Année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Avg(
+    {<
+        COD_TYPE = {'SR'},
+        $(vMaxAnneeVar)
+    >}
+    MontantLoc),
+    // Sinon afficher l'année max
+        Avg(
+    {<
+        COD_TYPE = {'SR'},
+        $(vMaxAnnee)
+    >}
+    MontantLoc)
+    )
+
+Coût Loyer par véhicule TR
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        Avg(
+    {<
+        COD_TYPE = {'TR'},
+        $(vSET_M)
+    >}
+    MontantLoc),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Avg(
+    {<
+        COD_TYPE = {'TR'},
+        $(vMaxAnneeVar)
+    >}
+    MontantLoc),
+    // Sinon afficher l'année max
+        Avg(
+    {<
+        COD_TYPE = {'TR'},
+        $(vMaxAnnee)
+    >}
+    MontantLoc)
+    ))
+
+Coût Loyer par véhicule TR Année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Avg(
+    {<
+        COD_TYPE = {'TR'},
+        $(vMaxAnneeVar)
+    >}
+    MontantLoc),
+    // Sinon afficher l'année max
+        Avg(
+    {<
+        COD_TYPE = {'TR'},
+        $(vMaxAnnee)
+    >}
+    MontantLoc)
+    )
+
+Ecart Budget VS Réel
+    [CA Réel] - [Budget]
+
+Ecart Budget vs résultat réel
+    [Résultat Avec Exceptionnel Réel] - [Budget Résultat]
+
+Entretien
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Entretien Année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Entretien + Pneumatique + Casse','Consomables Mécano','Entretien Camion','Pneumatique'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Frais Parc propre
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Frais de Parc Propre'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Frais de Parc Propre'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Frais de Parc Propre'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Frais parc propre Année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Frais de Parc Propre'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Frais de Parc Propre'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Frais sous traitance
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'ST TPS'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST TPS'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST TPS'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Frais sous traitance année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST TPS'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'ST TPS'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+KM Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Km','Nbre de kms parcourus'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Km','Nbre de kms parcourus'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Km','Nbre de kms parcourus'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+
+KM Réel année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Km','Nbre de kms parcourus'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Km','Nbre de kms parcourus'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Location Logidis
+    If(WildMatch(LIB_EXPLOITANT,'*LOG*'),
+    Sum(
+    {<LIB_Categorie = {'Location véhicule'}
+    >}MontantReel)*[Ratio Logidis]
+    )
+
+Location matériel roulant
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Matériel Roulant'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Matériel Roulant'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Matériel Roulant'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Location matériel roulant année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Matériel Roulant'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Matériel Roulant'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Marge affrètement
+    [CA Affrètement] - [Charges Affrètement]
+
+Marge affrètement année
+    [CA Affrètement Année] - [Charges Affrètement Année]
+
+Marge logistique
+    [CA Logistique] - [Charges Logistique]
+
+Marge parc propre
+    [CA Parc] - [Frais Parc Propre] - [Frais Sous Traitance]
+
+Marge parc propre année
+    [CA Parc Année] - [Frais Parc Propre Année] - [Frais Sous Traitance Année]
+
+
+Masse Budget Intérim Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+Masse Budget Intérim Réel année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    )
+
+Marge budget réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+            $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+Masse chargeur
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Masse chargeur'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Masse chargeur'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Masse chargeur'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Masse intérim Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Masse intérim Réel année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Masse réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Masse réel année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Masse réel intermin M-1
+    sum({<			$(vSET_N-1),    	LIB_Categorie = {'Dont Intérim'}>}MontantReel)
+
+
+Masse réel intermin N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vSET_N-1)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Dont Intérim'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+Masse réel M-1
+    sum({<			$(vSET_M-1),    
+        LIB_Categorie = {'Masse parc'}
+        >}
+    MontantReel)
+
+Masse réel N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vSET_N-1)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Masse parc'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+
+Nbre Heure Budget Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vSET_N-1)
+    >}
+    BudgetNextN),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},    
+        $(vMaxAnneeVar-1)
+    >}
+    BudgetNextN),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnnee-1)
+    >}
+    BudgetNextN)
+    ))
+
+Nbre Heure Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Nbre Heure Réel année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Nbre Heure Réel M-1
+    sum({<			$(vSET_M-1),    	LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'}>}MontantReel)
+
+
+Nbre Heure Réel N-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vSET_N-1)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Nbre Heure effectif/payée','Nbre Heure Interim'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+NB SR
+    Count({<	LIB_Categorie = {'Location véhicule'},	FLAG_SR = {'1'}>}FLAG_SR)
+
+NB SR Logidis
+    Count({<	LIB_Categorie = {'Location véhicule'},	FLAG_SR = {'1'}>}FLAG_SR)*[Ratio Logidis]
+
+NB TR
+    Count({<	LIB_Categorie = {'Location véhicule'},	FLAG_TR = {'1'}>}FLAG_TR)
+
+NR Tr Logidis
+    Count({<	LIB_Categorie = {'Location véhicule'},	FLAG_TR = {'1'}>}FLAG_TR)*[Ratio Logidis]
+
+Nb Véhicules
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        Count(
+    {<
+        $(vSET_M)
+    >}
+    distinct NUM_IMAT),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Count(
+    {<
+        $(vMaxAnneeVar)
+    >}
+    distinct NUM_IMAT),
+    // Sinon afficher l'année max
+        Count(
+    {<
+        $(vMaxAnnee)
+    >}
+    distinct NUM_IMAT),
+    ))
+
+Nb Véhicules Année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Count(
+    {<
+        $(vMaxAnneeVar)
+    >}
+    distinct NUM_IMAT),
+    // Sinon afficher l'année max
+        Count(
+    {<
+        $(vMaxAnnee)
+    >}
+    distinct NUM_IMAT),
+    )
+
+Peage
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE] = {'PEAGE'},
+        $(vSET_M)
+    >}
+    MontantReel),
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'PEAGE'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'PEAGE'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Péage année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'PEAGE'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'PEAGE'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Prix carburant année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Prix Moyen du Litre'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Prix Moyen du Litre'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+
+Ratio logidis
+    Num#(If(WildMatch(LIB_EXPLOITANT, '*LOGIDIS*'),1,
+        If(WildMatch(LIB_EXPLOITANT, '*LOG 3%*'),'0,03',
+            If(WildMatch(LIB_EXPLOITANT, '*LOG 30%*'),'0,30',
+                If(WildMatch(LIB_EXPLOITANT, '*LOG 33%*'),'0,33',
+                    If(WildMatch(LIB_EXPLOITANT, '*LOG 90%*'),'0,90',
+                        If(WildMatch(LIB_EXPLOITANT, '*LOG 93%*'),'0,93',
+                            If(WildMatch(LIB_EXPLOITANT, '*LOG 97%*'),'0,97'
+                    
+
+    ))))))))
+
+
+Résultat Avec Exceptionnel Réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Résultat réel M-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vSET_M-1)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vSET_M-1)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vSET_M-1)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Résultat réel M-1
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vSET_N-1)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vSET_N-1)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vSET_N-1)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnneeVar-1)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        sum(
+    {<
+        LIB_Categorie  = {'Résultat Net filiale'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    -
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'CH EXEP'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    +
+        sum(
+    {<
+        [%COD_CATEGORIE]  = {'PR EXEP'},
+        $(vMaxAnnee-1)
+    >}
+    MontantReel)
+    ))
+
+Résultat sans exceptionnel réel
+    If(
+        GetSelectedCount(MoisVar) > 0,
+    // Si un mois est sélectionné -> Calculer pour le mois
+        sum(
+    {<
+        LIB_Categorie = {'Résultat Net filiale'},
+        $(vSET_M)
+    >}
+    MontantReel)
+    ,
+    // Si une année est sélectionnée -> Calculer l'année
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        LIB_Categorie = {'Résultat Net filiale'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        LIB_Categorie = {'Résultat Net filiale'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    ))
+
+Taxe à l'essieu Logidis
+    If(WildMatch(LIB_EXPLOITANT,'*LOG*'),
+    Sum(
+    {<LIB_Categorie = {'Taxe à l essieu'}
+    >}MontantReel)*[Ratio Logidis]
+    )
+
+Total cout fixe
+    [Coût ADM Parc] + [Location Matériel Roulant Année]
+
+Total exceptionnel
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'PR EXEP'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'PR EXEP'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )
+    -
+    If(
+        GetSelectedCount(AnneeVar) > 0,
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CH EXEP'},
+        $(vMaxAnneeVar)
+    >}
+    MontantReel),
+    // Sinon afficher l'année max
+        Sum(
+    {<
+        [%COD_CATEGORIE] = {'CH EXEP'},
+        $(vMaxAnnee)
+    >}
+    MontantReel)
+    )

@@ -1,0 +1,14 @@
+name: tredunion_euro_trans_chanet
+version: '0.1.0'
+profile: wema_dwh
+
+model-paths: ["models"]
+
+models:
+  tredunion_euro_trans_chanet:
+    silver:
+      +schema: silver_euro_trans_chanet
+      +materialized: view
+    gold:
+      +schema: gold_euro_trans_chanet
+      +materialized: table

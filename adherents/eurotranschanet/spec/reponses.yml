@@ -1,0 +1,17 @@
+# Registre des réponses de l'adhérent : on ajoute à la fin, on n'efface jamais.
+- id: tms_akanea#q1
+  question: "date_chgt : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+  reponse: des dates réelles
+  origine: client
+  date: 2026-11-08T14:41:14
+  modifs:
+    - op: noter
+  effet: mesures alimentées 26 → 26 · lignes FAITS 11445 → 11445 · questions ouvertes 93 → 92
+- id: tms_akanea#q7
+  question: "Les ordres LN (763 576 €, 536 ordres) : est-ce de la location de véhicules avec chauffeur ? Dans quel CA les ranger (transport, logistique, autre) ?"
+  reponse: Logistique
+  origine: client
+  date: 2026-11-08T14:47:41
+  modifs:
+    - op: noter
+  effet: mesures alimentées 26 → 26 · lignes FAITS 11445 → 11445 · questions ouvertes 92 → 91

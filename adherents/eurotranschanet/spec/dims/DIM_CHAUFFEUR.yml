@@ -1,0 +1,32 @@
+# Dimension DIM_CHAUFFEUR : map = expression SQL par société, sur les colonnes silver (dataset.colonne)
+id: DIM_CHAUFFEUR
+desc: Un chauffeur. Clé reliée à FAITS.%KEY_CHAUFFEUR
+columns:
+  - name: "%KEY_CHAUFFEUR"
+    type: text
+    desc: Identifiant unique du chauffeur
+    map: {}
+  - name: matricule
+    type: text
+    desc: Matricule de paie
+    map: {}
+  - name: LIB_CHAUFFEUR
+    type: text
+    desc: Nom et prénom
+    map: {}
+  - name: LIB_SITE
+    type: text
+    desc: Site de rattachement
+    map: {}
+  - name: TYP_CONTRAT
+    type: text
+    desc: CDI, CDD, intérim, mise à disposition
+    map: {}
+  - name: DAT_ENTREE
+    type: date
+    desc: Date d'entrée
+    map: {}
+  - name: DAT_SORTIE
+    type: date
+    desc: Date de sortie
+    map: {}

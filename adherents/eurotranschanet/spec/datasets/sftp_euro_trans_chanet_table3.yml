@@ -1,0 +1,95 @@
+# Dataset bronze sftp_euro_trans_chanet_table3 : profil généré, types détectés à confirmer avec l'adhérent
+id: sftp_euro_trans_chanet_table3
+societe: eurotranschanet
+file: data/bronze/eurotranschanet/sftp_euro_trans_chanet_table3.csv
+desc: ""
+grain: ""
+columns:
+  - name: vehicule
+    type: text
+    role: attr
+    desc: ""
+  - name: date
+    type: date
+    role: attr
+    desc: ""
+    format: DD/MM/YYYY
+  - name: unite
+    type: text
+    role: attr
+    desc: ""
+  - name: produit_conso
+    type: text
+    role: attr
+    desc: ""
+  - name: qte_soute
+    type: text
+    role: attr
+    desc: ""
+  - name: qte_route
+    type: decimal
+    role: attr
+    desc: ""
+  - name: compteur
+    type: int
+    role: attr
+    desc: ""
+  - name: u_cptr
+    type: text
+    role: attr
+    desc: ""
+  - name: kms_parc
+    type: int
+    role: attr
+    desc: ""
+  - name: consom
+    type: decimal
+    role: attr
+    desc: ""
+  - name: cumul_kms
+    type: int
+    role: attr
+    desc: ""
+  - name: cumul_qte
+    type: decimal
+    role: attr
+    desc: ""
+  - name: cumul_conso
+    type: decimal
+    role: attr
+    desc: ""
+  - name: chauffeur
+    type: text
+    role: attr
+    desc: ""
+  - name: petrolier
+    type: text
+    role: attr
+    desc: ""
+rules: []
+questions:
+  - id: q1
+    text: "date : date en texte DD/MM/YYYY. Date réelle ou prévue ?"
+    done: false
+    answer: ""
+  - id: q2
+    text: "unite : valeurs L. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q3
+    text: "produit_conso : valeurs GO. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q4
+    text: "qte_soute : 100 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+  - id: q5
+    text: "u_cptr : valeurs KM, -1. Que signifie chacune ? Faut-il en exclure ?"
+    done: false
+    answer: ""
+  - id: q6
+    text: "u_cptr : 3 % de valeurs vides. Normal ? Que faire de ces lignes ?"
+    done: false
+    answer: ""
+cases: []

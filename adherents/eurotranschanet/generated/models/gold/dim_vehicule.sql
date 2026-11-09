@@ -1,0 +1,3 @@
+-- DIM_VEHICULE : aucune colonne alimentée pour l'instant
+select null::text as "%KEY_VEHICULE", null::text as "NUM_VEHICULE", null::text as "COD_TYPE", null::text as "NUM_IMAT", null::date as "DAT_ENTREE", null::date as "DAT_SORTIE", null::text as "SOC_LOC", null::text as "LIB_CHAUFFEUR", null::text as "LIB_ACTIVITE", null::text as "Source", null::date as "DAT_MISE_EN_CIRC", null::text as "LIB_PROPRIETAIRE", null::text as "LIB_MOTIF_SORTIE", null::text as "LIB_COMMENTAIRES", null::text as "LIB_EXPLOITANT", null::text as "LIB_MARQUE", null::text as "LIB_CARROSERIE", null::text as "LIB_DIVERS", null::text as "FLAG_TR", null::text as "FLAG_SR"
+where false

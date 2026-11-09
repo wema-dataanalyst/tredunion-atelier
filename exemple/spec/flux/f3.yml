@@ -1,0 +1,13 @@
+# Flux f3 : budget_n1 → FAITS
+id: f3
+ds: budget_n1
+codMode: colonne
+codCol: code_categorie
+libCol: libelle
+unite: €
+champ: BudgetNextN
+valeur: montant
+agg: sum
+date: mois_ref
+site: etablissement
+note: Budget 2026 porté par les lignes de 2025 (convention BudgetNextN du modèle)

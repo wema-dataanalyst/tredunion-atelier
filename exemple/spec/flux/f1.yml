@@ -1,0 +1,49 @@
+# Flux f1 : compta_balance → FAITS
+id: f1
+ds: compta_balance
+codMode: regles
+codCol: compte
+rules:
+  - prefix: "7061"
+    cod: CA TPS
+    lib: CA transport
+  - prefix: "7062"
+    cod: CA LOG
+    lib: CA logistique
+  - prefix: "7063"
+    cod: CA AFF
+    lib: CA affrètement
+  - prefix: "6041"
+    cod: ST AFF
+    lib: Sous-traitance affrètement
+  - prefix: "6042"
+    cod: ST TPS
+    lib: Sous-traitance transport
+  - prefix: "6061"
+    cod: GO
+    lib: Gazole
+  - prefix: "6135"
+    cod: LOC
+    lib: Matériel Roulant
+  - prefix: "6155"
+    cod: ENTR
+    lib: Entretien Camion
+  - prefix: "6161"
+    cod: ASS
+    lib: Assurance camions
+  - prefix: "6251"
+    cod: PEAGE
+    lib: Péages
+  - prefix: "6411"
+    cod: MASSE
+    lib: Masse parc
+  - prefix: "6811"
+    cod: AMORT
+    lib: Amortissements
+unite: €
+champ: MontantReel
+valeur: montant
+agg: sum
+date: periode
+site: etablissement
+note: "Plan de comptes Kessler : correspondance par préfixe de compte"

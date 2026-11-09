@@ -1,0 +1,24 @@
+[Unit]
+Description=Plateforme Tredunion (réponses des adhérents)
+After=network.target
+
+[Service]
+User=tredunion
+WorkingDirectory=/srv/tredunion/app
+Environment=ADHERENTS_ROOT=/srv/tredunion/adherents
+Environment=COMPTES_FILE=/srv/tredunion/comptes.json
+Environment=PORT=4400
+Environment=COOKIE_SECURE=1
+Environment=TRUST_PROXY=1
+EnvironmentFile=-/srv/tredunion/llm.env
+ExecStart=/usr/bin/node server/app.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/srv/tredunion/adherents
+
+[Install]
+WantedBy=multi-user.target

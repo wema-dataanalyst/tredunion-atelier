@@ -1,0 +1,91 @@
+# Dimension DIM_VEHICULE : map = expression SQL par société, sur les colonnes silver (dataset.colonne)
+id: DIM_VEHICULE
+desc: Un véhicule. Clé reliée à FAITS.%KEY_VEHICULE (immatriculation normalisée)
+columns:
+  - name: "%KEY_VEHICULE"
+    type: text
+    desc: Immatriculation normalisée (lettres et chiffres, majuscules)
+    map:
+      kf: upper(regexp_replace(tms_vehicules.immat, '[^A-Za-z0-9]', '', 'g'))
+  - name: NUM_VEHICULE
+    type: text
+    desc: Numéro interne
+    map: {}
+  - name: COD_TYPE
+    type: text
+    desc: TR, SR, PL…
+    map:
+      kf: tms_vehicules.type
+  - name: NUM_IMAT
+    type: text
+    desc: Immatriculation lisible
+    map:
+      kf: tms_vehicules.immat
+  - name: DAT_ENTREE
+    type: date
+    desc: Entrée dans le parc
+    map: {}
+  - name: DAT_SORTIE
+    type: date
+    desc: Sortie du parc
+    map: {}
+  - name: SOC_LOC
+    type: text
+    desc: Loueur
+    map: {}
+  - name: LIB_CHAUFFEUR
+    type: text
+    desc: Chauffeur attitré
+    map: {}
+  - name: LIB_ACTIVITE
+    type: text
+    desc: Activité
+    map: {}
+  - name: Source
+    type: text
+    desc: Source
+    map:
+      kf: "'tms_vehicules'"
+  - name: DAT_MISE_EN_CIRC
+    type: date
+    desc: Mise en circulation (nom tronqué sur la capture)
+    map: {}
+  - name: LIB_PROPRIETAIRE
+    type: text
+    desc: Propriétaire
+    map: {}
+  - name: LIB_MOTIF_SORTIE
+    type: text
+    desc: Motif de sortie
+    map: {}
+  - name: LIB_COMMENTAIRES
+    type: text
+    desc: Commentaires
+    map: {}
+  - name: LIB_EXPLOITANT
+    type: text
+    desc: Exploitant
+    map: {}
+  - name: LIB_MARQUE
+    type: text
+    desc: Marque
+    map:
+      kf: tms_vehicules.marque
+  - name: LIB_CARROSERIE
+    type: text
+    desc: Carrosserie
+    map: {}
+  - name: LIB_DIVERS
+    type: text
+    desc: Divers
+    map: {}
+  - name: FLAG_TR
+    type: text
+    desc: 1 si tracteur
+    map:
+      kf: case when tms_vehicules.type = 'TR' then '1' end
+  - name: FLAG_SR
+    type: text
+    desc: 1 si semi-remorque
+    map:
+      kf: case when tms_vehicules.type = 'SR' then '1' end

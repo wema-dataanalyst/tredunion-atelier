@@ -1,0 +1,14 @@
+# Flux f2 : compta_balance → FAITS
+id: f2
+ds: compta_balance
+codMode: fixe
+cod: CA TOTAL
+lib: CA total
+unite: €
+champ: MontantReel
+valeur: montant
+agg: sum
+date: periode
+site: etablissement
+filtre: compte like '706%'
+note: CA total = tous les comptes 706

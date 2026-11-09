@@ -1,0 +1,513 @@
+diff -ruN -x spec -x .env avant/.cursor/commands/question-suivante.md apres/.cursor/commands/question-suivante.md
+--- avant/.cursor/commands/question-suivante.md	2026-11-05 10:55:28.000000000 +0100
++++ apres/.cursor/commands/question-suivante.md	2026-11-07 08:41:46.795207263 +0100
+@@ -13,6 +13,7 @@
+ 5. À réception de la réponse :
+    - mets à jour `spec/` ;
+    - passe la question à `done: true` avec `answer` ;
++   - ajoute la réponse à la fin du registre `spec/reponses.yml` (`id`, `question` texte exact, `element`, `reponse`, `date`, `effet`), comme à l'étape 4 de `/seance` ;
+    - ajoute l'entrée de `spec/journal.yml` ;
+    - lance `npm run check` et corrige les erreurs ;
+    - annonce l'effet en deux lignes ;
+diff -ruN -x spec -x .env avant/.cursor/commands/seance.md apres/.cursor/commands/seance.md
+--- avant/.cursor/commands/seance.md	1970-01-01 01:00:00.000000000 +0100
++++ apres/.cursor/commands/seance.md	2026-11-07 08:41:45.305873533 +0100
+@@ -0,0 +1,21 @@
++# Séance avec l'adhérent
++
++Michel est en visio avec l'adhérent et te relaie ses réponses dans le chat. Une question à la fois.
++
++1. **Choisir le lot.** `npm run questions` : prends le lot ouvert de plus fort impact (le premier), sauf si Michel en demande un autre.
++2. **Présenter une question** (`npm run question -- <dataset>#<id>` pour le profil d'une question de dataset), en 4 lignes au plus :
++   - la question, pour un exploitant transport, sans jargon data ;
++   - ce que montrent les données (en nombres, jamais une valeur pii) ;
++   - ton hypothèse en une phrase ;
++   - ce que la réponse changera dans la spec.
++   Puis arrête-toi et attends la réponse.
++3. **Enregistrer la réponse à sa source** :
++   - question de dataset : `answer` (résumé fidèle) et `done: true` ;
++   - hypothèse : `valide: true` ou `refuse: true`, et `reponse` ;
++   - contrôle : `reponse` ;
++   - fichier non lu, valeurs hors recette : registre seulement.
++   Puis modifie la spec en conséquence (colonnes, règles, flux, contrôles). Ne supprime jamais un bloc `hypothese` démenti avant d'avoir écrit sa réponse au registre.
++4. **Ajouter au registre** `spec/reponses.yml` (à la fin, sans rien effacer) :
++   `id` (celui affiché par `npm run questions`), `question` (texte exact), `element`, `reponse`, `date`, `effet` (ce qui a changé dans la spec, en une ligne). Puis `npm run check` et corrige toute erreur.
++5. **Doute nouveau** : une nouvelle question dans le dataset concerné (id suivant), pas de supposition.
++6. **Fin du lot** : `npm run build` (s'il reste une erreur, signale-la à Michel, ne la contourne pas), une entrée dans `spec/journal.yml` pour le lot, puis l'effet en deux lignes (lignes FAITS, mesures alimentées avant → après). Propose le lot suivant.
+diff -ruN -x spec -x .env avant/.cursor/rules/data-builder.mdc apres/.cursor/rules/data-builder.mdc
+--- avant/.cursor/rules/data-builder.mdc	2026-11-07 08:06:16.526859301 +0100
++++ apres/.cursor/rules/data-builder.mdc	2026-11-07 08:34:08.988667668 +0100
+@@ -4,9 +4,9 @@
+ ---
+ Tu es le lead dev data builder décrit dans AGENTS.md : lis-le avant toute action dans ce dépôt.
+ 
+-- Deux modes. En maquette (`/maquette`, sans l'adhérent) : tu déduis, et chaque déduction va dans un bloc `hypothese`. En séance (visio) : une question à la fois, présentée, puis tu attends la réponse de Michel avant de modifier quoi que ce soit.
++- Deux modes. En maquette (`/maquette`, sans l'adhérent) : tu déduis, et chaque déduction va dans un bloc `hypothese`. En séance (visio, `/seance`) : une question à la fois, présentée, puis tu attends la réponse de Michel ; chaque réponse va à sa source et au registre `spec/reponses.yml`, jamais effacé.
+ - Tu n'écris que dans `spec/`. `data/` et `generated/` ne sont écrits que par les commandes npm. `core/`, `viewer/`, `tools/` seulement sur demande explicite.
+-- Après chaque modification : `npm run check`, puis une entrée dans `spec/journal.yml`, puis l'effet mesuré en deux lignes (lignes FAITS, mesures alimentées avant → après).
++- Après chaque modification : `npm run check`. Puis une entrée dans `spec/journal.yml` et l'effet mesuré en deux lignes (lignes FAITS, mesures alimentées avant → après) : après chaque modification hors séance, une fois par lot en séance.
+ - Aucune hypothèse cachée : pas de déduction sans bloc `hypothese` ; en séance, un doute devient une question dans le dataset concerné.
+ - Pas de valeur en clair pour les colonnes `pii: true`, ni dans le chat, ni dans les preuves.
+ - Ne lis jamais `.env`.
+diff -ruN -x spec -x .env avant/AGENTS.md apres/AGENTS.md
+--- avant/AGENTS.md	2026-11-07 08:06:16.277525998 +0100
++++ apres/AGENTS.md	2026-11-07 08:41:50.202709678 +0100
+@@ -18,6 +18,8 @@
+ 
+ ## Boucle de séance : une question à la fois
+ 
++Les questions de toutes les sources (datasets, hypothèses, contrôles, fichiers non lus) forment une liste unique : `npm run questions` et l'onglet « Questions ». La procédure détaillée est `/seance`. Chaque réponse s'écrit à sa source et s'ajoute au registre `spec/reponses.yml`, qu'on n'efface jamais. En séance, `npm run check` suit chaque réponse ; le journal (étape 4), `npm run build` et l'effet mesuré (étape 5) se font une fois par lot.
++
+ 1. **Choisir.** `npm run questions` liste les questions ouvertes. `npm run couverture` montre les catégories manquantes, classées par nombre de mesures du dashboard qu'elles débloquent. Traite d'abord ce qui débloque le plus de mesures, sauf si Michel demande une question précise.
+ 2. **Présenter.** Lance `npm run question -- <dataset>#<id>` pour voir le profil des colonnes concernées. Présente à Michel, en 4 lignes au plus :
+    - la question, formulée pour un exploitant transport, sans jargon data ;
+@@ -26,7 +28,7 @@
+    - ce que la réponse changera dans la spec.
+ 
+    Puis **arrête-toi et attends la réponse**. Ne modifie rien avant.
+-3. **Écrire.** Avec la réponse de Michel, modifie les fichiers de `spec/` concernés : colonnes, règles silver, relations, flux vers FAITS, dimensions, référentiel. Passe la question à `done: true` et résume la réponse dans `answer`.
++3. **Écrire.** Avec la réponse de Michel, modifie les fichiers de `spec/` concernés : colonnes, règles silver, relations, flux vers FAITS, dimensions, référentiel. Passe la question à `done: true` et résume la réponse dans `answer`. Ajoute la réponse au registre `spec/reponses.yml` (voir `/seance`).
+ 4. **Tracer.** Ajoute une entrée à `spec/journal.yml` (`date`, `question`, `decision`, `fichiers`).
+ 5. **Vérifier.** Lance `npm run check`. Corrige toute erreur avant de continuer. Annonce en deux lignes ce qui a changé et l'effet mesuré (lignes FAITS, mesures alimentées avant → après).
+ 6. **Enchaîner.** Propose la question suivante.
+@@ -190,7 +192,7 @@
+ | Commande | Effet |
+ |---|---|
+ | `npm run serve` | Prévisualisation sur http://localhost:4321, rechargée à chaque modification |
+-| `npm run questions` (`-- --suivante`, `-- --toutes`) | Questions ouvertes |
++| `npm run questions` (`-- --toutes`, `-- --lot <lot>`, `-- --suivante`) | Liste unique des questions, par lot et par impact |
+ | `npm run question -- <dataset>#<id>` | Une question avec le profil des colonnes, les relations et les flux liés |
+ | `npm run couverture` (`-- --anomalies`) | Catégories manquantes par mesures débloquées ; anomalies du catalogue |
+ | `npm run check` | Contrôle de la spec sur les données. Code de sortie 1 s'il reste des erreurs |
+diff -ruN -x spec -x .env avant/README.md apres/README.md
+--- avant/README.md	2026-11-07 08:06:16.277525998 +0100
++++ apres/README.md	2026-11-07 08:34:17.097197208 +0100
+@@ -20,7 +20,7 @@
+ 2. Renseigner l'adhérent et ses filiales dans `spec/projet.yml`.
+ 3. Déposer les exports dans `data/raw/<societe>/` (ou les récupérer avec `npm run collecte`), puis `npm run normaliser` les écrit en CSV dans `data/bronze/<societe>/` (dossiers exclus de git).
+ 4. Dans le chat Cursor : `/nouveau-dataset data/bronze/<societe>/<fichier>.csv` pour chaque export, avant la séance.
+-5. En séance : `/question-suivante`, en boucle. Utiliser `/alimenter` quand les datasets sont compris, et `/couverture` pour faire le point.
++5. En séance : `/seance`, lot par lot (ou `/question-suivante` pour une question isolée). Utiliser `/alimenter` quand les datasets sont compris, et `/couverture` pour faire le point.
+ 6. En fin de séance : `/livrer`.
+ 
+ ## Maquette d'avant-séance
+@@ -43,6 +43,7 @@
+ | `/couverture` | Point d'étape : contrôle, mesures, questions |
+ | `/livrer` | Contrôle, build, questions restantes pour l'adhérent |
+ | `/maquette <societe>` | Maquette d'avant-séance : collecte, lecture, hypothèses, flux, contrôles, fiche |
++| `/seance` | Traite la liste unique des questions avec l'adhérent ; les réponses restent dans l'onglet « Questions » |
+ | `/apprendre` | Fait entrer les réponses de la séance dans la mémoire commune |
+ 
+ Le bouton « Copier » d'une question, dans la prévisualisation, copie la commande `/question-suivante dataset#id` à coller dans le chat.
+diff -ruN -x spec -x .env avant/core/check.js apres/core/check.js
+--- avant/core/check.js	2026-11-07 08:06:16.189526008 +0100
++++ apres/core/check.js	2026-11-07 08:40:53.945856941 +0100
+@@ -67,6 +67,8 @@
+   (st.controles||[]).forEach(c=>{ if(c.porte_sur==null) return;
+     if(!Array.isArray(c.porte_sur)) return add("erreur","spec/controles.yml",`${c.id||"?"} : porte_sur doit être une liste`);
+     c.porte_sur.filter(t=>!cibles.has(t)).forEach(t=>add("alerte","spec/controles.yml",`${c.id||"?"} : porte_sur « ${t} » ne correspond à aucune hypothèse`)); });
++  if(!Array.isArray(st.reponses)) add("erreur","spec/reponses.yml","spec/reponses.yml doit être une liste");
++  else st.reponses.forEach((r,i)=>{ if(!r||r.id==null||!String(r.reponse||"").trim()) add("alerte","spec/reponses.yml",`réponse ${r&&r.id!=null?r.id:"n°"+(i+1)} : id ou reponse manquant`); });
+   piiFuites().forEach(x=>add("erreur",x.fichier,`${x.cible} : contient une valeur de la colonne personnelle ${x.col}`));
+   if(!st.catalogue.trim()) add("alerte","spec/catalogue/elements_principaux.txt","catalogue vide");
+   return out;
+@@ -80,13 +82,17 @@
+   const out=[]; if(!vals.length) return out;
+   const test=(cible,fichier,t)=>{ const s=String(t||"").toLowerCase(); const mot=x=>{ let i=s.indexOf(x); while(i>=0){ if(!/[\p{L}\p{N}]/u.test(s[i-1]||"")&&!/[\p{L}\p{N}]/u.test(s[i+x.length]||"")) return true; i=s.indexOf(x,i+1); } return false; };
+     if(s) vals.forEach(p=>{ if(p.v.some(mot)) out.push({cible,fichier,col:p.col}); }); };
+-  listeHypotheses().forEach(h=>{ test(h.cible,h.fichier,h.question); h.preuves.forEach(t=>test(h.cible,h.fichier,t)); });
+-  S.st.datasets.forEach(d=>{ const f=`spec/datasets/${d.id}.yml`; d.columns.forEach(c=>test(`${d.id}.${c.name}`,f,c.desc)); d.rules.forEach((r,i)=>{ test(`${d.id}#regle${i+1}`,f,r.text); test(`${d.id}#regle${i+1}`,f,r.sql); }); });
++  listeHypotheses().forEach(h=>{ test(h.cible,h.fichier,h.question); test(h.cible,h.fichier,h.reponse); h.preuves.forEach(t=>test(h.cible,h.fichier,t)); });
++  S.st.datasets.forEach(d=>{ const f=`spec/datasets/${d.id}.yml`; d.columns.forEach(c=>test(`${d.id}.${c.name}`,f,c.desc)); d.rules.forEach((r,i)=>{ test(`${d.id}#regle${i+1}`,f,r.text); test(`${d.id}#regle${i+1}`,f,r.sql); });
++ d.questions.forEach(q=>{ test(`${d.id}#${q.id}`,f,q.text); test(`${d.id}#${q.id}`,f,q.answer); });
++ });
+   S.st.flux.forEach(fl=>test(`flux:${fl.id}`,`spec/flux/${fl.id}.yml`,fl.filtre));
++  (S.st.controles||[]).forEach(c=>test(`controle:${c.id}`,"spec/controles.yml",c.reponse));
++  (Array.isArray(S.st.reponses)?S.st.reponses:[]).forEach(r=>r&&["question","reponse","effet"].forEach(k=>test(`reponse:${r.id}`,"spec/reponses.yml",r[k])));
+   return out.filter((x,i)=>out.findIndex(y=>y.cible===x.cible&&y.col===x.col)===i);
+ }); }
+ function summary(){
+-  const mc=measureCounts(); const open=[]; S.st.datasets.forEach(d=>d.questions.forEach(q=>{ if(!q.done) open.push(q); }));
++  const mc=measureCounts(); const open=listeQuestions().filter(q=>q.statut==="ouverte");
+   const hyp={confirme:0,haute:0,moyenne:0,basse:0}; listeHypotheses().forEach(h=>hyp[h.confiance]++);
+   return {mesures:mc,questionsOuvertes:open.length,lignesFaits:buildFaits().rows.length,flux:S.st.flux.length,datasets:S.st.datasets.length,hypotheses:hyp};
+ }
+diff -ruN -x spec -x .env avant/core/hypotheses.js apres/core/hypotheses.js
+--- avant/core/hypotheses.js	2026-11-07 08:06:16.277525998 +0100
++++ apres/core/hypotheses.js	2026-11-07 08:26:32.546752604 +0100
+@@ -17,7 +17,7 @@
+   return {confiance,conflit,raisons};
+ }
+ function listeHypotheses(){ return cached("hyp",()=>{
+-  const out=[]; const push=(cible,fichier,libelle,h)=>{ if(h) out.push({cible,fichier,libelle,question:h.question||"",source:String(h.source||"agent"),preuves:Array.isArray(h.preuves)?h.preuves:[],preuvesListe:h.preuves==null||Array.isArray(h.preuves),valide:!!h.valide,refuse:!!h.refuse}); };
++  const out=[]; const push=(cible,fichier,libelle,h)=>{ if(h) out.push({cible,fichier,libelle,question:h.question||"",source:String(h.source||"agent"),preuves:Array.isArray(h.preuves)?h.preuves:[],preuvesListe:h.preuves==null||Array.isArray(h.preuves),valide:!!h.valide,refuse:!!h.refuse,reponse:String(h.reponse||"")}); };
+   S.st.datasets.forEach(d=>{ const f=`spec/datasets/${d.id}.yml`;
+     d.columns.forEach(c=>push(`${d.id}.${c.name}`,f,`${d.id}.${c.name} : ${c.desc||"sens à confirmer"}`,c.hypothese));
+     d.rules.forEach((r,i)=>push(`${d.id}#regle${i+1}`,f,`${d.id} : ${r.text||r.sql}`,r.hypothese)); });
+@@ -45,11 +45,12 @@
+   (m.refs||[]).forEach(x=>couplesMesure(CAT().resolve(x),seen).forEach(k=>out.add(k)));
+   return out;
+ }
+-function hypothesesMesure(m){ return cached("hypm:"+m.id,()=>{
++function ciblesMesure(m){ return cached("cibm:"+m.id,()=>{
+   const parFlux=new Map(); couplesMesure(m,new Set()).forEach(k=>{ const [f,c]=k.split("\u0001"); if(!parFlux.has(f)) parFlux.set(f,new Set()); parFlux.get(f).add(c); });
+   const cibles=new Set(); parFlux.forEach((cods,fid)=>{ const fl=FX(fid); if(fl) ciblesFlux(fl,cods).forEach(t=>cibles.add(t)); });
+-  return listeHypotheses().filter(h=>cibles.has(h.cible));
++  return cibles;
+ }); }
++function hypothesesMesure(m){ return cached("hypm:"+m.id,()=>{ const c=ciblesMesure(m); return listeHypotheses().filter(h=>c.has(h.cible)); }); }
+ function badgeMesure(m){
+   const hs=hypothesesMesure(m); if(!hs.length) return null;
+   const pire=hs.reduce((a,h)=>CONF_RANG[h.confiance]>CONF_RANG[a]?h.confiance:a,"confirme");
+diff -ruN -x spec -x .env avant/core/model.js apres/core/model.js
+--- avant/core/model.js	2026-11-07 08:06:16.185859342 +0100
++++ apres/core/model.js	2026-11-07 08:26:32.501952417 +0100
+@@ -44,7 +44,7 @@
+ function hydrate(st){
+   st.datasets.forEach(d=>{ d.rows=d.rows||[]; d.rules=d.rules||[]; d.questions=d.questions||[]; d.cases=d.cases||[]; d.columns=d.columns||[]; d.x=d.x??40; d.y=d.y??40; });
+   st.relations=st.relations||[]; st.flux=st.flux||[]; st.categories=st.categories||[]; st.cases=st.cases||[]; st.log=st.log||[]; st.catalogue=st.catalogue||"";
+-  st.controles=st.controles||[]; st.memoire=st.memoire||{logiciels:[],comptes:[],colonnes:[]}; st.nonLus=st.nonLus||[];
++  st.controles=st.controles||[]; st.memoire=st.memoire||{logiciels:[],comptes:[],colonnes:[]}; st.nonLus=st.nonLus||[]; st.reponses=st.reponses==null?[]:st.reponses;
+   st.datasets.forEach(profile);
+   return st;
+ }
+diff -ruN -x spec -x .env avant/core/questions.js apres/core/questions.js
+--- avant/core/questions.js	1970-01-01 01:00:00.000000000 +0100
++++ apres/core/questions.js	2026-11-07 08:40:49.413935041 +0100
+@@ -0,0 +1,35 @@
++/* ───────────── questions de séance : liste unique, réponses greffées ───────────── */
++const SRC_RANG={hypothese:0,controle:1,profil:2,hors_recette:3,non_lu:4,registre:5};
++function lotDe(dsId){ return String(dsId||"").split("_")[0]||"divers"; }
++function datasetDe(c){ c=String(c||""); if(c.startsWith("flux:")){ const fl=FX(c.slice(5).split("#")[0]); return fl?fl.ds:null; }
++  if(/^(DIM_|controle:)/.test(c)) return null; return c.split(/[.#]/)[0]||null; }
++function impactsMesures(){ return cached("impm",()=>{ const m=new Map(); CAT().list.forEach(x=>ciblesMesure(x).forEach(c=>{ if(!m.has(c)) m.set(c,new Set()); m.get(c).add(x.name); })); return m; }); }
++function mesuresDe(elements){ const im=impactsMesures(), out=new Set();
++  (elements||[]).filter(Boolean).forEach(e=>im.forEach((ms,c)=>{ if(c===e||(!/[.#:]/.test(e)&&(c.startsWith(e+".")||c.startsWith(e+"#")))) ms.forEach(n=>out.add(n)); }));
++  return [...out]; }
++function listeQuestions(){ return cached("questions",()=>{
++  const reg=(Array.isArray(S.st.reponses)?S.st.reponses:[]).filter(r=>r&&r.id!=null), greffees=new Set(), out=[];
++  const fuites=new Set(piiFuites().map(x=>x.cible)), MR="(réponse masquée : contient une donnée personnelle)", MQ=f=>`(texte masqué : contient une donnée personnelle, à reformuler dans ${f})`;
++  const add=q=>{ const t=String(q.question||"").trim(), r=reg.findLast(r=>String(r.id)===q.id&&(r.question==null||String(r.question).trim()===t)); if(r) greffees.add(r);
++    const fq=fuites.has(q.id), fr=fuites.has("reponse:"+q.id);
++    out.push({id:q.id,source:q.source,lot:q.lot,element:q.element,elements:q.elements,fichier:q.fichier,question:fq?MQ(q.fichier):String(q.question||""),
++    statut:q.traitee||r?"traitee":"ouverte",reponse:fq||fr?MR:String((r&&r.reponse)||q.reponse||""),date:String((r&&r.date)||""),effet:fr?MR:String((r&&r.effet)||""),mesures:mesuresDe(q.elements)}); };
++  S.st.datasets.forEach(d=>d.questions.forEach(q=>{ const col=d.columns.find(c=>String(q.text||"").startsWith(c.name+" :")); const el=col?`${d.id}.${col.name}`:d.id;
++    add({id:`${d.id}#${q.id}`,source:"profil",lot:lotDe(d.id),element:el,elements:[el],fichier:`spec/datasets/${d.id}.yml`,question:q.text,traitee:!!q.done,reponse:q.answer}); }));
++  listeHypotheses().filter(h=>h.valide||h.refuse||h.confiance!=="haute").forEach(h=>{ const ds=datasetDe(h.cible);
++    add({id:h.cible,source:"hypothese",lot:ds?lotDe(ds):"dimensions",element:h.cible,elements:[h.cible],fichier:h.fichier,question:h.question||h.libelle,traitee:h.valide||h.refuse,reponse:h.reponse}); });
++  CTRL().forEach(r=>{ const c=(S.st.controles||[]).find(x=>String(x.id)===r.id)||{}; if(r.statut==="ok"&&!c.reponse) return;
++    const ds=c.ds||(c.a&&c.a.ds)||(c.from&&String(c.from).split(".")[0])||r.porte_sur.map(datasetDe).find(Boolean);
++    add({id:`controle:${r.id}`,source:"controle",lot:ds?lotDe(ds):"divers",element:`controle:${r.id}`,elements:r.porte_sur,fichier:"spec/controles.yml",question:`${r.libelle} : ${r.msg}`,traitee:!!c.reponse,reponse:c.reponse}); });
++  S.st.datasets.filter(d=>d.meta&&d.meta.hors_recette>0).forEach(d=>add({id:`hors_recette:${d.id}`,source:"hors_recette",lot:lotDe(d.id),element:d.id,elements:[d.id],fichier:d.file,
++    question:`${d.meta.hors_recette} valeurs hors recette dans ${d.id} : que contiennent ces colonnes, faut-il les lire ?`}));
++  (S.st.nonLus||[]).forEach(x=>add({id:`non_lu:${x.fichier}${x.feuille?"#"+x.feuille:""}`,source:"non_lu",lot:"fichiers",element:x.fichier,elements:[],fichier:`data/bronze/${x.societe}/_non_lus.json`,
++    question:`Fichier non lu (${x.raison}) : faut-il le traiter ?`}));
++  reg.filter(r=>!greffees.has(r)).forEach(r=>{ const id=String(r.id), f=fuites.has("reponse:"+id);
++    out.push({id,source:"registre",lot:r.lot||lotDe(datasetDe(r.element||id)),element:String(r.element||""),elements:[],fichier:"spec/reponses.yml",
++    question:f?MQ("spec/reponses.yml"):String(r.question||""),statut:"traitee",reponse:f?MR:String(r.reponse||""),date:String(r.date||""),effet:f?MR:String(r.effet||""),mesures:[],retiree:true}); });
++  const imp=lot=>out.filter(q=>q.lot===lot&&q.statut==="ouverte").reduce((n,q)=>n+q.mesures.length,0);
++  const lots=[...new Set(out.map(q=>q.lot))].sort((a,b)=>imp(b)-imp(a)||a.localeCompare(b));
++  return out.sort((a,b)=>lots.indexOf(a.lot)-lots.indexOf(b.lot)||(a.statut===b.statut?0:a.statut==="ouverte"?-1:1)
++    ||(a.statut==="ouverte"?b.mesures.length-a.mesures.length||SRC_RANG[a.source]-SRC_RANG[b.source]:b.date.localeCompare(a.date))||a.id.localeCompare(b.id));
++}); }
+diff -ruN -x spec -x .env avant/tests/aide/moteur.mjs apres/tests/aide/moteur.mjs
+--- avant/tests/aide/moteur.mjs	2026-11-06 23:35:31.793669749 +0100
++++ apres/tests/aide/moteur.mjs	2026-11-07 08:26:38.715578953 +0100
+@@ -4,7 +4,7 @@
+ import { fileURLToPath } from "node:url";
+ 
+ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+-const CORE = ["core/engine.js", "core/model.js", "core/check.js", "core/controles.js", "core/hypotheses.js"];
++const CORE = ["core/engine.js", "core/model.js", "core/check.js", "core/controles.js", "core/hypotheses.js", "core/questions.js"];
+ 
+ export const colonne = (name, extra = {}) => ({ name, type: "", role: "attr", desc: "", pii: false, codes: null, format: "", decimalComma: false, hypothese: null, ...extra });
+ export const dataset = (id, columns, rows, extra = {}) => ({ id, societe: "s1", file: `data/bronze/s1/${id}.csv`, desc: "", grain: "", columns, rows, rules: [], questions: [], cases: [], meta: null, ...extra });
+@@ -13,7 +13,7 @@
+   const ctx = vm.createContext({ console, Intl, Date, Math, JSON });
+   CORE.forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f }));
+   const gold = vm.runInContext("goldTemplate()", ctx).filter(t => t.kind === "faits" || t.generated);
+-  ctx.__state = { version: 2, adherent: "Test", societes: [{ id: "s1", name: "S1", source: "", color: 0 }], datasets: [], relations: [], gold, flux: [], categories: [], catalogue: "", cases: [], log: [], controles: [], memoire: { logiciels: [], comptes: [], colonnes: [] }, nonLus: [], ...partiel };
++  ctx.__state = { version: 2, adherent: "Test", societes: [{ id: "s1", name: "S1", source: "", color: 0 }], datasets: [], relations: [], gold, flux: [], categories: [], catalogue: "", cases: [], log: [], controles: [], memoire: { logiciels: [], comptes: [], colonnes: [] }, nonLus: [], reponses: [], ...partiel };
+   vm.runInContext("S.st=hydrate(__state); S.ver++;", ctx);
+   return { run: code => JSON.parse(JSON.stringify(vm.runInContext(code, ctx)) ?? "null") };
+ }
+diff -ruN -x spec -x .env avant/tests/questions.test.mjs apres/tests/questions.test.mjs
+--- avant/tests/questions.test.mjs	1970-01-01 01:00:00.000000000 +0100
++++ apres/tests/questions.test.mjs	2026-11-07 08:40:12.727789251 +0100
+@@ -0,0 +1,95 @@
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { chargerMoteur, etatCaTotal, colonne } from "./aide/moteur.mjs";
++
++const etat = (hypothese = { source: "agent", question: "Le montant est-il HT ?" }, extra = {}) => {
++  const s = etatCaTotal(hypothese, extra);
++  s.datasets[0].questions = [
++    { id: "q1", text: "montant : valeurs négatives, avoirs ?", done: false },
++    { id: "q2", text: "date_chgt : date réelle ou prévue ?", done: true, answer: "Date de chargement réelle" },
++    { id: "q3", text: "Export complet ?", done: false },
++  ];
++  return s;
++};
++const liste = s => chargerMoteur(s).run("listeQuestions()");
++const par = (l, id) => l.find(q => q.id === id);
++
++test("la liste rassemble questions de profil et hypothèses, avec élément, lot et impact", () => {
++  const l = liste(etat());
++  assert.deepEqual(l.map(q => q.id), ["tms.montant", "tms#q1", "tms#q3", "tms#q2"]);
++  assert.deepEqual(par(l, "tms#q1"), { ...par(l, "tms#q1"), source: "profil", lot: "tms", element: "tms.montant", fichier: "spec/datasets/tms.yml", statut: "ouverte", mesures: ["CA Réel"] });
++  assert.equal(par(l, "tms#q3").element, "tms");
++  assert.deepEqual(par(l, "tms.montant").mesures, ["CA Réel"]);
++  assert.equal(par(l, "tms.montant").source, "hypothese");
++});
++
++test("une question traitée garde sa réponse, depuis la source ou depuis le registre", () => {
++  assert.equal(par(liste(etat()), "tms#q2").reponse, "Date de chargement réelle");
++  const v = par(liste(etat({ source: "agent", question: "HT ?", valide: true, reponse: "Oui, HT" })), "tms.montant");
++  assert.deepEqual([v.statut, v.reponse], ["traitee", "Oui, HT"]);
++  const r = par(liste(etat(undefined, { reponses: [{ id: "tms.montant", reponse: "HT", date: "2026-11-07T10:00:00", effet: "montant confirmé" }] })), "tms.montant");
++  assert.deepEqual([r.statut, r.reponse, r.date, r.effet], ["traitee", "HT", "2026-11-07T10:00:00", "montant confirmé"]);
++});
++
++test("une réponse du registre dont la question a disparu reste listée", () => {
++  const o = par(liste(etat(undefined, { reponses: [{ id: "flux:f9", question: "Ancienne question", element: "flux:f9", reponse: "Oui", date: "2026-11-07T09:00:00" }] })), "flux:f9");
++  assert.deepEqual([o.statut, o.question, o.reponse, o.retiree, o.source], ["traitee", "Ancienne question", "Oui", true, "registre"]);
++});
++
++test("une réponse dont le texte de question diffère ne se greffe pas et reste listée comme retirée", () => {
++  const l = liste(etat(undefined, { reponses: [{ id: "tms#q1", question: "Autre texte", reponse: "R", date: "2026-11-07" }] }));
++  assert.equal(l.find(q => q.id === "tms#q1" && q.source === "profil").statut, "ouverte");
++  assert.ok(l.some(q => q.id === "tms#q1" && q.source === "registre" && q.retiree && q.reponse === "R"));
++});
++
++test("deux réponses pour la même question : la dernière se greffe, l'autre reste listée", () => {
++  const l = liste(etat(undefined, { reponses: [{ id: "tms.montant", reponse: "A", date: "2026-11-07" }, { id: "tms.montant", reponse: "B", date: "2026-11-07" }] }));
++  assert.equal(l.find(q => q.id === "tms.montant" && q.source === "hypothese").reponse, "B");
++  assert.ok(l.some(q => q.id === "tms.montant" && q.retiree && q.reponse === "A"));
++});
++
++test("le compteur de questions ouvertes du résumé est celui de la liste", () => {
++  const m = chargerMoteur(etat());
++  assert.equal(m.run("summary().questionsOuvertes"), m.run("listeQuestions().filter(q=>q.statut==='ouverte').length"));
++});
++
++test("contrôles en écart, fichiers non lus et valeurs hors recette sont des questions", () => {
++  const s = etat(undefined, { controles: [{ id: "c1", type: "mensuel", libelle: "Dates", ds: "tms", date: "", porte_sur: ["tms.montant"] }],
++    nonLus: [{ societe: "s1", fichier: "Péage/x.pdf", raison: "format .pdf non pris en charge" }] });
++  s.datasets[0].meta = { hors_recette: 3 };
++  const l = liste(s);
++  assert.deepEqual([par(l, "controle:c1").lot, par(l, "controle:c1").statut, par(l, "controle:c1").mesures], ["tms", "ouverte", ["CA Réel"]]);
++  assert.equal(par(l, "non_lu:Péage/x.pdf").lot, "fichiers");
++  assert.equal(par(l, "hors_recette:tms").source, "hors_recette");
++  s.controles[0].reponse = "Normal, bloc annuel";
++  assert.deepEqual([par(liste(s), "controle:c1").statut, par(liste(s), "controle:c1").reponse], ["traitee", "Normal, bloc annuel"]);
++});
++
++test("lot = domaine du dataset ; une hypothèse de flux prend le domaine de son dataset", () => {
++  const m = chargerMoteur(etat());
++  assert.equal(m.run("lotDe('carburant_cofi_table1')"), "carburant");
++  assert.equal(m.run("datasetDe('flux:f1#7061')"), "tms");
++  assert.equal(m.run("datasetDe('DIM_SITE.%LIB_SITE')"), null);
++});
++
++const check = s => chargerMoteur(s).run("checkSpec()");
++
++test("le registre doit être une liste d'entrées avec id et réponse", () => {
++  assert.ok(check(etat(undefined, { reponses: { id: "x" } })).some(f => f.niv === "erreur" && /reponses\.yml doit être une liste/.test(f.msg)));
++  assert.ok(check(etat(undefined, { reponses: [{ id: "tms#q1" }] })).some(f => f.niv === "alerte" && /tms#q1.*reponse manquant/.test(f.msg)));
++});
++
++test("la garde pii couvre questions de profil, réponses du registre, des hypothèses et des contrôles", () => {
++  const st = extra => { const s = etat({ source: "agent", reponse: extra.hyp || "" }, extra.ex || {}); s.datasets[0].columns.push(colonne("nom", { pii: true })); s.datasets[0].rows = [["02/01/2025", "600", "Durandel"]]; return s; };
++  const pii = (s, cible) => { const f = check(s).filter(x => x.niv === "erreur" && /personnelle/.test(x.msg)); assert.ok(f.some(x => cible.test(x.msg)), cible); assert.ok(f.every(x => !x.msg.includes("Durandel"))); };
++  const q = st({}); q.datasets[0].questions[0].text = "nom : valeurs Durandel"; pii(q, /tms#q1/);
++  pii(st({ ex: { reponses: [{ id: "tms#q1", reponse: "Durandel est intérimaire", date: "2026-11-07" }] } }), /reponse:tms#q1/);
++  pii(st({ hyp: "Seul Durandel" }), /tms\.montant/);
++  pii(st({ ex: { controles: [{ id: "c1", type: "mensuel", libelle: "Dates", ds: "tms", date: "", reponse: "voir Durandel" }] } }), /controle:c1/);
++  const fuite = st({ ex: { reponses: [{ id: "flux:f9", question: "Durandel ?", reponse: "Durandel", effet: "Durandel", date: "2026-11-07" }] } });
++  fuite.datasets[0].questions[0].text = "nom : valeurs Durandel"; fuite.datasets[0].questions[1].answer = "Durandel";
++  const l = liste(fuite);
++  assert.ok(!JSON.stringify(l).includes("Durandel"));
++  assert.match(par(l, "tms#q1").question, /texte masqué/);
++  assert.match(par(l, "tms#q2").reponse, /réponse masquée/);
++});
+diff -ruN -x spec -x .env avant/tools/atelier.mjs apres/tools/atelier.mjs
+--- avant/tools/atelier.mjs	2026-11-07 08:06:16.526859301 +0100
++++ apres/tools/atelier.mjs	2026-11-07 08:45:29.487796805 +0100
+@@ -19,7 +19,7 @@
+ const exists = f => fs.existsSync(f);
+ const readYaml = (f, def) => { if (!exists(f)) return def; const t = fs.readFileSync(f, "utf8"); try { return YAML.parse(t) ?? def; } catch (e) { throw new Error(`${rel(f)} : YAML invalide (${e.message.split("\n")[0]})`); } };
+ const listYaml = dir => exists(dir) ? fs.readdirSync(dir).filter(f => /\.ya?ml$/.test(f)).sort().map(f => path.join(dir, f)) : [];
+-const CORE = ["core/engine.js", "core/model.js", "core/check.js", "core/controles.js", "core/hypotheses.js"];
++const CORE = ["core/engine.js", "core/model.js", "core/check.js", "core/controles.js", "core/hypotheses.js", "core/questions.js"];
+ if (exists(P(".env"))) process.loadEnvFile(P(".env"));
+ const opt = (args, k) => { const i = args.indexOf("--" + k); return i >= 0 ? args[i + 1] : null; };
+ 
+@@ -69,10 +69,22 @@
+   const catalogue = exists(P("spec/catalogue/elements_principaux.txt")) ? fs.readFileSync(P("spec/catalogue/elements_principaux.txt"), "utf8").replace(/\r/g, "") : "";
+   const journal = safe(P("spec/journal.yml"), [], () => readYaml(P("spec/journal.yml"), []) || []);
+   const controles = safe(P("spec/controles.yml"), [], () => readYaml(P("spec/controles.yml"), []) || []);
++  const reponses = safe(P("spec/reponses.yml"), null, () => { try { return readYaml(P("spec/reponses.yml"), []) ?? []; } catch { throw new Error("spec/reponses.yml illisible : les réponses ne sont plus affichées. Corrige le fichier (dernière version lue : .atelier/reponses.json, si elle existe)"); } });
++  if (reponses !== null) safe(P("spec/reponses.yml"), null, () => filetReponses(reponses));
+   const memoire = lireMemoire(cheminMemoire(ROOT));
+   const nonLus = societes.flatMap(s => { const f = P("data/bronze", s.id, "_non_lus.json"); return exists(f) ? JSON.parse(fs.readFileSync(f, "utf8")).map(x => ({ societe: s.id, ...x })) : []; });
+   const log = journal.map(j => ({ at: j.date || "", said: j.question || "", resume: j.decision || "", ops: (j.fichiers || []).map(String) }));
+-  return { state: { version: 2, adherent: projet.adherent || "Adhérent", societes, datasets, relations, gold, flux, categories, catalogue, cases: (projet.cases || []).map(c => typeof c === "string" ? { text: c } : c), log, controles, memoire, nonLus }, errors };
++  return { state: { version: 2, adherent: projet.adherent || "Adhérent", societes, datasets, relations, gold, flux, categories, catalogue, cases: (projet.cases || []).map(c => typeof c === "string" ? { text: c } : c), log, controles, reponses: reponses ?? [], memoire, nonLus }, errors };
++}
++/* Sans git, l'instantané .atelier/reponses.json est le seul témoin d'une réponse effacée du registre. */
++function filetReponses(reponses) {
++  const f = P(".atelier/reponses.json"), cle = r => JSON.stringify([r?.id, r?.date, r?.reponse]);
++  const avant = exists(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : [];
++  const ici = new Set((Array.isArray(reponses) ? reponses : []).map(cle));
++  const perdues = (Array.isArray(avant) ? avant : []).filter(r => !ici.has(cle(r)));
++  if (perdues.length) throw new Error(`spec/reponses.yml : ${perdues.length} réponse(s) disparue(s) depuis le dernier chargement (ids : ${[...new Set(perdues.map(r => r?.id))].join(", ")}). Rétablis-les depuis .atelier/reponses.json ; si la suppression est voulue, supprime ce fichier.`);
++  const t = JSON.stringify(reponses, null, 2);
++  if (Array.isArray(reponses) && (!exists(f) || fs.readFileSync(f, "utf8") !== t)) { fs.mkdirSync(P(".atelier"), { recursive: true }); fs.writeFileSync(f, t); }
+ }
+ function makeCtx() {
+   const ctx = vm.createContext({ console, Intl, Date, Math, JSON });
+@@ -113,13 +125,15 @@
+   files.forEach(f => { const t = path.join(out, f.path); fs.mkdirSync(path.dirname(t), { recursive: true }); fs.writeFileSync(t, f.body); });
+   console.log(`${files.length} fichiers écrits dans generated/ :`); files.forEach(f => console.log("  generated/" + f.path));
+ }
+-function openQuestions(state) { const out = []; state.datasets.forEach(d => d.questions.forEach(q => { if (!q.done) out.push({ ds: d.id, ...q }); })); return out; }
+ function cmdQuestions(args) {
+-  const { ctx, state } = evaluate(); const all = args.includes("--toutes");
+-  const list = all ? state.datasets.flatMap(d => d.questions.map(q => ({ ds: d.id, ...q }))) : openQuestions(state);
+-  if (!list.length) { console.log("Aucune question ouverte."); return; }
+-  list.forEach(q => console.log(`${q.done ? C.dim + "[tranchée]" : C.yellow + "[ouverte] "}${C.reset} ${C.bold}${q.ds}#${q.id}${C.reset}  ${q.text}${q.answer ? `\n            → ${q.answer}` : ""}`));
+-  if (args.includes("--suivante") || args.includes("--next")) cmdQuestion([`${list[0].ds}#${list[0].id}`], ctx, state);
++  const { ctx, state } = evaluate(); const lot = opt(args, "lot"); const toutes = args.includes("--toutes");
++  const list = vm.runInContext("listeQuestions()", ctx).filter(q => (toutes || q.statut === "ouverte") && (!lot || q.lot === lot));
++  if (!list.length) { console.log(toutes ? "Aucune question." : "Aucune question ouverte."); return; }
++  let cur = null;
++  list.forEach(q => { if (q.lot !== cur) { cur = q.lot; console.log(`\n${C.bold}${cur}${C.reset}`); }
++    console.log(`${q.statut === "traitee" ? C.dim + "[traitée]" : C.yellow + "[ouverte]"}${C.reset} ${C.bold}${q.id}${C.reset} · ${q.source}${q.mesures.length ? ` · ${q.mesures.length} mesure(s)` : ""}  ${q.question}${q.reponse ? `\n            → ${q.reponse}` : ""}`); });
++  const suivante = list.find(x => x.statut === "ouverte" && x.source === "profil");
++  if ((args.includes("--suivante") || args.includes("--next")) && suivante) cmdQuestion([suivante.id], ctx, state);
+ }
+ function cmdQuestion(args, ctx0, st0) {
+   const ref = args.find(a => !a.startsWith("--")); if (!ref) { console.error("Usage : npm run question -- <dataset>#<id>"); process.exitCode = 1; return; }
+@@ -174,13 +188,21 @@
+   copyDir(P("exemple/spec"), P("spec")); copyDir(P("exemple/data"), P("data")); fs.mkdirSync(P(".atelier"), { recursive: true }); fs.copyFileSync(P("exemple/layout.json"), P(".atelier/layout.json"));
+   console.log("Exemple Kessler-Rhin installé dans spec/ et data/. Lance npm run serve.");
+ }
++const REGISTRE_VIDE = "# Registre des réponses de l'adhérent : on ajoute à la fin, on n'efface jamais.\n";
+ function cmdReset(args) {
+-  if (!args.includes("--force")) { console.error("Efface datasets, flux, relations, journal et cas particuliers de spec/ (garde référentiel, catalogue et dimensions sans alimentation). Relance avec --force pour confirmer."); process.exitCode = 1; return; }
++  if (!args.includes("--force")) { console.error("Efface datasets, flux, relations, journal et cas particuliers de spec/ (garde référentiel, catalogue et dimensions sans alimentation ; les réponses de spec/reponses.yml sont archivées dans .atelier/). Relance avec --force pour confirmer."); process.exitCode = 1; return; }
+   ["spec/datasets", "spec/flux"].forEach(d => { fs.rmSync(P(d), { recursive: true, force: true }); fs.mkdirSync(P(d), { recursive: true }); fs.writeFileSync(P(d, ".gitkeep"), ""); });
+   fs.writeFileSync(P("spec/relations.yml"), "# Relations entre colonnes de datasets\n[]\n"); fs.writeFileSync(P("spec/journal.yml"), "# Journal des décisions de séance\n[]\n");
+   fs.writeFileSync(P("spec/projet.yml"), "# Adhérent et sociétés (filiales) traitées dans cette séance\nadherent: Nouvel adhérent\nsocietes: []\ncases: []\n");
+   listYaml(P("spec/dims")).forEach(f => { const doc = YAML.parseDocument(fs.readFileSync(f, "utf8")); (doc.get("columns")?.items || []).forEach((c, i) => doc.setIn(["columns", i, "map"], doc.createNode({}))); fs.writeFileSync(f, doc.toString({ lineWidth: 0 })); });
+-  fs.rmSync(P(".atelier/layout.json"), { force: true }); console.log("Spec remise à zéro.");
++  fs.rmSync(P(".atelier/layout.json"), { force: true });
++  const reg = P("spec/reponses.yml"), inst = P(".atelier/reponses.json"), archives = [];
++  const base = `.atelier/reponses-archive-${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}Z`;
++  const nonVide = f => { try { return (YAML.parse(fs.readFileSync(f, "utf8")) || []).length !== 0; } catch { return true; } };
++  fs.mkdirSync(P(".atelier"), { recursive: true });
++  if (exists(reg) && nonVide(reg)) { fs.renameSync(reg, P(base + ".yml")); archives.push(base + ".yml"); }
++  if (exists(inst) && nonVide(inst)) { fs.renameSync(inst, P(base + ".instantane.json")); archives.push(base + ".instantane.json"); } else fs.rmSync(inst, { force: true });
++  fs.writeFileSync(reg, REGISTRE_VIDE); console.log(`Spec remise à zéro.${archives.length ? ` Réponses archivées dans ${archives.join(" et ")}.` : ""}`);
+ }
+ 
+ function societeValide(args) {
+@@ -278,5 +300,5 @@
+ 
+ const [cmd, ...args] = process.argv.slice(2);
+ const CMDS = { couverture: cmdCouverture, serve: cmdServe, check: cmdCheck, build: cmdBuild, questions: cmdQuestions, question: a => cmdQuestion(a), profil: cmdProfile, exemple: cmdExemple, reset: cmdReset, collecte: cmdCollecte, apprendre: cmdApprendre, evaluer: cmdEvaluer, normaliser: cmdNormaliser, maquette: cmdMaquette, controles: cmdControles };
+-if (!CMDS[cmd]) { console.log("Commandes : serve | couverture [--anomalies|--json] | check [--json] | build | questions [--suivante|--toutes] | question <dataset>#<id> | profil <csv> --societe <id> [--id nom] | exemple [--force] | reset --force | collecte --societe <id> | apprendre | evaluer --corrige <dossier> | normaliser --societe <id> | maquette --societe <id> [--sans-collecte] | controles"); process.exitCode = cmd ? 1 : 0; }
++if (!CMDS[cmd]) { console.log("Commandes : serve | couverture [--anomalies|--json] | check [--json] | build | questions [--toutes] [--lot <lot>] [--suivante] | question <dataset>#<id> | profil <csv> --societe <id> [--id nom] | exemple [--force] | reset --force | collecte --societe <id> | apprendre | evaluer --corrige <dossier> | normaliser --societe <id> | maquette --societe <id> [--sans-collecte] | controles"); process.exitCode = cmd ? 1 : 0; }
+ else Promise.resolve().then(() => CMDS[cmd](args)).catch(e => { console.error(`${C.red}${e.message}${C.reset}`); process.exitCode = 1; });
+diff -ruN -x spec -x .env avant/viewer/body.html apres/viewer/body.html
+--- avant/viewer/body.html	2026-11-05 10:52:52.000000000 +0100
++++ apres/viewer/body.html	2026-11-07 08:31:13.362573760 +0100
+@@ -8,6 +8,7 @@
+     <button role="tab" id="t-mes" aria-selected="false">Éléments principaux</button>
+     <button role="tab" id="t-prev" aria-selected="false">Dashboard</button>
+     <button role="tab" id="t-files" aria-selected="false">Fichiers générés</button>
++    <button role="tab" id="t-q" aria-selected="false">Questions</button>
+     <button role="tab" id="t-log" aria-selected="false">Journal</button>
+   </div>
+   <div class="spacer"></div>
+@@ -39,6 +40,7 @@
+       <pre class="code" id="fcode"></pre>
+     </div>
+   </section>
++  <section id="view-q" class="page" hidden><div class="inner wrapx" id="qv"></div></section>
+   <section id="view-log" class="page" hidden><div class="inner wrapx" id="logv"></div></section>
+ </main>
+ 
+diff -ruN -x spec -x .env avant/viewer/boot.js apres/viewer/boot.js
+--- avant/viewer/boot.js	2026-11-05 10:52:34.000000000 +0100
++++ apres/viewer/boot.js	2026-11-07 08:40:55.312170666 +0100
+@@ -12,7 +12,7 @@
+   return `<div class="p-sec chk-sec"><h4>Contrôle <span class="c">${f.length}</span></h4><ul class="iss">${f.map(x=>`<li class="${x.niv==="erreur"?"bad":""}">${esc(x.msg)}</li>`).join("")}</ul></div>`; }
+ function renderStatus(){
+   const ck=S.check||[]; const e=ck.filter(f=>f.niv==="erreur").length, a=ck.filter(f=>f.niv==="alerte").length;
+-  const open=S.st.datasets.reduce((n,d)=>n+d.questions.filter(q=>!q.done).length,0);
++  const open=listeQuestions().filter(q=>q.statut==="ouverte").length;
+   $("#st-live").className="live "+(S.online?"on":"off"); $("#st-live").textContent=S.online?"En direct":"Serveur arrêté";
+   $("#st-at").textContent=S.loadedAt?`spec chargée à ${new Date(S.loadedAt).toLocaleTimeString("fr-FR")}`:"";
+   $("#st-chk").innerHTML=`<button class="btn sm ghost" id="b-chk" aria-expanded="${!!S.showChk}"><b style="color:${e?"var(--bad)":"var(--ok)"}">${e} erreur${e>1?"s":""}</b> · ${a} alerte${a>1?"s":""}</button> · ${open} question${open>1?"s":""} ouverte${open>1?"s":""}`;
+diff -ruN -x spec -x .env avant/viewer/style.css apres/viewer/style.css
+--- avant/viewer/style.css	2026-11-07 08:06:16.277525998 +0100
++++ apres/viewer/style.css	2026-11-07 08:31:24.518473889 +0100
+@@ -349,3 +349,17 @@
+ .hb-vert{color:var(--ok)}
+ .hb-orange{color:var(--warn)}
+ .hb-rouge{color:var(--bad)}
++.qfilt{display:flex;gap:6px;margin:0 0 18px}
++.qfilt [aria-pressed="true"]{border-color:var(--fg)}
++.qlot{margin:0 0 22px}
++.qlot h3{font-size:14px;text-transform:capitalize;margin:0 0 8px;display:flex;gap:8px;align-items:center}
++.qlot h3 .c{font-family:var(--f-mono);font-size:11px;text-transform:none;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 6px}
++.qi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 8px}
++.qi.traitee{border-color:var(--line-2);background:var(--surface-2)}
++.qi .qh{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--muted)}
++.qi .qm{margin-left:auto;font-family:var(--f-mono)}
++.qi p{margin:6px 0;line-height:1.45}
++.qi .qe{font-size:10.5px;color:var(--muted)}
++.qi .qr{margin-top:8px;padding:8px 10px;border-left:3px solid var(--fg);background:var(--surface)}
++.qi .qr p{margin:4px 0 0}
++.qi .qeff{font-size:11px;color:var(--muted);margin-top:4px}
+diff -ruN -x spec -x .env avant/viewer/ui.js apres/viewer/ui.js
+--- avant/viewer/ui.js	2026-11-07 08:06:16.185859342 +0100
++++ apres/viewer/ui.js	2026-11-07 08:41:01.448699940 +0100
+@@ -81,7 +81,7 @@
+   p.querySelectorAll("input,select,textarea").forEach(e=>{ e.disabled=true; });
+ }
+ function emptyPanel(){
+-  const open=S.st.datasets.reduce((n,d)=>n+d.questions.filter(q=>!q.done).length,0); const mc=measureCounts(); const ck=S.check||[];
++  const open=listeQuestions().filter(q=>q.statut==="ouverte").length; const mc=measureCounts(); const ck=S.check||[];
+   return `<div class="p-empty"><h3>Séance en cours</h3>
+   <p>Cette page affiche la spec du dépôt. Elle ne s'édite pas ici : c'est l'agent dans Cursor qui complète les fichiers <span class="mono">spec/</span>, et la page se recharge à chaque modification.</p>
+   <ol><li>Dans Cursor, lance <span class="mono">/question-suivante</span> : l'agent présente la question et le profil des colonnes.</li>
+@@ -254,9 +254,25 @@
+   v.innerHTML=`<h2>Journal</h2>`+S.st.log.slice().reverse().map(l=>`<div class="lg"><time>${new Date(l.at).toLocaleString("fr-FR",{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit"})}</time><p><q>${esc(l.said)}</q></p><p>${esc(l.resume)}</p><div class="oplist">${l.ops.map(o=>`<span>${esc(o)}</span>`).join("")}</div></div>`).join("");
+ }
+ 
++/* ───────────── questions ───────────── */
++const SRC_LIB={hypothese:"Hypothèse",controle:"Contrôle",profil:"Profil",hors_recette:"Hors recette",non_lu:"Non lu",registre:"Registre"};
++function renderQ(){
++  const qs=listeQuestions(), f=S.qf||"ouvertes", keep=q=>f==="toutes"||(f==="ouvertes"?q.statut==="ouverte":q.statut==="traitee");
++  const nOuv=qs.filter(q=>q.statut==="ouverte").length;
++  const carte=q=>`<div class="qi ${q.statut}"><div class="qh"><span class="qid mono">${esc(q.id)}</span><span class="qs">${esc(SRC_LIB[q.source]||q.source)}</span>${q.mesures.length?`<span class="qm" title="${esc(q.mesures.join(", "))}">${q.mesures.length} mesure${q.mesures.length>1?"s":""}</span>`:""}</div>
++    <p>${esc(q.question)}</p><div class="qe mono">${esc(q.element)}${q.element?" · ":""}${esc(q.fichier)}</div>
++    ${q.statut==="traitee"?`<div class="qr"><b>Réponse${q.date?` du ${esc(q.date.slice(0,10))}`:""}${q.retiree?" · retirée de la spec":""}</b><p>${esc(q.reponse||"(réponse non saisie)")}</p>${q.effet?`<div class="qeff">${esc(q.effet)}</div>`:""}</div>`:""}</div>`;
++  $("#qv").innerHTML=`<h2>Questions</h2><p class="lede">${nOuv} à traiter · ${qs.length-nOuv} traitées. Les réponses restent greffées sous leur question (registre <span class="mono">spec/reponses.yml</span>).</p>
++    <div class="qfilt">${[["ouvertes","À traiter"],["traitees","Traitées"],["toutes","Toutes"]].map(([k,l])=>`<button class="btn sm" data-qf="${k}" aria-pressed="${f===k}">${l}</button>`).join("")}</div>`
++    +(qs.some(keep)?"":`<p class="lede">${{ouvertes:"Aucune question à traiter.",traitees:"Aucune question traitée.",toutes:"Aucune question."}[f]}</p>`)
++    +[...new Set(qs.map(q=>q.lot))].map(lot=>{ const l=qs.filter(q=>q.lot===lot), v=l.filter(keep); if(!v.length) return "";
++      return `<section class="qlot"><h3>${esc(lot)} <span class="c">${l.filter(q=>q.statut==="traitee").length} traitées sur ${l.length}</span></h3>${v.map(carte).join("")}</section>`; }).join("");
++}
++$("#qv").addEventListener("click",e=>{ const b=e.target.closest("[data-qf]"); if(b){ S.qf=b.dataset.qf; renderQ(); } });
++
+ /* ───────────── onglets ───────────── */
+-const TABS=["canvas","cat","mes","prev","files","log"];
+-function renderTab(){ if(S.tab==="cat") renderCat(); if(S.tab==="mes") renderMes(); if(S.tab==="prev") renderPrev(); if(S.tab==="files") renderFiles(); if(S.tab==="log") renderLog(); }
++const TABS=["canvas","cat","mes","prev","files","q","log"];
++function renderTab(){ if(S.tab==="cat") renderCat(); if(S.tab==="mes") renderMes(); if(S.tab==="prev") renderPrev(); if(S.tab==="files") renderFiles(); if(S.tab==="q") renderQ(); if(S.tab==="log") renderLog(); }
+ function setTab(t){ S.tab=t; TABS.forEach(x=>{ $("#t-"+x).setAttribute("aria-selected",x===t); $("#view-"+x).hidden=x!==t; }); if(t==="canvas") renderAll(); else renderTab(); }
+ TABS.forEach(x=>$("#t-"+x).onclick=()=>setTab(x));
+ 
