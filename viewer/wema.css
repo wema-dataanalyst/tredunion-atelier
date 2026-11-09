@@ -11,8 +11,8 @@
   --wm-success:#54A932; --wm-success-ink:#3C7A24; --wm-success-bg:#EEF7E9; --wm-error:#BD1C1D; --wm-error-bg:#FBEDED;
   --wm-warning:#EF7D00; --wm-warning-ink:#A85700; --wm-warning-bg:#FEF3E6; --wm-info:#4A96D1; --wm-info-bg:#EDF4FB;
   --wm-bg:#F4F6FA; --wm-ink-soft:#5C6784; --wm-border:#DDE3EF; --wm-border-hair:#EDF1F7;
-  --wm-gradient-side:linear-gradient(168deg,#1B2851 0%,#223260 45%,#59358B 100%); --wm-gradient-pill:linear-gradient(135deg,#E5007D 0%,#C0006A 100%);
-  --wm-radius-card:14px; --wm-shadow:0 1px 3px rgba(34,50,96,.06),0 6px 18px rgba(34,50,96,.06);
+  --wm-gradient-side:#223260; --wm-gradient-pill:#E5007D;
+  --wm-radius-card:12px; --wm-shadow:0 1px 3px rgba(34,50,96,.06),0 6px 18px rgba(34,50,96,.06);
   --wm-font-heading:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   /* alias : les composants de l'atelier lisent ces variables */
   --bg:var(--wm-bg); --surface:#FFFFFF; --surface-2:#F8F9FC; --line:var(--wm-border); --line-2:var(--wm-border-hair);
