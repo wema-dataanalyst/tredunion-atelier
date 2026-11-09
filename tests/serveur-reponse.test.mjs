@@ -9,7 +9,10 @@ import { racineExemple, ATELIER } from "./aide/racine.mjs";
 
 const portLibre = () => new Promise(ok => { const s = net.createServer().listen(0, "127.0.0.1", () => { const { port } = s.address(); s.close(() => ok(port)); }); });
 
-async function serveur(root) {
+async function serveur(root, essais = 5) {
+  try { return await demarrer(root); } catch (e) { if (essais > 1 && /EADDRINUSE/.test(e.message)) return serveur(root, essais - 1); throw e; }
+}
+async function demarrer(root) {
   const port = await portLibre();
   const p = spawn(process.execPath, [ATELIER, "serve", "--port", String(port)], { env: { ...process.env, ATELIER_ROOT: root } });
   let err = ""; p.stderr.on("data", d => { err += d; });
