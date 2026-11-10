@@ -41,3 +41,12 @@ test("llmDepuisEnv : actif seulement avec clé et modèle", () => {
   assert.equal(llmDepuisEnv({}), null); assert.equal(llmDepuisEnv({ LLM_API_KEY: "k" }), null); assert.equal(llmDepuisEnv({ LLM_MODEL: "m" }), null);
   assert.ok(llmDepuisEnv({ LLM_API_KEY: "k", LLM_MODEL: "m" }));
 });
+
+test("modèle par étape : parEtape l'emporte pour l'étape nommée, modele sinon", async t => {
+  const s = await serveurFauxLlm(() => rep({ role: "assistant", content: "ok" })); t.after(s.fermer);
+  const llm = creerLlm({ baseUrl: s.url, cle: "k", modele: "sonnet", parEtape: { datasets: "haiku" } });
+  await llm.discuter({ systeme: "s", messages: [], outils: [], etape: "datasets" });
+  await llm.discuter({ systeme: "s", messages: [], outils: [], etape: "flux" });
+  await llm.discuter({ systeme: "s", messages: [], outils: [] });
+  assert.deepEqual(s.appels.map(a => a.corps.model), ["haiku", "sonnet", "sonnet"]);
+});

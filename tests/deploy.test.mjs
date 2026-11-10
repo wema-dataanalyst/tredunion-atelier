@@ -23,7 +23,7 @@ test("sauvegarde.sh : syntaxe valide, n'embarque que adherents et comptes.json, 
 
 test("LISEZMOI documente la maquette automatique", () => {
   const t = lire("LISEZMOI.md");
-  for (const s of ["Maquette automatique", "adherents/<id>/.env", "tredunion", "maquette.jsonl", "spec-avant", "400 000", "409", "restaurée automatiquement"]) assert.ok(t.includes(s), s);
+  for (const s of ["Maquette automatique", "adherents/<id>/.env", "tredunion", "maquette.jsonl", "spec-avant", "2 000 000", "409", "restaurée automatiquement"]) assert.ok(t.includes(s), s);
 });
 
 test("LISEZMOI et AGENTS documentent l'apprentissage en un clic, le sel et la pseudonymisation", () => {

@@ -58,9 +58,12 @@ Pour activer l'interprétation des réponses libres (« Comprendre »), créer `
 LLM_BASE_URL=https://llm.wema.fr
 LLM_API_KEY=<clé virtuelle>
 LLM_MODEL=claude-sonnet-4-6
+LLM_MODEL_DATASETS=claude-haiku-4-5
 ```
 
-Sans ce fichier, l'agent est désactivé : le texte libre est enregistré tel quel, et la maquette automatique ne démarre pas (HTTP 503). La clé virtuelle doit avoir un budget et une limite de débit côté passerelle ; compter une centaine d'appels LLM par maquette et un plafond d'environ 400 000 jetons par run. Le journal d'usage est `adherents/<id>/.atelier/agent.jsonl`. Après modification : `sudo systemctl restart tredunion`.
+`LLM_MODEL_DATASETS` (facultatif) : modèle des étapes « documentation des datasets » et « relations » de la maquette ; sans lui, `LLM_MODEL` sert partout.
+
+Sans ce fichier, l'agent est désactivé : le texte libre est enregistré tel quel, et la maquette automatique ne démarre pas (HTTP 503). La clé virtuelle doit avoir un budget et une limite de débit côté passerelle ; compter une centaine d'appels LLM par maquette et un plafond de 2 000 000 jetons par run. Le journal d'usage est `adherents/<id>/.atelier/agent.jsonl`. Après modification : `sudo systemctl restart tredunion`.
 
 ## Maquette automatique
 

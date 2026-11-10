@@ -128,8 +128,10 @@ function cmdExemple(args) {
   console.log("Exemple Kessler-Rhin installé dans spec/ et data/. Lance npm run serve.");
 }
 function cmdReset(args) {
-  if (!args.includes("--force")) { console.error("Efface datasets, flux, relations, journal et cas particuliers de spec/ (garde référentiel, catalogue et dimensions sans alimentation ; les réponses de spec/reponses.yml sont archivées dans .atelier/). Relance avec --force pour confirmer."); process.exitCode = 1; return; }
-  viderSpec(P("spec"));
+  if (!args.includes("--force")) { console.error("Efface datasets, flux, relations, contrôles, journal et cas particuliers de spec/ (garde l'adhérent et ses sociétés, référentiel, catalogue et dimensions sans alimentation ; les réponses de spec/reponses.yml sont archivées dans .atelier/). Relance avec --force pour confirmer."); process.exitCode = 1; return; }
+  const projet = readYaml(P("spec/projet.yml"), {});
+  viderSpec(P("spec"), { adherent: projet.adherent || "Nouvel adhérent", societes: projet.societes || [] });
+  fs.writeFileSync(P("spec/controles.yml"), "# Contrôles croisés\n[]\n");
   fs.rmSync(P(".atelier/layout.json"), { force: true });
   const reg = P("spec/reponses.yml"), inst = P(".atelier/reponses.json"), archives = [];
   const base = `.atelier/reponses-archive-${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}Z`;
@@ -208,9 +210,10 @@ async function cmdNormaliser(args, enDirect = false) {
   const brut = P("data/raw", soc); if (!exists(brut)) throw new Error(`Dossier introuvable : data/raw/${soc} (lance d'abord npm run collecte)`);
   const memoire = lireMemoire(cheminMemoire(APP));
   if (!memoire.existe) console.warn(`${C.yellow}Mémoire introuvable (${memoire.dir}) : seul le lecteur tableau sera utilisé.${C.reset}`);
-  const { ecrits, nonLus } = await normaliserSociete({ brut, bronze: P("data/bronze", soc), logiciels: memoire.logiciels, progres: enDirect ? console.log : undefined });
+  const { ecrits, nonLus, retires } = await normaliserSociete({ brut, bronze: P("data/bronze", soc), logiciels: memoire.logiciels, progres: enDirect ? console.log : undefined });
   console.log(`${ecrits.length} fichiers CSV écrits dans data/bronze/${soc}/`);
   ecrits.forEach(e => console.log(`  ${e.id}.csv  ${e.lignes} lignes · ${e.lecteur}${e.hors_recette ? ` · ${C.yellow}${e.hors_recette} valeurs hors recette${C.reset}` : ""}`));
+  if (retires.length) console.log(`${retires.length} anciens CSV retirés de data/bronze/${soc}/ (plus aucun export ne les produit) : ${retires.join(", ")}`);
   if (nonLus.length) { console.log(`\n${C.yellow}${nonLus.length} non lus${C.reset}`); nonLus.forEach(n => console.log(`  ${n.fichier}${n.feuille ? " · " + n.feuille : ""} : ${n.raison}`)); }
 }
 

@@ -35,6 +35,13 @@ test("une société : le dossier distant est téléchargé tel quel", t => {
   assert.ok(fs.existsSync(path.join(m.cible, "a.csv")));
 });
 
+test("une collecte remplace le dossier brut : un ancien téléchargement n'y reste pas", t => {
+  const m = monde(t, ["DOSSIER/a.csv"]);
+  fs.mkdirSync(path.join(m.cible, "ANCIEN_SFTP"), { recursive: true }); fs.writeFileSync(path.join(m.cible, "ANCIEN_SFTP", "b.csv"), "x");
+  collecter(cfg("/DOSSIER"), m.cible, { sftp: m.faux });
+  assert.deepEqual(fs.readdirSync(m.cible), ["a.csv"]);
+});
+
 test("plusieurs sociétés : le sous-dossier de la société est téléchargé", t => {
   const m = monde(t, ["DOSSIER/s/a.csv", "DOSSIER/t/b.csv"]);
   const dir = dossierSociete("/DOSSIER", [{ id: "s" }, { id: "t" }], "s");

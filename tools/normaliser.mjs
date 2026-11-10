@@ -64,5 +64,8 @@ export async function normaliserSociete({ brut, bronze, logiciels, progres = () 
     }
   }
   fs.writeFileSync(path.join(bronze, "_non_lus.json"), JSON.stringify(nonLus, null, 2) + "\n");
-  return { ecrits, nonLus };
+  // Un CSV écrit par une normalisation précédente (il a son .meta.json) et qui ne vient plus d'aucun export est retiré.
+  const retires = ecrits.length ? fs.readdirSync(bronze).filter(f => f.endsWith(".meta.json")).map(f => f.slice(0, -".meta.json".length)).filter(id => !ids.has(id)).sort() : [];
+  for (const id of retires) for (const ext of [".csv", ".meta.json"]) fs.rmSync(path.join(bronze, id + ext), { force: true });
+  return { ecrits, nonLus, retires };
 }

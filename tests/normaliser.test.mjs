@@ -39,3 +39,12 @@ test("planProfil : saute le fichier déjà profilé, préfixe l'id pris par un a
   assert.deepEqual(planProfil(ex, "data/bronze/b/export.csv", "b"), { id: "b_export" });
   assert.deepEqual(planProfil(ex, "data/bronze/b/autre.csv", "b"), {});
 });
+
+test("normaliserSociete retire les CSV d'une normalisation précédente, garde ceux déposés à la main", async () => {
+  const brut = fs.mkdtempSync(path.join(os.tmpdir(), "brut-")), bronze = `${brut}-bronze`;
+  fs.writeFileSync(path.join(brut, "Missions.csv"), "a;b\n1;2\n");
+  fs.mkdirSync(bronze); for (const f of ["ancien.csv", "ancien.meta.json", "manuel.csv"]) fs.writeFileSync(path.join(bronze, f), "{}");
+  const r = await normaliserSociete({ brut, bronze, logiciels: [] });
+  assert.deepEqual(r.retires, ["ancien"]);
+  assert.deepEqual(fs.readdirSync(bronze).sort(), ["_non_lus.json", "manuel.csv", "missions.csv", "missions.meta.json"]);
+});

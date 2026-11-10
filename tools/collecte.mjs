@@ -56,7 +56,8 @@ export function collecter(cfg, cible, { sftp = "sftp", sousDossier } = {}) {
     const e = erreurSftp(r, cfg.password); if (e) absent(new Error(e));
     const src = path.join(dl, path.posix.basename(cfg.dir));
     if (!fs.existsSync(src)) absent(new Error(`Rien téléchargé depuis ${cfg.dir} : ${(r.stderr || "").split(cfg.password).join("***").trim().split("\n").pop()}`));
-    fs.mkdirSync(cible, { recursive: true });
+    // Le dossier brut reflète le SFTP du jour : un ancien téléchargement (autre SFTP_DIR) ne doit pas s'y ajouter.
+    fs.rmSync(cible, { recursive: true, force: true }); fs.mkdirSync(cible, { recursive: true });
     fs.cpSync(src, cible, { recursive: true });
     return compter(src);
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }

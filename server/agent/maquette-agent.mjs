@@ -3,7 +3,7 @@ import { boucle } from "./boucle.mjs";
 import { creerOutilsMaquette } from "./maquette-outils.mjs";
 import { lireReferentiel } from "./specs.mjs";
 
-export const TOURS = 12, DELAI_MS = 300000, PLAFOND_JETONS = 400000, MAX_FLUX = 8;
+export const TOURS = 12, DELAI_MS = 300000, PLAFOND_JETONS = 2000000, MAX_FLUX = 8;
 
 export const SYSTEME_MAQUETTE = `Tu es le lead dev data d'une équipe Data & IA. Tu prépares, sans l'adhérent, la maquette de son dashboard de transport : tu documentes ses exports et tu écris la spec (datasets, flux vers FAITS, contrôles) avec les outils fournis, rien d'autre.
 Règles :
@@ -24,10 +24,10 @@ export const creerBudget = (plafond = PLAFOND_JETONS) => ({ plafond, utilises: 0
 const MSG_PLAFOND = plafond => `Plafond de ${plafond.toLocaleString("fr-FR")} jetons atteint : la maquette s'arrête, la spec est vérifiée telle quelle.`;
 
 /* Une boucle bornée ; met à jour le budget. Renvoie {issue, resume?, tours, jetons} ou {erreurs} (passerelle, plafond). */
-async function tache({ llm, outils, utilisateur, budget, finSur }) {
+async function tache({ llm, outils, utilisateur, budget, finSur, etape }) {
   if (budget.utilises >= budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
   let r;
-  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, finSur, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })), capture: budget.capture && (l => budget.capture({ ...l, cible: budget.cible })) }); }
+  try { r = await boucle({ llm, systeme: SYSTEME_MAQUETTE, utilisateur, outils, tours: TOURS, delaiMs: DELAI_MS, jetonsMax: budget.plafond - budget.utilises, finSur, etape, trace: budget.trace && (l => budget.trace({ ...l, cible: budget.cible })), capture: budget.capture && (l => budget.capture({ ...l, cible: budget.cible })) }); }
   catch (e) { return { erreurs: [String(e?.message || "agent en échec")] }; }
   budget.utilises += r.jetons;
   if (r.issue === "jetons" || budget.utilises > budget.plafond) return { erreurs: [MSG_PLAFOND(budget.plafond)] };
@@ -53,7 +53,7 @@ export async function documenterDatasets({ espace, racine, llm, rapporter = () =
   for (const [k, id] of cibles.entries()) {
     rapporter({ etape: "datasets", i: k + 1, n: cibles.length }); budget.cible = id;
     const p = espace.profilDataset(id), connus = memoireDuDataset(espace, id, p);
-    const r = await tache({ llm, outils, budget, finSur: ["ecrire_dataset"], utilisateur: `Documente le dataset « ${id} ». Profil complet (sans valeurs des colonnes personnelles) : ${JSON.stringify(p).slice(0, 16000)}\nMémoire commune : ${connus || "aucune entrée pour ses colonnes"}.\nRéponds par UN SEUL appel ecrire_dataset qui contient tout : desc, grain, TOUTES les colonnes, regles et questions. Si l'outil refuse, corrige et rappelle-le.` });
+    const r = await tache({ llm, outils, budget, finSur: ["ecrire_dataset"], etape: "datasets", utilisateur: `Documente le dataset « ${id} ». Profil complet (sans valeurs des colonnes personnelles) : ${JSON.stringify(p).slice(0, 16000)}\nMémoire commune : ${connus || "aucune entrée pour ses colonnes"}.\nRéponds par UN SEUL appel ecrire_dataset qui contient tout : desc, grain, TOUTES les colonnes (name, desc, role ; codes si la colonne est codée ; type, pii, format, decimalComma seulement pour corriger le profil), regles et questions. Sois bref : hypothese seulement pour un sens déduit, une ou deux preuves courtes. Si l'outil refuse, corrige et rappelle-le.` });
     if (r.erreurs) return bilan(boucles, budget, r.erreurs);
     suivi(boucles, id, r);
   }
@@ -73,7 +73,7 @@ export async function ecrireRelations({ espace, racine, llm, rapporter = () => {
   if (index.length < 2) return bilan(boucles, budget);
   rapporter({ etape: "relations", i: 1, n: 1 }); budget.cible = "relations";
   const tous = creerOutilsMaquette({ espace, racine }), outils = { ecrire_relation: tous.ecrire_relation, terminer: tous.terminer };
-  const r = await tache({ llm, outils, budget, utilisateur: `Datasets de l'adhérent et leurs colonnes :\n${index.join("\n").slice(0, 12000)}\nÉcris, en un seul tour, toutes les relations évidentes entre ces datasets (une colonne qui référence la clé d'un autre : véhicule, conducteur, client, compte…) avec ecrire_relation et son hypothese ; une seule relation par couple de colonnes. Puis appelle terminer. Sans relation évidente, appelle seulement terminer.` });
+  const r = await tache({ llm, outils, budget, etape: "relations", utilisateur: `Datasets de l'adhérent et leurs colonnes :\n${index.join("\n").slice(0, 12000)}\nÉcris, en un seul tour, toutes les relations évidentes entre ces datasets (une colonne qui référence la clé d'un autre : véhicule, conducteur, client, compte…) avec ecrire_relation et son hypothese ; une seule relation par couple de colonnes. Puis appelle terminer. Sans relation évidente, appelle seulement terminer.` });
   if (r.erreurs) return bilan(boucles, budget, r.erreurs);
   suivi(boucles, "relations", r);
   return bilan(boucles, budget);
