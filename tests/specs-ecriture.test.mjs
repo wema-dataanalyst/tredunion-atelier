@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import YAML from "yaml";
-import { ecrireDataset, ecrireFlux, ecrireControle, ecrireRelation, lireReferentiel } from "../server/agent/specs.mjs";
+import { ecrireDataset, ecrireFlux, ecrireControle, ecrireRelation, lireReferentiel, masquerFuitesPii, MASQUE } from "../server/agent/specs.mjs";
 import { racineExemple, ATELIER } from "./aide/racine.mjs";
 
 const lire = (r, f) => fs.readFileSync(path.join(r, f), "utf8");
@@ -153,4 +153,16 @@ test("après des écritures valides, npm run check reste à 0 erreur", () => {
   ecrireControle(r, { id: "c1", type: "mensuel", ds: "tms_missions", date: "date_charg" });
   ecrireRelation(r, { id: "r9", from: "tms_missions.immat_tracteur", to: "tms_vehicules.immat", kind: "equal", norm: "alnum_upper" });
   const c = check(r); assert.equal(c.status, 0, c.stdout + c.stderr);
+});
+
+test("masquerFuitesPii : une valeur personnelle citée dans un autre dataset est masquée, le SQL et le registre ne bougent pas", () => {
+  const r = racineExemple(), nom = lire(r, "data/bronze/kf/tms_conducteurs.csv").split("\n")[1].split(";")[1];
+  const f = path.join(r, "spec/datasets/tms_missions.yml"), d = YAML.parseDocument(lire(r, "spec/datasets/tms_missions.yml"));
+  d.setIn(["columns", 0, "desc"], `Ordre saisi par ${nom}`); fs.writeFileSync(f, d.toString());
+  const reg = lire(r, "spec/reponses.yml");
+  assert.match(check(r).stdout, /colonne personnelle/);
+  assert.ok(masquerFuitesPii(r) >= 1);
+  assert.equal(YAML.parse(lire(r, "spec/datasets/tms_missions.yml")).columns[0].desc, `Ordre saisi par ${MASQUE}`);
+  assert.doesNotMatch(check(r).stdout, /colonne personnelle/); assert.equal(lire(r, "spec/reponses.yml"), reg);
+  assert.equal(masquerFuitesPii(r), 0);
 });

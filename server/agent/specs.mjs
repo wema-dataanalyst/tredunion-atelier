@@ -417,3 +417,30 @@ export function ecrireBesoins(racine, besoins) {
   const p = path.join(racine, "spec/besoins.yml");
   fs.writeFileSync(p, "# Besoins de l'adhérent\n" + YAML.stringify(besoins));
 }
+
+/* Masque, dans les textes libres de spec/ (descriptions, preuves, questions, notes), toute valeur d'une colonne personnelle,
+   quel que soit le dataset qui la porte. Le SQL, les noms de colonnes et le registre des réponses ne sont pas touchés.
+   Renvoie le nombre de textes modifiés. */
+const PROSE = new Set(["desc", "grain", "text", "question", "preuves", "titre", "contexte", "note", "lib", "cause", "libelle", "resume"]);
+export const MASQUE = "[valeur masquée]";
+export function masquerFuitesPii(racine) {
+  const valeurs = valeursPiiAdherent(racine).sort((a, b) => b.length - a.length); if (!valeurs.length) return 0;
+  const masquer = s => { let t = s, bas = s.toLowerCase();
+    for (const v of valeurs) { let i = bas.indexOf(v);
+      while (i >= 0) { const j = i + v.length;
+        if (!/[\p{L}\p{N}]/u.test(bas[i - 1] || "") && !/[\p{L}\p{N}]/u.test(bas[j] || "")) { t = t.slice(0, i) + MASQUE + t.slice(j); bas = bas.slice(0, i) + MASQUE.toLowerCase() + bas.slice(j); i = bas.indexOf(v, i + MASQUE.length); }
+        else i = bas.indexOf(v, i + 1); } }
+    return t; };
+  const spec = path.join(racine, "spec"), fichiers = [];
+  const parcourir = d => fs.existsSync(d) && fs.readdirSync(d, { withFileTypes: true }).forEach(e => { const f = path.join(d, e.name);
+    if (e.isDirectory()) { if (!["catalogue"].includes(e.name)) parcourir(f); } else if (/\.ya?ml$/.test(e.name) && f !== path.join(spec, "reponses.yml")) fichiers.push(f); });
+  parcourir(spec);
+  let n = 0;
+  for (const f of fichiers) {
+    const doc = sauf(() => lireYaml(f)); if (!doc) continue; let change = false;
+    const scalaire = s => { if (YAML.isScalar(s) && typeof s.value === "string") { const m = masquer(s.value); if (m !== s.value) { s.value = m; change = true; n++; } } };
+    YAML.visit(doc, { Pair(_, p) { if (!PROSE.has(String(p.key?.value ?? p.key))) return; if (YAML.isSeq(p.value)) p.value.items.forEach(scalaire); else scalaire(p.value); } });
+    if (change) ecrire(f, doc);
+  }
+  return n;
+}

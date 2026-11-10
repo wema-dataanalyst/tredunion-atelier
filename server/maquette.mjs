@@ -7,6 +7,7 @@ import { parseEnv } from "node:util";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { valeursPiiAdherent } from "./agent/specs.mjs";
+import { masquerFuitesPii } from "./agent/specs.mjs";
 import { TOURS, documenterDatasets, ecrireRelations, ecrireFluxEtControles, proposerPerimetre, proposerLibelles, proposerMesures, creerBudget } from "./agent/maquette-agent.mjs";
 
 const ATELIER = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../tools/atelier.mjs");
@@ -223,6 +224,7 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     if (pr.erreurs) return echec(pr.erreurs, "propositions");
 
     if (coupe()) return interrompu();
+    const masques = masquerFuitesPii(racine); if (masques) note(`${masques} texte(s) citaient une valeur d'une colonne personnelle : valeur masquée`);
     note("Vérification de la spec"); maj({ etape: "verification", i: 0, n: 0 });
     const apres = bilan(espace); tracer(racine, now, { etape: "verification", issue: apres.erreurs.length ? "echec" : "ok", erreurs: apres.erreurs.length, jetons: budget.utilises });
     if (apres.erreurs.length) return echec(apres.erreurs, "verification");
