@@ -274,3 +274,12 @@ test("annulation : signal déjà levé → rien lancé ; enfant tué", async () 
   setTimeout(() => c2.abort(), 200); const e = await p;
   assert.equal(e.ok, false); assert.ok(Date.now() - t0 < 5000);
 });
+
+test("maquette : journal vide écrit en style flow ([]) → l'entrée ajoutée reste du YAML valide", async () => {
+  const { racine, espace } = neuf();
+  fs.writeFileSync(path.join(racine, "spec/journal.yml"), "# Journal des décisions de séance\n[]\n");
+  const r = await lancerMaquette({ racine, espace, llm: llmTermine(), rapporter() {}, now });
+  assert.equal(r.ok, true, JSON.stringify(r.erreurs));
+  const j = YAML.parse(lire(racine, "spec/journal.yml"));
+  assert.equal(j.length, 1); assert.equal(j[0].question, "maquette automatique");
+});

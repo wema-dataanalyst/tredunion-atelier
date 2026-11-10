@@ -237,11 +237,18 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     note("Construction des livrables"); maj({ etape: "construction" });
     const resume = { mesuresAvant: avant.mesures, mesuresApres: apres.mesures, hypotheses: apres.hypotheses, controlesEnEcart: apres.ecarts, fiche: "generated/fiche_seance.md" };
     const journal = path.join(racine, "spec/journal.yml"), h = apres.hypotheses;
-    const texte = fs.existsSync(journal) ? fs.readFileSync(journal, "utf8") : "# Journal des décisions : une entrée par question tranchée\n";
     const entree = { date: iso(now), question: "maquette automatique",
       decision: `Spec pré-remplie par l'agent à partir des exports : hypothèses à valider ${h.basse} basses, ${h.moyenne} moyennes, ${h.haute} hautes. Effet : mesures alimentées ${avant.mesures} → ${apres.mesures}, lignes FAITS ${avant.faits} → ${apres.faits}.`,
       fichiers: [...new Set([...fichiersChanges(racine), "spec/journal.yml"])].sort().slice(0, 40) };
-    fs.writeFileSync(journal, texte.replace(/\n*$/, "\n") + YAML.stringify([entree], { lineWidth: 0 }));
+    // Document YAML (pas une simple concaténation de texte) : un journal vide écrit en style flow (`[]`, cf. tools/gabarit.mjs)
+    // casserait sinon un ajout par concaténation de texte brut. Le commentaire d'en-tête existant (attaché au premier élément
+    // ou à la liste vide par la bibliothèque yaml) est préservé tel quel ; on n'en pose un que pour un fichier inexistant.
+    const existeJournal = fs.existsSync(journal);
+    const doc = existeJournal ? YAML.parseDocument(fs.readFileSync(journal, "utf8")) : new YAML.Document([]);
+    if (!existeJournal) doc.commentBefore = " Journal des décisions : une entrée par question tranchée";
+    if (!YAML.isSeq(doc.contents)) doc.contents = new YAML.YAMLSeq();
+    doc.contents.flow = false; doc.contents.add(doc.createNode(entree));
+    fs.writeFileSync(journal, doc.toString({ lineWidth: 0 }));
     if (coupe()) return interrompu();
     const b = espace.construire();
     if (!b.ok) return echec(b.erreurs.map(x => `${x.fichier} : ${x.msg}`), "construction");
