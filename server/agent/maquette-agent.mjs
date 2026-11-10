@@ -93,7 +93,8 @@ export async function ecrireFluxEtControles({ espace, racine, llm, rapporter = (
     suivi(boucles, c.categorie, r);
   }
   rapporter({ etape: "controles", i: 1, n: 1 }); budget.cible = "controles";
-  const r = await tache({ llm, outils, budget, utilisateur: "Écris les contrôles : au moins un par flux existant (ecart_somme, rapprochement ou mensuel) avec ecrire_controle, et renseigne porte_sur. Termine par terminer." });
+  const outilsControles = Object.fromEntries(["lire_dataset", "ecrire_controle", "terminer"].map(k => [k, tous[k]]));
+  const r = await tache({ llm, outils: outilsControles, budget, etape: "controles", utilisateur: `Écris les contrôles : au moins un par flux existant (ecart_somme, rapprochement ou mensuel) avec ecrire_controle, et renseigne porte_sur.\nDatasets de l'adhérent (seuls ids valides pour lire_dataset), avec leurs colonnes :\n${index}\nAppelle lire_dataset seulement sur ceux dont tu as besoin, pas tous. Termine par terminer.` });
   if (r.erreurs) return bilan(boucles, budget, r.erreurs);
   suivi(boucles, "controles", r);
   return bilan(boucles, budget);
@@ -104,8 +105,10 @@ export async function proposerPerimetre({ espace, racine, llm, rapporter = () =>
   const candidats = espace.candidatsPerimetre(), boucles = [];
   if (!candidats.length) return bilan(boucles, budget);
   rapporter({ etape: "perimetre", i: 1, n: 1 }); budget.cible = "perimetre";
-  const outils = creerOutilsMaquette({ espace, racine });
-  const r = await tache({ llm, outils, budget, utilisateur: `${candidats.length} mesures du dashboard n'ont aucune donnée (lire_candidats_perimetre). Pour chaque ensemble, lis les datasets utiles (lire_dataset) : si la donnée existe mais n'est pas branchée, n'écris rien ; si aucun export ne la porte, regroupe par cause et écris le groupe avec ecrire_perimetre. Termine par terminer.` });
+  const tous = creerOutilsMaquette({ espace, racine });
+  const outils = Object.fromEntries(["lire_candidats_perimetre", "lire_couverture", "lire_reponses_adherent", "lire_dataset", "ecrire_perimetre", "terminer"].map(k => [k, tous[k]]));
+  const index = indexDatasets(espace, true).join("\n").slice(0, 12000);
+  const r = await tache({ llm, outils, budget, etape: "perimetre", utilisateur: `${candidats.length} mesures du dashboard n'ont aucune donnée (lire_candidats_perimetre).\nDatasets de l'adhérent (seuls ids valides pour lire_dataset), avec leurs colonnes :\n${index}\nPour chaque ensemble, lis les datasets utiles (lire_dataset) : si la donnée existe mais n'est pas branchée, n'écris rien ; si aucun export ne la porte, regroupe par cause et écris le groupe avec ecrire_perimetre. Termine par terminer.` });
   if (r.erreurs) return bilan(boucles, budget, r.erreurs);
   suivi(boucles, "perimetre", r);
   return bilan(boucles, budget);

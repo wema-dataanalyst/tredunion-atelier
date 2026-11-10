@@ -165,9 +165,13 @@ export async function lancerMaquette({ racine, espace, llm, rapporter = () => {}
     maj({ etape: "interrompu", fin: iso(now), ok: false, erreurs: [msg], resume: null });
     return st;
   };
+  // Seule la vérification finale restaure spec/ (comme documenté) : un échec d'étape (collecte, agent, plafond de jetons)
+  // garde ce qui a déjà été écrit (chaque écriture est validée au fil de l'eau) pour qu'une relance reprenne là où ça s'est arrêté,
+  // au lieu de tout refaire et de re-cramer des jetons sur un incident ponctuel (passerelle LLM, réseau).
   const echec = (erreurs, etape) => {
     if (coupe()) return interrompu();
-    try { if (sauve) restaurer(racine); } catch (x) { erreurs = [...erreurs, `La spec n'a pas pu être remise dans son état d'avant : ${x.message}`]; }
+    if (etape === "verification") { try { if (sauve) restaurer(racine); } catch (x) { erreurs = [...erreurs, `La spec n'a pas pu être remise dans son état d'avant : ${x.message}`]; } }
+    else if (sauve) erreurs = [...erreurs, "Le travail déjà écrit (datasets, relations, flux, contrôles…) est conservé : relancez la maquette pour reprendre là où elle s'est arrêtée."];
     tracer(racine, now, { etape, issue: "echec", erreurs: erreurs.length });
     maj({ etape: "fin", fin: iso(now), ok: false, erreurs: erreurs.slice(0, 20).map(e => nettoyer(e, secrets)), resume: null });
     return st;

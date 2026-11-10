@@ -95,11 +95,21 @@ test("maquette : check en échec → spec/ identique octet pour octet, fichiers 
   assert.ok(!fs.existsSync(path.join(racine, "spec/flux/zz_agent.yml")));
 });
 
-test("maquette : plafond de jetons → échec propre, spec restaurée", async () => {
+test("maquette : plafond de jetons → échec propre, le travail déjà écrit est gardé (pas de restauration)", async () => {
   const { racine, espace } = neuf(), avant = arbre(path.join(racine, "spec"));
   const r = await lancerMaquette({ racine, espace, llm: llmTermine(() => fs.appendFileSync(path.join(racine, "spec/projet.yml"), "# x\n"), 500000), rapporter() {}, now });
-  assert.equal(r.ok, false); assert.match(r.erreurs.join(" "), /jetons/);
-  assert.deepEqual(arbre(path.join(racine, "spec")), avant);
+  assert.equal(r.ok, false); assert.match(r.erreurs.join(" "), /jetons/); assert.match(r.erreurs.join(" "), /relancez la maquette/);
+  assert.match(lire(racine, "spec/projet.yml"), /# x/, "la spec modifiée n'est pas restaurée");
+  assert.notDeepEqual(arbre(path.join(racine, "spec")), avant);
+});
+
+test("maquette : échec d'une étape agent (passerelle injoignable) → le travail déjà écrit avant l'échec est gardé", async () => {
+  const { racine, espace } = neuf();
+  let n = 0;
+  const llm = { async discuter() { if (n++ === 0) { fs.appendFileSync(path.join(racine, "spec/projet.yml"), "# déjà écrit avant l'incident\n"); return { message: { role: "assistant", content: null, tool_calls: appelOutil("terminer", { resume: "ok" }).tool_calls }, usage: { total_tokens: 10 } }; } throw new Error("passerelle LLM injoignable"); } };
+  const r = await lancerMaquette({ racine, espace, llm, rapporter() {}, now });
+  assert.equal(r.ok, false); assert.match(r.erreurs.join(" "), /passerelle LLM injoignable/); assert.match(r.erreurs.join(" "), /relancez la maquette/);
+  assert.match(lire(racine, "spec/projet.yml"), /# déjà écrit avant l'incident/);
 });
 
 test("maquette : sans passerelle LLM → échec sans toucher à spec/", async () => {

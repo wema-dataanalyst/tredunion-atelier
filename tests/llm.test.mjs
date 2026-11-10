@@ -50,3 +50,28 @@ test("modèle par étape : parEtape l'emporte pour l'étape nommée, modele sino
   await llm.discuter({ systeme: "s", messages: [], outils: [] });
   assert.deepEqual(s.appels.map(a => a.corps.model), ["haiku", "sonnet", "sonnet"]);
 });
+
+test("reessais : un incident réseau transitoire est retenté, pas une erreur HTTP ni un délai dépassé", async () => {
+  let appels = 0;
+  const fetchImpl = async () => { appels++; if (appels === 1) throw new Error("fetch failed"); return { ok: true, json: async () => ({ choices: [{ message: { role: "assistant", content: "ok" } }], usage: {} }) }; };
+  const r = await creerLlm({ cle: "k", modele: "m", fetchImpl, reessais: 1, reessaiDelaiMs: 0 }).discuter({ systeme: "s", messages: [], outils: [] });
+  assert.equal(appels, 2); assert.equal(r.message.content, "ok");
+});
+
+test("reessais : épuisés → l'erreur d'origine remonte", async () => {
+  let appels = 0;
+  const fetchImpl = async () => { appels++; throw new Error("fetch failed"); };
+  await assert.rejects(creerLlm({ cle: "k", modele: "m", fetchImpl, reessais: 2, reessaiDelaiMs: 0 }).discuter({ systeme: "s", messages: [], outils: [] }), /injoignable/);
+  assert.equal(appels, 3);
+});
+
+test("reessais : jamais sur un délai dépassé (le budget de temps de l'appelant n'est pas dépassé en douce)", async () => {
+  let appels = 0;
+  const fetchImpl = (u, init) => { appels++; return new Promise((_, ko) => init.signal.addEventListener("abort", () => { const e = new Error("aborted"); e.name = "TimeoutError"; ko(e); })); };
+  await assert.rejects(creerLlm({ cle: "k", modele: "m", fetchImpl, delaiMs: 20, reessais: 2, reessaiDelaiMs: 0 }).discuter({ systeme: "s", messages: [], outils: [] }), /délai dépassé/);
+  assert.equal(appels, 1);
+});
+
+test("llmDepuisEnv : un réessai activé par défaut", () => {
+  assert.equal(llmDepuisEnv({ LLM_API_KEY: "k", LLM_MODEL: "m" }) !== null, true);
+});
