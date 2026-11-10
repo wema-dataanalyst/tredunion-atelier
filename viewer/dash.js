@@ -30,10 +30,10 @@ const FMT={eur:v=>fmtN(v,0)+" €",pct:v=>fmtN(v*100,2)+" %",num:v=>fmtN(v,0),km
 function fv(r,fmt){ if(r.err) return null; const v=r.v; if(typeof v!=="number"||!isFinite(v)) return null; return (FMT[fmt]||FMT.eur)(v); }
 function mTitle(name){ const m=dm(name); const real=m?m.name:"absente"; const st=m&&!RECON.has(name)?(COVD().get(m.id)?.s):null; const cm=m&&!RECON.has(name)?CAT().resolve(m.name):null; const hb=cm?badgeMesure(cm):null; return `Mesure : ${real}${RECON.has(name)?" (reconstituée, hors catalogue)":""}${st?" · "+ST_M[st]:""}${hb?" · "+CONF_LIB[hb.pire]:""}`; }
 function COVD(){ return cached("covd",()=>coverage(DCAT(),buildFaits().rows)); }
-function kcell(it,main){ const r=dv(it.m); const t=fv(r,it.fmt); const m=dm(it.m);
+function kcell(it,main){ const r=dv(it.m), m=dm(it.m), vide=m&&COVD().get(m.id)?.s==="none", t=vide?null:fv(r,it.fmt);
   const warn=m&&m.issues.some(i=>i.sev==="bad")?`<span class="q" title="${esc(m.issues.filter(i=>i.sev==="bad").map(i=>i.txt).join("\n"))}">anomalie catalogue</span>`:"";
   const lb=(S.prev.sheet||"")+"|"+(it.label||it.m), n=KN.get(lb)||0; KN.set(lb,n+1);
-  return `<div data-k="${esc(lb+"|"+n)}" class="kc${main?" main":""}${t==null?" nc":""}" title="${esc(mTitle(it.m))}"><div class="l">${esc(it.label||it.m)}${RECON.has(it.m)?' <span class="recon">reconstituée</span>':""}</div><div class="v">${t??"non calculable"}</div>${warn}</div>`; }
+  return `<div data-k="${esc(lb+"|"+n)}" class="kc${main?" main":""}${t==null?" nc":""}" title="${esc(mTitle(it.m))}"><div class="l">${esc(it.label||it.m)}${RECON.has(it.m)?' <span class="recon">reconstituée</span>':""}</div><div class="v">${t??"En attente"}</div>${warn}</div>`; }
 function oKB(o){ return `<div class="obj" style="grid-column:span ${o.span||6}"><h4>${esc(o.title)}</h4><div class="kb${o.items.length===2?" n2":""}" ${o.items.length===4&&o.grid?'style="grid-template-columns:1fr 1fr"':""}>${o.items.map((it,i)=>kcell(it,i===0&&!o.grid)).join("")}</div></div>`; }
 function oStack(o){ return `<div class="stack" style="grid-column:span ${o.span||3}">${o.items.map(it=>`<div class="obj">${kcell(it,true)}</div>`).join("")}</div>`; }
 function dimValues(dim){
@@ -137,6 +137,24 @@ const SHEETS=[
   {t:"chart",type:"bar",title:"Chiffre d'affaires / coûts par immatriculation",dim:"veh",top:15,rot:true,measures:[{m:"CA Réel",label:"CA"},{m:"Charges réelles",label:"Charges"}],span:6},
  ]},
 ];
+/* chiffre clé (vue adhérent) : le CA de la période, comparé, puis trois indicateurs et ce qui reste à faire */
+const MOIS_L=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function nv(name){ const m=dm(name), s=m&&COVD().get(m.id)?.s; if(s!=="ok"&&s!=="part") return null; const r=dv(name); return !r.err&&typeof r.v==="number"&&isFinite(r.v)?r.v:null; }
+function delta(a,b,hausseBonne=true){ if(a==null||b==null||!b) return `<span class="delta nd">non comparable</span>`;
+  const d=(a-b)/Math.abs(b), nul=Math.abs(d)<0.0005, cls=nul?"neutre":(d>0)===hausseBonne?"bon":"mauvais";
+  return `<span class="delta ${cls}">${nul?"=":d>0?"▲":"▼"} ${d>0?"+":d<0?"−":""}${fmtN(Math.abs(d)*100,1)} %</span>`; }
+function heroAdh(){
+  const p=S.prev, ca=nv("CA Réel"); if(ca==null) return "";
+  const mo=p.mois?MOIS_L[p.mois-1]:"", per=p.mois?`${/^[aeiou]/.test(mo)?"d'":"de "}${mo} ${p.annee}`:String(p.annee);
+  const comp=[["Budget",nv("Budget")],p.mois?[`${MOIS_L[(p.mois+10)%12]} ${p.mois===1?p.annee-1:p.annee}`,nv("CA Réel M-1")]:null,[`${mo?mo+" ":""}${p.annee-1}`,nv("CA Réel N-1")]].filter(Boolean);
+  const eur=v=>v==null?"Non disponible":fmtN(v,0)+" €", pc=v=>v==null||!ca?"":`${fmtN(v/ca*100,1)} % du chiffre d'affaires`;
+  const res=nv("Résultat Avec Exceptionnel Réel"), mas=nv("Masse réel"), km=nv("KM Réel");
+  const ind=(l,v,txt,sous)=>v==null?`<li class="attente"><span class="il">${l}</span><span class="iv">En attente</span><span class="is">Se complétera au fil de vos réponses.</span></li>`:`<li><span class="il">${l}</span><span class="iv">${txt}</span><span class="is">${sous}</span></li>`;
+  const c=measureCounts(), tot=c.ok+c.part+c.none+c.err, nq=listeQuestions().filter(q=>q.statut==="ouverte").length;
+  return `<div class="dh-hero"><section class="dh-cle" aria-labelledby="dh-ca"><h3 id="dh-ca">Chiffre d'affaires ${per}${p.site?` · ${esc(p.site==="∅"?"Sans filiale":p.site)}`:""}</h3><p class="dh-v">${eur(ca)}</p>
+    <dl class="dh-comp">${comp.map(([l,v])=>`<div><dt>${esc(l)}</dt><dd><span class="cv">${eur(v)}</span>${delta(ca,v)}</dd></div>`).join("")}</dl></section>
+    <ul class="dh-indics" aria-label="Autres indicateurs">${ind("Résultat",res,eur(res),pc(res))}${ind("Masse salariale",mas,eur(mas),pc(mas))}${ind("Kilomètres parcourus",km,km==null?"":fmtN(km,0)+" km","")}</ul></div>
+   ${nq?`<div class="dh-reste"><p><b>${c.ok} indicateurs sur ${tot}</b> sont prêts. ${nq} question${nq>1?"s restent ouvertes":" reste ouverte"} : chaque réponse complète votre tableau de bord.</p><button class="btn primary" type="button" data-dh-q>Répondre</button></div>`:""}`; }
 function renderPrev(){
   EVC=new Map(); KN=new Map(); const {ys}=prevSel(); const fa=buildFaits(), dims=buildDims(); const p=S.prev;
   const hors=horsDe(DCAT()), feuilles=filtrerFeuilles([...SHEETS,...feuillesAdherent()],n=>{ const m=dm(n); return hors.has(m?m.name:n); });
@@ -144,7 +162,9 @@ function renderPrev(){
   if(!p.sheet) p.sheet="accueil"; const sh=feuilles.find(s=>s.id===p.sheet)||feuilles[0];
   const sites=[...new Set(fa.rows.map(r=>r.site||"∅"))].sort(); const vehs=[...new Set(fa.rows.map(r=>r.veh).filter(Boolean))].sort(); const chs=[...new Set(fa.rows.map(r=>r.chauf).filter(Boolean))].sort();
   const R={kb:oKB,stack:oStack,chart:oChart,table:oTable,pivot:oPivot,pie:oPieDim,gauge:oGauge,agrid:oAGrid,costdonut:oCostDonut,costtable:oCostTable};
-  $("#prevv").innerHTML=`<h2>Dashboard</h2><p class="lede">Les feuilles de l'app démo, recalculées avec les expressions du catalogue sur les lignes FAITS de la séance. Survole une valeur pour voir la mesure utilisée. Les indicateurs marqués « reconstituée » ne sont pas dans les éléments principaux : leur formule est déduite de la capture.</p>
+  const lede=S.vue?.role==="adherent"?"Votre tableau de bord, calculé sur vos propres données. Les indicateurs « En attente » se rempliront au fil de vos réponses.":"Les feuilles de l'app démo, recalculées avec les expressions du catalogue sur les lignes FAITS de la séance. Survole une valeur pour voir la mesure utilisée. Les indicateurs marqués « reconstituée » ne sont pas dans les éléments principaux : leur formule est déduite de la capture.";
+  const adh=S.vue?.role==="adherent";
+  $("#prevv").innerHTML=`<h2>${adh?"Votre tableau de bord":"Dashboard"}</h2><p class="lede">${lede}</p>
   <div class="sheetbar">${feuilles.map(s=>`<button data-sh="${s.id}" aria-pressed="${s.id===sh.id}">${esc(s.title)}</button>`).join("")}</div>
   <div class="filters">
     <label>Filiale<select class="inp" id="pv-s"><option value="">Toutes</option>${sites.map(s=>`<option value="${esc(s)}" ${p.site===s?"selected":""}>${esc(s==="∅"?"Sans filiale":s)}</option>`).join("")}</select></label>
@@ -154,7 +174,9 @@ function renderPrev(){
     <label>Chauffeur<select class="inp" id="pv-c"><option value="">Tous</option>${chs.map(v=>`<option value="${esc(v)}" ${p.chauf===v?"selected":""}>${esc(dims.chauf.get(v)?.LIB_CHAUFFEUR||v)}</option>`).join("")}</select></label>
   </div>
   ${sh.id==="general"?'<p class="note" style="margin:0 0 10px">Les boutons « Sélection activité » (Général, Parc, Affrètement, Logistique) ne sont pas reproduits : leur action de sélection n\'est pas visible sur la capture.</p>':""}
-  <div class="dash">${sh.objs.map(o=>R[o.t](o)).join("")}</div>`;
+  ${adh&&sh.id==="accueil"?heroAdh():""}
+  <div class="dash">${sh.objs.filter(o=>!(adh&&sh.id==="accueil"&&o.t==="kb"&&o.title==="Chiffre d'affaires"&&nv("CA Réel")!=null)).map(o=>R[o.t](o)).join("")}</div>`;
+  $("#prevv").querySelector("[data-dh-q]")?.addEventListener("click",()=>setTab("q"));
   $("#prevv").querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>{ p.sheet=b.dataset.sh; renderPrev(); });
   $("#pv-s").onchange=e=>{ p.site=e.target.value; renderPrev(); };
   $("#pv-a").onchange=e=>{ p.annee=+e.target.value; renderPrev(); };

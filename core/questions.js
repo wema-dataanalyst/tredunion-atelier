@@ -56,7 +56,8 @@ function listeQuestions(){ return cached("questions",()=>{
     add({id:h.cible,source:"hypothese",lot:h.cible.startsWith("perimetre:")||h.cible.startsWith("mesures:")?"adherent":h.cible.startsWith("categorie:")?"categories":ds?lotDe(ds):"dimensions",element:h.cible,elements:[h.cible],fichier:h.fichier,question:h.question||h.libelle,traitee:h.valide||h.refuse,reponse:h.reponse,form:h.form,titre:h.form&&h.form.titre||""}); });
   // Lot besoins : une question par thème non tranché (après les hypothèses, avant les contrôles)
   const besoins = S.st.besoins || { themes: [], libres: [] };
-  const themesTraites = new Set(besoins.themes.map(t => t.id));
+  const parRegistre = new Set(S.st._themesRegistre || []);
+  const themesTraites = new Set(besoins.themes.map(t => t.id).filter(id => !parRegistre.has(id)));
   THEMES().forEach(t => {
     if (!themesTraites.has(t.id)) {
       add({id:`theme:${t.id}`,source:"besoins",lot:"besoins",element:`theme:${t.id}`,elements:t.mesures.map(m=>`mesure:${m}`),fichier:"spec/besoins.yml",

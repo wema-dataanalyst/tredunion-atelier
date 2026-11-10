@@ -1,6 +1,6 @@
 "use strict";
 const $=s=>document.querySelector(s);
-function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+function toast(msg){const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 function renderTop(){
   document.title=`${S.st.adherent} · atelier`;
   $("#adherent").textContent=S.st.adherent;
@@ -9,8 +9,9 @@ function renderTop(){
   const besoins = S.st.besoins || { themes: [], libres: [] };
   const themesChoisis = besoins.themes.filter(t => t.choisi).length;
   const total = CAT().list.length - c.hors;
-  const jaugeText = themesChoisis ? `${total} choisies, ${c.ok + c.part} alimentées` : `Mesures ${c.ok + c.part}/${CAT().list.length}`;
-  $("#m-bar").style.width=(tot?(c.ok+c.part*.5)/tot*100:0)+"%"; $("#m-txt").textContent=jaugeText;
+  const adh = S.vue?.role === "adherent";
+  const jaugeText = adh ? `${c.ok} indicateur${c.ok>1?"s":""} sur ${tot}` : themesChoisis ? `${total} choisies, ${c.ok + c.part} alimentées` : `Mesures ${c.ok + c.part}/${CAT().list.length}`;
+  $("#m-bar").style.width=(tot?(adh?c.ok:c.ok+c.part*.5)/tot*100:0)+"%"; $("#m-txt").textContent=jaugeText; $("#m-lib").textContent=adh?"Prêts":"Mesures"; if(adh) $(".meter").title="Indicateurs de votre tableau de bord déjà calculables";
   $("#b-flows").classList.toggle("on",S.flows); $("#b-mask").classList.toggle("on",S.mask);
 }
 /* ───────────── rendu canvas ───────────── */
@@ -267,18 +268,18 @@ function renderLog(){
 }
 
 /* ───────────── questions ───────────── */
-const SRC_LIB={projet:"Adhérent",hypothese:"Hypothèse",controle:"Contrôle",profil:"Profil",hors_recette:"Hors recette",non_lu:"Non lu",registre:"Registre"};
+const SRC_LIB={projet:"Adhérent",besoins:"Besoins",kpi:"Indicateurs",hypothese:"Hypothèse",controle:"Contrôle",profil:"Profil",hors_recette:"Hors recette",non_lu:"Non lu",registre:"Registre"};
 const radios=(n,l)=>`<div class="qopts">${l.map(([v,t])=>`<label><input type="radio" name="${n}" value="${esc(v)}"> ${esc(t)}</label>`).join("")}</div>`;
 const parLu=()=>{ try{ return localStorage.getItem("atelier.par")||""; }catch(_){ return ""; } };
 const parEcrit=v=>{ try{ localStorage.setItem("atelier.par",v); }catch(_){} };
-function formQ(q){
+function formQ(q,o={}){
   const f=q.formulaire; let h="";
   if(q.type==="confirmer") h=radios("oui",[["1","Oui"],["0","Non"]])+`<input class="inp" name="precision" placeholder="Précision (facultatif)">`;
-  if(q.type==="codes") h=f.valeurs.length?`${f.suggestionDe?`<p class="note">Pré-rempli d'après la colonne « ${esc(f.suggestionDe)} » de votre fichier : corrigez si besoin.</p>`:""}<table class="qcodes"><thead><tr><th>Dans votre fichier</th><th>Lignes</th><th>Ce que cela veut dire</th><th>Ne pas compter</th></tr></thead><tbody>${f.valeurs.map(v=>`<tr><td class="mono">${esc(v.code)}</td><td>${v.n}</td><td><input class="inp" data-code="${esc(v.code)}" value="${esc(v.libelle||v.suggestion)}" placeholder="Ex. : ..."></td><td><input type="checkbox" data-exclu="${esc(v.code)}" aria-label="Ne pas compter ${esc(v.code)}"></td></tr>`).join("")}</tbody></table>`:`<p class="note">Valeurs non disponibles : répondez en texte libre.</p>`;
+  if(q.type==="codes") h=f.valeurs.length?`${f.suggestionDe?`<p class="note">Pré-rempli d'après la colonne « ${esc(f.suggestionDe)} » de votre fichier : corrigez si besoin.</p>`:""}<table class="qcodes"><thead><tr><th>Dans votre fichier</th><th>Lignes</th><th>Ce que cela veut dire</th><th>Ne pas compter</th></tr></thead><tbody>${f.valeurs.map(v=>`<tr><td class="mono">${esc(v.code)}</td><td>${v.n}</td><td><input class="inp" data-code="${esc(v.code)}" value="${esc(v.libelle||v.suggestion)}" placeholder="Ex. : ..."></td><td><label class="cb"><input type="checkbox" data-exclu="${esc(v.code)}" aria-label="Ne pas compter ${esc(v.code)}"><span class="cb-l">Ne pas compter</span></label></td></tr>`).join("")}</tbody></table>`:`<p class="note">Valeurs non disponibles : répondez en texte libre.</p>`;
   if(q.type==="choix") h=radios("option",f.options.map((o,i)=>[String(i),o.libelle]));
   if(q.type==="exclure") h=`<p class="note mono">Lignes gardées : ${esc(f.sql)}</p>`+radios("exclure",[["1","Exclure les autres lignes"],["0","Tout garder"]]);
   if(q.type==="fichier") h=radios("valeur",[["traiter","À traiter"],["ignorer","À ignorer"]]);
-  const libre=q.type==="libre", ag=!!S.vue?.agent, occ=S.qInt?.id===q.id&&S.qInt.etat==="lecture", texte=`<textarea class="inp" name="texte" rows="2" placeholder="Votre réponse"></textarea>`+(ag&&!libre?`<button class="btn sm qcomprendre" type="button" data-qc="comprendre"${occ?" disabled":""}>Comprendre</button>`:"");
+  const libre=q.type==="libre", ag=!!S.vue?.agent&&!o.relai, occ=S.qInt?.id===q.id&&S.qInt.etat==="lecture", texte=`<textarea class="inp" name="texte" rows="2" placeholder="Votre réponse"></textarea>`+(ag&&!libre?`<button class="btn sm qcomprendre" type="button" data-qc="comprendre"${occ?" disabled":""}>Comprendre</button>`:"");
   return `<form class="qform" data-qid="${esc(q.id)}">${h}${libre?texte:`<details class="qautre"><summary>Autre réponse</summary>${texte}</details>`}
     <div class="qact"><input class="inp" name="par" placeholder="Votre service ou fonction (facultatif)" value="${esc(parLu())}"><button class="btn primary" type="submit"${occ?" disabled":""}>${libre&&ag?"Comprendre":q.type==="codes"&&f.valeurs.some(v=>v.suggestion&&!v.libelle)?"Oui, c'est ça":"Valider"}</button></div><p class="qerr" hidden></p></form>`;
 }
@@ -353,7 +354,7 @@ function renderQ(){
   const nOuv=qs.filter(q=>q.statut==="ouverte").length, nTot=qs.filter(q=>q.source!=="registre").length, mc=measureCounts(), mTot=mc.ok+mc.part+mc.none+mc.err;
   const skip=S.qSkip||(S.qSkip=[]), file=qs.filter(q=>q.statut==="ouverte"&&repondable(q)), cur=file.find(q=>!skip.includes(q.id))||file[0];
   const carte=(q,focus)=>{ const edit=repondable(q)&&(q.statut==="ouverte"||S.qEdit===q.id), n=q.historique.length, flash=q.id===fl;
-    return `<article class="qi ${q.statut}${flash?" qflash":""}${focus?" qfocus":""}">${flash?`<div class="qfb">${S.qFlash.noter?"Merci, votre réponse est enregistrée. WeMa la prend en compte.":`Réponse appliquée · ${esc(effetClair(S.qFlash.effet))}`}</div>`:""}
+    return `<article class="qi ${q.statut}${flash?" qflash":""}${focus?" qfocus":""}">${flash?`<div class="qfb" role="status" tabindex="-1">${S.qFlash.noter?"Merci, votre réponse est enregistrée. WeMa la prend en compte.":`Réponse appliquée · ${esc(effetClair(S.qFlash.effet))}`}</div>`:""}
     <div class="qcorps${edit?" qa":""}"><div class="qmain">
     ${focus&&cur?`<div class="qtop"><span>Question ${nTot-nOuv+1} sur ${nTot}</span><span class="qprog"><i style="width:${Math.round((nTot-nOuv)/Math.max(1,nTot)*100)}%"></i></span></div>`:""}
     ${q.intro?`<p class="qintro">${esc(q.intro)}</p>`:""}<h3 class="qtitre">${esc(q.titre||q.question)}</h3>
@@ -371,7 +372,8 @@ function renderQ(){
     body=(done?carte(done,false):"")+(cur?carte(cur,true):`<p class="lede qfin">${nOuv?"Les questions restantes demandent l'équipe WeMa.":"Merci, vous avez répondu à toutes les questions."}</p>`); }
   else { const keep=q=>f==="toutes"||q.statut==="traitee"; body=qs.some(keep)?[...new Set(qs.map(q=>q.lot))].map(lot=>{ const l=qs.filter(q=>q.lot===lot&&keep(q)); return l.length?`<section class="qlot"><h3>${esc(nomFichier(lot))}</h3>${l.map(q=>carte(q,false)).join("")}</section>`:""; }).join(""):`<p class="lede">Aucune réponse pour l'instant.</p>`; }
   const sv={}; $("#qv").querySelectorAll(".qform").forEach(f=>{ const t=f.querySelector('[name="texte"]'); if(t&&t.value) sv[f.dataset.qid]={t:t.value,o:!!f.querySelector(".qautre")?.open}; });
-  $("#qv").innerHTML=head+body; suivreJournal();
+  const fbFocus=document.activeElement?.classList?.contains("qfb");
+  $("#qv").innerHTML=head+body; suivreJournal(); if(fbFocus) $("#qv .qfb")?.focus({preventScroll:true});
   observerApq();
   $("#qv").querySelectorAll(".qform").forEach(f=>{ const x=sv[f.dataset.qid]; if(!x) return; f.querySelector('[name="texte"]').value=x.t; const d=f.querySelector(".qautre"); if(d&&x.o) d.open=true; });
 }
@@ -380,10 +382,10 @@ const MSG_INDISPO="L'interprétation automatique n'est pas disponible, votre tex
 async function envoyerRep(q,saisie,par,echec){
   S.qFlash=null;
   try{ const r=await fetch("/api/reponse"+location.search,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:q.id,saisie,par})});
-    const j=await r.json().catch(()=>({erreurs:[`erreur ${r.status}`]})); if(!r.ok) return echec((j.erreurs||[]).join(" · "));
+    const j=await r.json().catch(()=>({erreurs:[`erreur ${r.status}`]})); if(!r.ok){ echec((j.erreurs||[]).join(" · ")); return null; }
     const noter=j.entree.modifs.every(m=>m.op==="noter");
-    S.qInt=null; S.qEdit=null; S.qFlash={id:q.id,effet:j.entree.effet||"",noter,t:Date.now()}; renderQ(); toast(noter?"Réponse reçue, WeMa reprend la main":`Réponse appliquée · ${j.entree.effet}`); }
-  catch(_){ echec("Serveur injoignable"); }
+    S.qInt=null; S.qEdit=null; S.qFlash={id:q.id,effet:j.entree.effet||"",noter,t:Date.now()}; renderQ(); $("#qv .qfb")?.focus(); return j.entree; }
+  catch(_){ echec("Serveur injoignable"); return null; }
 }
 async function comprendre(form,q){
   const texte=form.querySelector('[name="texte"]').value.trim(), par=form.querySelector('[name="par"]').value.trim(), err=form.querySelector(".qerr"); parEcrit(par);
@@ -416,6 +418,53 @@ $("#qv").addEventListener("click",e=>{ const b=e.target.closest("[data-qc]"); if
   envoyerRep(q,b.dataset.qc==="ok"?{interpretation:{texte:i.texte,comprehension:i.comprehension,operations:i.operations}}:{texte:i.texte},i.par,echec);
 });
 
+/* ───────────── séance en visio (admin) : une question à la fois ; le mode partage ne montre que ce que le dirigeant doit voir ───────────── */
+const seMesure=()=>{ const c=measureCounts(); return {l:buildFaits().rows.length,i:c.ok,tot:c.ok+c.part+c.none+c.err}; };
+function freqSeance(q){ const ci=/^[^.#:]+\.[^.#]+$/.test(String(q.element||""))?colIndex(q.element):null, p=ci&&ci.ds._prof[ci.col.name]; if(!p||!p.n) return "";
+  if(ci.col.pii) return `<p class="note">${p.distinct} valeurs distinctes · ${Math.round(p.nulls/p.n*100)} % vides (données personnelles, non affichées)</p>`;
+  const mx=Math.max(1,...p.top.map(t=>t[1]));
+  return `<ul class="se-freq" aria-label="Ce que montrent les données">${p.top.slice(0,6).map(([v,n])=>`<li><span class="v">${esc(String(v)||"(vide)")}</span><span class="b" aria-hidden="true"><i style="width:${Math.max(2,n/mx*100)}%"></i></span><span class="p">${n.toLocaleString("fr-FR")} · ${Math.round(n/p.n*100)} %</span></li>`).join("")}</ul>${p.nulls?`<p class="note">${Math.round(p.nulls/p.n*100)} % de lignes vides sur ${p.n.toLocaleString("fr-FR")}.</p>`:""}`; }
+function renderSeance(){
+  const v=$("#sev"), part=!!S.sePartage, qs=listeQuestions(), skip=S.seSkip||(S.seSkip=[]); document.body.classList.toggle("se-partage",part);
+  const file=qs.filter(q=>q.statut==="ouverte"&&q.source!=="registre"&&!/^\(texte masqué/.test(q.question)), q=file.find(x=>!skip.includes(x.id))||file[0];
+  const m=seMesure(), ef=S.seEffet;
+  const tete=`<div class="se-tete"><div><h2>Séance en visio</h2><p class="lede">${esc(S.st.adherent)} · une question à la fois, partagée avec le dirigeant.</p></div><button class="btn" type="button" data-se-partage aria-pressed="${part}">${part?"Quitter le mode partage":"Mode partage d'écran"}</button></div>`;
+  const effet=`<div class="se-effet" role="status"><div class="m${ef&&m.l!==ef.l?" gain":""}"><span>Lignes de données</span><b>${ef?`${ef.l.toLocaleString("fr-FR")} <span class="fl">→</span> `:""}${m.l.toLocaleString("fr-FR")}</b></div>
+    <div class="m${ef&&m.i!==ef.i?" gain":""}"><span>Indicateurs prêts</span><b>${ef?`${ef.i} <span class="fl">→</span> `:""}${m.i} <span class="note">sur ${m.tot}</span></b></div>
+    <p class="note">${ef?`Effet de la réponse « ${esc(ef.titre)} ».`:"L'effet de la prochaine réponse s'affichera ici."}</p></div>`;
+  if(!q){ v.innerHTML=tete+effet+`<div class="qfin"><p><b>Toutes les questions de la séance sont traitées.</b></p><p class="note">Prochaine étape : construire les livrables, puis relire la fiche de séance avec l'adhérent.</p></div>`; return; }
+  const rang=qs.filter(x=>x.source!=="registre").length-file.length+1, tot=qs.filter(x=>x.source!=="registre").length, nm=(q.mesures||[]).length;
+  const suite=file.filter(x=>x!==q).sort((a,b)=>(b.mesures||[]).length-(a.mesures||[]).length).slice(0,4);
+  const titreFocus=document.activeElement?.id==="se-t", sv=v.querySelector(".qform"), garde=sv&&sv.dataset.qid===q.id?{t:sv.querySelector('[name="texte"]')?.value||"",o:!!sv.querySelector(".qautre")?.open}:null;
+  v.innerHTML=tete+effet+`<div class="se-grille${part?" partage":""}">
+    <section class="se-ecran" aria-labelledby="se-t">
+      <p class="se-qid">${esc(q.id)} · question ${rang} sur ${tot}</p>
+      ${q.intro?`<p class="qintro">${esc(q.intro)}</p>`:""}<h3 id="se-t" tabindex="-1">${esc(q.titre||q.question)}</h3>
+      ${freqSeance(q)}
+      ${nm?`<p class="qimpact">La réponse débloque <b>${nm} indicateur${nm>1?"s":""}</b> du tableau de bord.</p>`:""}
+      <div class="se-rep">${formQ(q,{relai:true})}</div>
+      ${file.length>1?`<div class="qnav"><button class="btn ghost sm" type="button" data-se-skip="${esc(q.id)}">Passer cette question</button></div>`:""}
+    </section>
+    <div class="se-pw">
+      <section><h4>Données (pour WeMa)</h4><dl><dt>Source</dt><dd class="mono">${esc(SRC_LIB[q.source]||q.source)}</dd><dt>Élément</dt><dd class="mono">${esc(q.element||"·")}</dd><dt>Fichier</dt><dd class="mono">${esc(q.fichier)}</dd>${q.apercu?`<dt>Profil</dt><dd>${esc(q.apercu)}</dd>`:""}</dl></section>
+      <section><h4>Formulation technique</h4><p>${esc(q.question)}</p></section>
+      <section><h4>Ensuite, par indicateurs débloqués</h4>${suite.length?`<ul class="se-suite">${suite.map(x=>`<li><span class="t">${esc(x.titre||x.question)}<small>${esc(x.id)}</small></span><span class="k">${(x.mesures||[]).length} <span>indic.</span></span></li>`).join("")}</ul>`:`<p class="note">Dernière question de la séance.</p>`}</section>
+    </div></div>`;
+  if(garde){ const f=v.querySelector(".qform"), t=f?.querySelector('[name="texte"]'); if(t) t.value=garde.t; const d=f?.querySelector(".qautre"); if(d&&garde.o) d.open=true; }
+  if(titreFocus) $("#se-t")?.focus({preventScroll:true});
+}
+$("#sev").addEventListener("click",e=>{
+  if(e.target.closest("[data-se-partage]")){ S.sePartage=!S.sePartage; renderSeance(); $("[data-se-partage]").focus(); return; }
+  const sk=e.target.closest("[data-se-skip]"); if(sk){ S.seSkip.push(sk.dataset.seSkip); renderSeance(); $("#se-t")?.focus(); } });
+$("#sev").addEventListener("submit",async e=>{
+  const form=e.target.closest(".qform"); if(!form) return; e.preventDefault();
+  const q=listeQuestions().find(x=>x.id===form.dataset.qid); if(!q) return;
+  const par=form.querySelector('[name="par"]').value.trim(), err=form.querySelector(".qerr"), b=form.querySelector('[type="submit"]'); parEcrit(par); b.disabled=true;
+  const echec=m=>{ err.hidden=false; err.textContent=m; b.disabled=false; }, saisie=saisieQ(form,q);
+  if(q.type==="codes"&&!saisie.autre&&!Object.values(saisie.codes).some(x=>x.trim())&&!saisie.exclus.length) return echec("Indiquez au moins une signification, ou cochez un code à exclure.");
+  const avant=seMesure(); if(!await envoyerRep(q,q.type==="libre"?{texte:saisie.texte}:saisie,par,echec)) return;
+  S.seEffet={...avant,titre:q.titre||q.question}; renderSeance(); $("#se-t")?.focus(); });
+
 /* ───────────── besoins ───────────── */
 function pageBesoins() {
   const besoins = S.st.besoins || { themes: [], libres: [] };
@@ -447,8 +496,8 @@ ${html}
 }
 
 /* ───────────── onglets ───────────── */
-const TABS=["canvas","cat","mes","prev","files","q","log","adh"];
-function renderTab(){ if(S.tab==="cat") renderCat(); if(S.tab==="mes") renderMes(); if(S.tab==="prev") renderPrev(); if(S.tab==="files") renderFiles(); if(S.tab==="q") renderQ(); if(S.tab==="log") renderLog(); if(S.tab==="adh") renderAdh(); }
+const TABS=["canvas","cat","mes","prev","files","q","seance","log","adh"];
+function renderTab(){ if(S.tab==="cat") renderCat(); if(S.tab==="mes") renderMes(); if(S.tab==="prev") renderPrev(); if(S.tab==="files") renderFiles(); if(S.tab==="q") renderQ(); if(S.tab==="seance") renderSeance(); if(S.tab==="log") renderLog(); if(S.tab==="adh") renderAdh(); }
 function setTab(t){ S.tab=t; TABS.forEach(x=>{ $("#t-"+x).setAttribute("aria-selected",x===t); $("#view-"+x).hidden=x!==t; }); if(t==="canvas") renderAll(); else renderTab(); }
 TABS.forEach(x=>$("#t-"+x).onclick=()=>setTab(x));
 
@@ -466,7 +515,10 @@ async function appliquerMemoire(b){ b.disabled=true; S.apprErr=null; S.appr=null
   try{ const r=await fetch("/api/apprendre"+location.search,{method:"POST",headers:{"content-type":"application/json"},body:"{}"}); const j=await r.json().catch(()=>({})); if(r.ok) S.appr=j; else S.apprErr=(j.erreurs||[j.erreur||"Apprentissage impossible."]).join(" · "); }
   catch(_){ S.apprErr="Serveur injoignable."; }
   await loadState(); if(S.tab==="adh") renderAdh(); }
-$("#adhv").addEventListener("click",e=>{ const b=e.target.closest("[data-mem]"); if(b&&!b.disabled) appliquerMemoire(b); });
+$("#adhv").addEventListener("click",e=>{ const b=e.target.closest("[data-mem]"); if(b&&!b.disabled) appliquerMemoire(b);
+  const p=e.target.closest("[data-adh-pg]"); if(p){ S.adhPage=(S.adhPage||0)+Number(p.dataset.adhPg); listeAdh(); $("#adhnb")?.scrollIntoView({block:"nearest"}); ($(`[data-adh-pg="${p.dataset.adhPg}"]:not(:disabled)`)||$(`[data-adh-pg]:not(:disabled)`))?.focus(); }
+  if(e.target.closest("[data-adh-rech-x]")){ S.adhRech=""; S.adhPage=0; $("#adh-rech").value=""; listeAdh(); $("#adh-rech").focus(); } });
+$("#adhv").addEventListener("input",e=>{ if(e.target.id!=="adh-rech") return; S.adhRech=e.target.value; S.adhPage=0; listeAdh(); });
 /* Nouvel adhérent (admin) : POST /api/adherents. L'état vit hors du rendu de la liste, le mot de passe n'est gardé que pour l'écran de résultat. */
 let N=null;
 const slug=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40).replace(/-+$/,"");
@@ -534,20 +586,33 @@ async function renderAdh(){
   try{ const r=await fetch("/api/adherents",{cache:"no-store"}); if(!r.ok) throw new Error(); l=await r.json(); }
   catch(_){ if(seq===adhSeq) v.innerHTML=`<h2>Adhérents</h2><p class="qerr">Liste indisponible.</p>`; return; }
   if(seq!==adhSeq) return;
-  const ouverts=new Set([...v.querySelectorAll("[data-liv].open")].map(b=>b.dataset.liv));
+  S.adhL=Array.isArray(l)?l:[]; const ouverts=new Set([...v.querySelectorAll("[data-liv].open")].map(b=>b.dataset.liv));
+  if(!$("#adhliste")){
+    v.innerHTML=`<div id="adhmem"></div><h2>Adhérents</h2><div id="nouv"></div><p class="lede">Avancement de chaque adhérent : questions traitées, mesures du dashboard alimentées, dernier build.</p>
+     <div class="adhoutils"><label class="adhrech"><input class="inp" id="adh-rech" type="search" aria-label="Rechercher un adhérent" placeholder="Rechercher un adhérent (nom ou identifiant)" autocomplete="off" value="${esc(S.adhRech||"")}"></label><p class="note" id="adhnb" role="status"></p></div><div id="adhliste"></div>`;
+    renderNouv(); }
+  $("#adhmem").innerHTML=blocMemoire(); listeAdh(ouverts);
+}
+const ADH_PP=25;
+function listeAdh(ouverts){
+  const z=$("#adhliste"); if(!z) return; ouverts=ouverts||new Set([...z.querySelectorAll("[data-liv].open")].map(b=>b.dataset.liv));
+  const tous=S.adhL||[], r=String(S.adhRech||"").trim().toLowerCase(), l=r?tous.filter(a=>`${a.nom||""} ${a.id}`.toLowerCase().includes(r)):tous;
+  const nP=Math.max(1,Math.ceil(l.length/ADH_PP)); S.adhPage=Math.min(Math.max(0,S.adhPage||0),nP-1); const vis=l.slice(S.adhPage*ADH_PP,(S.adhPage+1)*ADH_PP);
+  $("#adhnb").textContent=`${l.length} adhérent${l.length>1?"s":""}${r?` sur ${tous.length}`:""}`;
   const ligne=a=>a.erreur?`<tr class="adh-ko"><td><b>${esc(a.id)}</b></td><td colspan="7"><span class="adhpill ko">${esc(a.erreur)}</span></td></tr>`
    :`<tr><td><b>${esc(a.nom||a.id)}</b><div class="note">${esc(a.id)}</div></td>
-    <td>${barre(a.questions?.traitees,a.questions?.total)}</td><td>${barre(a.mesures?.ok,a.mesures?.total)}</td>
-    <td>${nb(a.erreurs)?`<span class="adhpill ko">${nb(a.erreurs)}</span>`:`<span class="adhpill ok">0</span>`}</td>
-    <td>${a.dernierBuild?`${esc(new Date(a.dernierBuild).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}))} <span class="adhpill ${a.buildOk?"ok":"ko"}">${a.buildOk?"ok":"échec"}</span>`:'<span class="note">jamais</span>'}</td>
-    <td>${nb(a.libres)}</td><td>${nb(a.nonLus)}</td>
-    <td><a class="adhopen" href="/?adherent=${encodeURIComponent(a.id)}">Ouvrir</a> <button class="btn sm" type="button" data-liv="${esc(a.id)}">Livrables</button></td></tr>
+    <td data-l="Questions">${barre(a.questions?.traitees,a.questions?.total)}</td><td data-l="Mesures">${barre(a.mesures?.ok,a.mesures?.total)}</td>
+    <td data-l="Erreurs">${nb(a.erreurs)?`<span class="adhpill ko">${nb(a.erreurs)}</span>`:`<span class="adhpill ok">0</span>`}</td>
+    <td data-l="Dernier build">${a.dernierBuild?`${esc(new Date(a.dernierBuild).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}))} <span class="adhpill ${a.buildOk?"ok":"ko"}">${a.buildOk?"ok":"échec"}</span>`:'<span class="note">jamais</span>'}</td>
+    <td data-l="Réponses libres">${nb(a.libres)}</td><td data-l="Fichiers non lus">${nb(a.nonLus)}</td>
+    <td class="adhact"><a class="adhopen" href="/?adherent=${encodeURIComponent(a.id)}">Ouvrir</a> <button class="btn sm" type="button" data-liv="${esc(a.id)}">Livrables</button></td></tr>
     <tr class="adh-liv" data-livr="${esc(a.id)}" hidden><td colspan="8"></td></tr>`;
-  v.innerHTML=blocMemoire()+`<h2>Adhérents</h2><div id="nouv"></div><p class="lede">Avancement de chaque adhérent : questions traitées, mesures du dashboard alimentées, dernier build.</p>
-   <table class="adhtab"><thead><tr><th>Adhérent</th><th>Questions</th><th>Mesures</th><th>Erreurs</th><th>Dernier build</th><th>Réponses libres</th><th>Fichiers non lus</th><th></th></tr></thead><tbody>${l.map(ligne).join("")}</tbody></table>`;
-  renderNouv();
-  v.querySelectorAll("[data-liv]").forEach(b=>{
-    const cell=v.querySelector(`[data-livr="${CSS.escape(b.dataset.liv)}"]`);
+  z.innerHTML=!tous.length?`<div class="qfin"><p><b>Aucun adhérent pour l'instant.</b></p><p class="note">Créez le premier avec « Nouvel adhérent ».</p></div>`
+   :!l.length?`<div class="qfin"><p><b>Aucun adhérent ne correspond à « ${esc(S.adhRech)} ».</b></p><p class="note">Vérifiez l'orthographe ou cherchez par identifiant.</p><button class="btn" type="button" data-adh-rech-x>Effacer la recherche</button></div>`
+   :`<table class="adhtab"><thead><tr><th>Adhérent</th><th>Questions</th><th>Mesures</th><th>Erreurs</th><th>Dernier build</th><th>Réponses libres</th><th>Fichiers non lus</th><th></th></tr></thead><tbody>${vis.map(ligne).join("")}</tbody></table>
+     ${nP>1?`<div class="adhpages"><span>Page ${S.adhPage+1} sur ${nP}</span><button class="btn" type="button" data-adh-pg="-1"${S.adhPage?"":" disabled"}>Précédente</button><button class="btn" type="button" data-adh-pg="1"${S.adhPage<nP-1?"":" disabled"}>Suivante</button></div>`:""}`;
+  z.querySelectorAll("[data-liv]").forEach(b=>{
+    const cell=z.querySelector(`[data-livr="${CSS.escape(b.dataset.liv)}"]`);
     const charger=async()=>{ const id=b.dataset.liv; b.classList.add("open");
       if(!cell.firstChild.innerHTML){ cell.firstChild.innerHTML='<span class="note">Chargement…</span>'; cell.hidden=false; }
       try{ const r=await fetch("/api/livrables?adherent="+encodeURIComponent(id),{cache:"no-store"}); if(!r.ok) throw new Error(); const j=await r.json(); const fs=Array.isArray(j)?j:[];

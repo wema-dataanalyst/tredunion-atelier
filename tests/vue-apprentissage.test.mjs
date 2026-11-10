@@ -10,7 +10,7 @@ test("bloc « Mémoire commune » : admin seul, bouton lié à /api/apprendre, d
   assert.match(u, /hypothèse\$\{f\.length>1\?"s":""\} tranchée/); assert.match(u, /à apprendre/);
   assert.match(u, /Appliquer à la mémoire/); assert.match(u, /\/api\/apprendre"\s*\+\s*location\.search/);
   assert.match(u, /data-mem="appliquer"\$\{f\.length\?"":" disabled"\}/);
-  assert.match(u, /v\.innerHTML=blocMemoire\(\)/);
+  assert.match(u, /\$\("#adhmem"\)\.innerHTML=blocMemoire\(\)/); assert.match(u, /v\.innerHTML=`<div id="adhmem"><\/div><h2>Adhérents/);
   assert.match(lire("viewer/boot.js"), /addEventListener\("apprentissage"/);
 });
 

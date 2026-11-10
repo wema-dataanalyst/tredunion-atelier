@@ -110,7 +110,7 @@ function checkSpec(){
   const besoins = S.st.besoins || { themes: [], libres: [] };
   besoins.themes.filter(t => t.choisi).forEach(t => {
     const theme = THEMES().find(x => x.id === t.id);
-    if (!theme) return;
+    if (!theme || !theme.mesures.length) return; // feuilles du dashboard absentes (serveur) : rien à juger
     const cov = COV();
     const alim = theme.mesures.some(n => {
       const m = CAT().list.find(x => x.name === n);

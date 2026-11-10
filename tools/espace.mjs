@@ -99,13 +99,15 @@ export function ouvrirEspace(racine) {
           hypothese: obj(p.hypothese) ? p.hypothese : undefined,
         }));
     });
+    const besoins = safe(P("spec/besoins.yml"), { themes: [], libres: [] }, () => { const doc = readYaml(P("spec/besoins.yml"), {}) || {};
+      return { themes: Array.isArray(doc.themes) ? doc.themes.filter(t => t && typeof t === "object") : [], libres: Array.isArray(doc.libres) ? doc.libres.filter(t => t && typeof t === "object") : [] }; });
     const controles = safe(P("spec/controles.yml"), [], () => readYaml(P("spec/controles.yml"), []) || []);
     const reponses = safe(P("spec/reponses.yml"), null, () => { try { return readYaml(P("spec/reponses.yml"), []) ?? []; } catch { throw new Error("spec/reponses.yml illisible : les réponses ne sont plus affichées. Corrige le fichier (dernière version lue : .atelier/reponses.json, si elle existe)"); } });
     if (reponses !== null) safe(P("spec/reponses.yml"), null, () => filetReponses(reponses));
     const memoire = lireMemoire(cheminMemoire(APP));
     const nonLus = societes.flatMap(s => { const f = P("data/bronze", s.id, "_non_lus.json"); return exists(f) ? JSON.parse(fs.readFileSync(f, "utf8")).map(x => ({ societe: s.id, ...x })) : []; });
     const log = journal.map(j => ({ at: j.date || "", said: j.question || "", resume: j.decision || "", ops: (j.fichiers || []).map(String) }));
-    return { state: { version: 2, adherent: projet.adherent || "Adhérent", societes, datasets, relations, gold, flux, categories, catalogue, cases: (projet.cases || []).map(c => typeof c === "string" ? { text: c } : c), questions: (Array.isArray(projet.questions) ? projet.questions : []).filter(q => q != null && typeof q === "object").map(normQuestion), perimetre, propositions, log, controles, reponses: reponses ?? [], memoire, nonLus }, errors };
+    return { state: { version: 2, adherent: projet.adherent || "Adhérent", societes, datasets, relations, gold, flux, categories, catalogue, cases: (projet.cases || []).map(c => typeof c === "string" ? { text: c } : c), questions: (Array.isArray(projet.questions) ? projet.questions : []).filter(q => q != null && typeof q === "object").map(normQuestion), perimetre, propositions, besoins, log, controles, reponses: reponses ?? [], memoire, nonLus }, errors };
   }
   /* Sans git, l'instantané .atelier/reponses.json est le seul témoin d'une réponse effacée du registre. */
   function filetReponses(reponses) {
@@ -281,7 +283,7 @@ export function ouvrirEspace(racine) {
     } else if (q.source === "projet") raison = "question sur votre activité : pas de données à afficher";
     else if (q.source === "non_lu") raison = "fichier non lu : aucune donnée à afficher";
     else if (el.startsWith("perimetre:")) raison = "question sur votre tableau de bord : pas de données à afficher";
-    else if (el.startsWith("mesures:")) raison = "question sur votre tableau de bord : pas de données à afficher";
+    else if (el.startsWith("mesures:") || el.startsWith("theme:")) raison = "question sur votre tableau de bord : pas de données à afficher";
     else if (el.startsWith("categorie:")) raison = "question sur le libellé d'une catégorie : pas de données à afficher";
     else if (/^DIM_/.test(el)) raison = "dimension : pas de dataset associé";
     else { const [ds, col] = [el.split(/[.#]/)[0], /^[^.#:]+\.([^.#]+)/.exec(el)?.[1]]; vise(ds, col ? [col] : []); }

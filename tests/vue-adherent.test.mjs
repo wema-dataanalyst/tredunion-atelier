@@ -11,7 +11,13 @@ const lire = f => fs.readFileSync(new URL("../" + f, import.meta.url), "utf8");
 
 test("le CSS cache le schéma et les outils d'atelier pour un adhérent", () => {
   const css = lire("viewer/style.css");
-  for (const id of ["#t-canvas", "#t-cat", "#t-mes", "#t-files", "#t-log"]) assert.ok(css.includes(`body[data-role="adherent"] ${id}`), id);
+  for (const id of ["#t-canvas", "#t-cat", "#t-mes", "#t-files", "#t-log", "#t-seance", "#view-seance"]) assert.ok(css.includes(`body[data-role="adherent"] ${id}`), id);
+});
+
+test("séance : onglet déclaré, mode partage qui masque le panneau WeMa et la navigation", () => {
+  const h = lire("viewer/body.html"), u = lire("viewer/ui.js"), css = lire("viewer/style.css");
+  assert.match(h, /id="t-seance"/); assert.match(h, /id="view-seance"/); assert.match(u, /"q","seance","log"/); assert.match(u, /function renderSeance/);
+  assert.match(css, /\.se-grille\.partage \.se-pw/); assert.match(css, /body\.se-partage:has\(#view-seance:not\(\[hidden\]\)\) header\.top/);
 });
 
 test("boot.js transmet la requête de la page (?adherent=) à l'état, aux réponses et au temps réel", () => {

@@ -43,7 +43,7 @@ const socColor=id=>`var(--soc-${(SOC(id)?.color??0)%4})`;
 /* l'état vient du serveur (spec YAML + CSV) ; ici on complète et on profile */
 function hydrate(st){
   st.datasets.forEach(d=>{ d.rows=d.rows||[]; d.rules=d.rules||[]; d.questions=d.questions||[]; d.cases=d.cases||[]; d.columns=d.columns||[]; d.x=d.x??40; d.y=d.y??40; });
-  st.relations=st.relations||[]; st.flux=st.flux||[]; st.categories=st.categories||[]; st.cases=st.cases||[]; st.questions=st.questions||[]; st.perimetre=st.perimetre||[]; st.propositions=st.propositions||[]; st.log=st.log||[]; st.catalogue=st.catalogue||"";
+  st.relations=st.relations||[]; st.flux=st.flux||[]; st.categories=st.categories||[]; st.cases=st.cases||[]; st.questions=st.questions||[]; st.perimetre=st.perimetre||[]; st.propositions=st.propositions||[]; st.besoins=st.besoins||{themes:[],libres:[]}; st.log=st.log||[]; st.catalogue=st.catalogue||"";
   st.controles=st.controles||[]; st.memoire=st.memoire||{logiciels:[],comptes:[],colonnes:[]}; st.nonLus=st.nonLus||[]; st.reponses=st.reponses==null?[]:st.reponses;
   appliquerCalque(st);
   appliquerPropositions(st);

@@ -27,7 +27,9 @@ function erreurModif(m,st=S.st,masquer=false){
   if(!m||!OPS_REPONSE.includes(m.op)) return `opération inconnue (${OPS_REPONSE.join(", ")})`;
   const bad=texteInvalide(m.text); if(bad) return `text ${bad}`;
   const {ds,col,flux}=modifCibles(st), v=x=>masquer?"":` : ${x}`;
-  if(m.op==="valider"){ if(typeof m.valeur!=="boolean") return "valeur doit être true ou false"; const p=porteurHypothese(st,m.cible); return p&&p.hypothese?null:`hypothèse introuvable : ${m.cible}`; }
+  if(m.op==="valider"){ if(typeof m.valeur!=="boolean") return "valeur doit être true ou false";
+    const th=/^theme:(.+)$/.exec(String(m.cible||"")); if(th) return THEMES().some(t=>t.id===th[1])?null:`thème introuvable : ${m.cible}`;
+    const p=porteurHypothese(st,m.cible); return p&&p.hypothese?null:`hypothèse introuvable : ${m.cible}`; }
   if(m.op==="codes"){ if(!col(m.cible)) return `colonne introuvable : ${m.cible}`;
     if(!m.valeur||typeof m.valeur!=="object"||Array.isArray(m.valeur)||!Object.keys(m.valeur).length) return "codes : table code → libellé attendue";
     return Object.values(m.valeur).every(v=>typeof v==="string"&&v.trim())?null:"codes : libellé vide"; }
@@ -70,6 +72,8 @@ function erreursModifs(modifs){
 }
 function appliquerModif(st,m,entree){
   const e=erreurModif(m,st,true); if(e) return e; const {ds,col,flux}=modifCibles(st);
+  if(m.op==="valider"&&String(m.cible).startsWith("theme:")){ const id=String(m.cible).slice(6);
+    st.besoins.themes=st.besoins.themes.filter(t=>t.id!==id).concat([{id,choisi:m.valeur}]); st._themesRegistre.push(id); return null; }
   if(m.op==="valider") Object.assign(porteurHypothese(st,m.cible).hypothese,{valide:m.valeur,refuse:!m.valeur,reponse:String(entree.reponse||"")});
   if(m.op==="codes") col(m.cible).codes=Object.assign({},m.valeur);
   if(m.op==="exclure") ds(m.cible).rules.push({text:String(m.text||entree.reponse||""),sql:String(m.sql)});
@@ -101,7 +105,7 @@ function appliquerModif(st,m,entree){
 }
 /* appliquerCalque n'est pas idempotente (exclure ajoute une règle) : une seule application sur un état neuf */
 function appliquerCalque(st){
-  st._orphelines=[]; if(!Array.isArray(st.reponses)) return st;
+  st._orphelines=[]; st._themesRegistre=[]; st.besoins=st.besoins||{themes:[],libres:[]}; if(!Array.isArray(st.reponses)) return st;
   const dernieres=new Map(), texte=x=>typeof x==="string"?x:""; st.reponses.forEach(r=>{ if(idScalaire(r)){ const id=String(r.id); dernieres.delete(id); dernieres.set(id,r); } });
   dernieres.forEach((r,id)=>(Array.isArray(r.modifs)?r.modifs:[]).forEach(m=>{ let e; try{ e=appliquerModif(st,m,r); }catch(x){ e="modification illisible"; } if(e) st._orphelines.push({id,op:texte(m&&m.op),cible:texte(m&&m.cible),msg:e}); }));
   return st;
