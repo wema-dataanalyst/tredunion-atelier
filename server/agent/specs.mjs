@@ -171,10 +171,12 @@ function creerCache(racine) {
 export function ecrireDataset(racine, entree) {
   const p = preparer(entree); if (p.erreurs) return p;
   const e = p.e, f = fichierId(racine, "datasets", e.id);
-  /* Tolérances sans ambiguïté : « WHERE » en tête d'une condition, « label » pour « libelle ». */
+  for (const k of ["colonnes", "regles", "questions"]) if (e[k] !== undefined && !Array.isArray(e[k])) return { erreurs: [`${k} : liste attendue`] };
+  /* Tolérances sans ambiguïté : « WHERE » en tête d'une condition, « label » pour « libelle », « nom » pour « name ». */
   const sansWhere = x => { if (obj(x) && typeof x.sql === "string") x.sql = x.sql.replace(/^\s*where\s+/i, ""); };
-  (Array.isArray(e.regles) ? e.regles : []).forEach(sansWhere);
-  (Array.isArray(e.questions) ? e.questions : []).forEach(q => { sansWhere(q); if (obj(q) && Array.isArray(q.options)) q.options = q.options.map(o => obj(o) && o.label !== undefined && o.libelle === undefined ? { libelle: o.label, ...Object.fromEntries(Object.entries(o).filter(([k]) => k !== "label")) } : o); });
+  (e.colonnes ?? []).forEach(c => { if (obj(c) && c.name === undefined && typeof c.nom === "string") { c.name = c.nom; delete c.nom; } });
+  (e.regles ?? []).forEach(sansWhere);
+  (e.questions ?? []).forEach(q => { sansWhere(q); if (obj(q) && Array.isArray(q.options)) q.options = q.options.map(o => obj(o) && o.label !== undefined && o.libelle === undefined ? { libelle: o.label, ...Object.fromEntries(Object.entries(o).filter(([k]) => k !== "label")) } : o); });
   if (!f || !fs.existsSync(f)) return { erreurs: [`dataset « ${e.id} » inconnu : il est créé par npm run profil`] };
   const doc = lireYaml(f), map = racineMap(doc), errs = [];
   const colonnes = YAML.isSeq(map.get("columns", true)) ? map.get("columns", true) : null;

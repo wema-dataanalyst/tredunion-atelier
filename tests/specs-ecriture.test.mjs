@@ -166,3 +166,18 @@ test("masquerFuitesPii : une valeur personnelle citée dans un autre dataset est
   assert.doesNotMatch(check(r).stdout, /colonne personnelle/); assert.equal(lire(r, "spec/reponses.yml"), reg);
   assert.equal(masquerFuitesPii(r), 0);
 });
+
+test("ecrireDataset : colonnes/regles/questions qui ne sont pas des listes → erreur propre, jamais une exception", () => {
+  const r = racineExemple();
+  for (const champ of ["colonnes", "regles", "questions"]) {
+    const res = ecrireDataset(r, { id: "tms_conducteurs", [champ]: { oups: true } });
+    assert.match(res.erreurs?.[0] || "", new RegExp(`${champ} : liste attendue`), champ);
+  }
+});
+
+test("ecrireDataset : tolère « nom » à la place de « name » pour une colonne", () => {
+  const r = racineExemple();
+  const res = ecrireDataset(r, { id: "tms_conducteurs", colonnes: [{ nom: "type_contrat", desc: "Type de contrat" }] });
+  assert.equal(res.ok, true);
+  assert.match(lire(r, "spec/datasets/tms_conducteurs.yml"), /desc: Type de contrat/);
+});
