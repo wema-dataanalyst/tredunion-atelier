@@ -9,3 +9,5 @@ comptes.json
 # adherents/<id>/spec est versionné ; data/, .env et .atelier/ restent exclus par les règles ci-dessus
 .superpowers/
 llm.env
+/adherents/
+/comptes.json

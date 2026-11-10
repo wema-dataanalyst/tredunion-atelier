@@ -1,7 +1,0 @@
-# Relations entre colonnes de datasets
-- id: r1
-  from: sftp_euro_trans_chanet_table.materiel
-  to: sftp_euro_trans_chanet_akanea.plaque_moteur
-  kind: lookup
-  norm: alnum_upper
-  note: Immatriculations des pleins retrouvées sur les ordres Akanea ; les véhicules sans ordre (porteurs, VL) n'y sont pas
