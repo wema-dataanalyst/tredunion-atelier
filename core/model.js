@@ -101,7 +101,7 @@ function castVal(d,c,raw){
   const s=raw==null?"":String(raw).trim(); if(s==="") return null;
   const p=d._prof[c.name]||{}; const type=c.type||p.guess||"text";
   if(type==="int"||type==="decimal"){ let t=s.replace(/\s/g,""); if(t.includes(",")) t=t.replace(/\./g,"").replace(",","."); const n=parseFloat(t); return isNaN(n)?null:n; }
-  if(type==="date"||type==="timestamp"){ if((c.format||p.fmt)==="YYYYMMDD"){ const m8=/^(\d{4})(\d{2})(\d{2})$/.exec(s); return m8?new Date(+m8[1],+m8[2]-1,+m8[3]):null; } let m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s); if(m) return new Date(+m[3],+m[2]-1,+m[1]); m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const dt=new Date(s); return isNaN(dt)?null:dt; }
+  if(type==="date"||type==="timestamp"){ if((c.format||p.fmt)==="YYYYMMDD"){ const m8=/^(\d{4})(\d{2})(\d{2})$/.exec(s); const d8=m8&&new Date(+m8[1],+m8[2]-1,+m8[3]); return d8&&d8.getMonth()===+m8[2]-1&&d8.getDate()===+m8[3]?d8:null; } let m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s); if(m) return new Date(+m[3],+m[2]-1,+m[1]); m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const dt=new Date(s); return isNaN(dt)?null:dt; }
   if(type==="bool") return /^(1|true|vrai|oui|o|y|yes)$/i.test(s);
   return s;
 }

@@ -144,7 +144,7 @@ function sequence(doc, map, cle) {
   if (!YAML.isSeq(s)) { s = new YAML.YAMLSeq(); map.set(cle, s); }
   s.flow = false; return s;
 }
-const trouver = (seq, cle, val) => seq.items.find(i => YAML.isMap(i) && i.get(cle) === val);
+const trouver = (seq, cle, val) => seq.items.find(i => YAML.isMap(i) && i.get(cle) != null && String(i.get(cle)) === String(val));
 const racineMap = doc => { if (!YAML.isMap(doc.contents)) doc.contents = new YAML.YAMLMap(); return doc.contents; };
 function listeRacine(doc) {
   if (!YAML.isSeq(doc.contents)) doc.contents = new YAML.YAMLSeq();

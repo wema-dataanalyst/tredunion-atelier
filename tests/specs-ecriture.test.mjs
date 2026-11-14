@@ -93,6 +93,16 @@ test("ecrireFlux : une règle plus longue est insérée avant la règle courte q
   assert.ok(!/jamais atteinte/.test(check(r).stdout));
 });
 
+test("ecrireFlux : un préfixe numérique non quoté dans le YAML est retrouvé, sans doublon ni déplacement", () => {
+  const r = racineExemple(), f = path.join(r, "spec/flux/f1.yml");
+  fs.writeFileSync(f, lire(r, "spec/flux/f1.yml").replace('prefix: "7063"', "prefix: 7063"));
+  const avant = YAML.parse(lire(r, "spec/flux/f1.yml")).rules.map(x => String(x.prefix));
+  assert.equal(ecrireFlux(r, { id: "f1", rules: [{ prefix: "7063", cod: "CA AFF", lib: "CA affrètement (maj)" }] }).ok, true);
+  const apres = YAML.parse(lire(r, "spec/flux/f1.yml")).rules;
+  assert.deepEqual(apres.map(x => String(x.prefix)), avant);
+  assert.equal(apres[avant.indexOf("7063")].lib, "CA affrètement (maj)");
+});
+
 test("ecrireFlux : code hors référentiel, dataset ou colonne inconnus, agg invalide refusés", () => {
   const r = racineExemple();
   const base = { id: "f9", ds: "tms_missions", codMode: "fixe", cod: "DISTANCE", lib: "Km", valeur: "km_prevus", date: "date_charg" };

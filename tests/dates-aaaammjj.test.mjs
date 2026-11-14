@@ -25,3 +25,7 @@ test("FAITS : un flux daté en YYYYMMDD produit des lignes mensuelles", () => {
     categories: [{ cod: "CA TOTAL", note: "" }] }));
   assert.deepEqual(m.run("(s=>[s.noDate,s.n])(buildFaits().stats.f1)"), [0, 2]);
 });
+test("silver : une date AAAAMMJJ impossible est nulle (Postgres la refuserait)", () => {
+  const m = chargerMoteur({ datasets: [dataset("fec", [colonne("ecriture_date", { type: "date", format: "YYYYMMDD" })], [["20260231"], ["20260228"]])] });
+  assert.deepEqual(m.run("silverRows(DS('fec')).rows.map(o=>o.ecriture_date===null)"), [true, false]);
+});

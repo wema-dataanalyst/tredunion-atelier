@@ -17,6 +17,22 @@ export function decoder(buffer) {
   catch { return new TextDecoder("windows-1252").decode(buffer); }
 }
 
+// Noms de la norme : clé compacte (minuscules, sans « _ » ni espace) → nom canonique, quelle que soit la casse de l'en-tête.
+const CANON = Object.fromEntries(["journal_code", "journal_lib", "ecriture_num", "ecriture_date", "compte_num", "compte_lib", "comp_aux_num", "comp_aux_lib", "piece_ref", "piece_date", "ecriture_lib", "debit", "credit", "ecriture_let", "date_let", "valid_date", "montantdevise", "idevise", "montant", "sens"].map(n => [n.replace(/_/g, ""), n]));
+const nomFec = n => CANON[n.toLowerCase().replace(/[_\s]/g, "")] ?? n.replace(/([a-z])([A-Z])/g, "$1_$2");
+
+// Découpe une ligne en respectant les champs entre guillemets (« "" » = guillemet littéral) ; sans guillemet : split simple.
+const decouper = (l, sep) => {
+  if (!l.includes('"')) return l.split(sep);
+  const r = []; let c = "", q = false;
+  for (let i = 0; i < l.length; i++) {
+    const x = l[i];
+    if (q) { if (x !== '"') c += x; else if (l[i + 1] === '"') { c += '"'; i++; } else q = false; }
+    else if (x === '"') q = true; else if (x === sep) { r.push(c); c = ""; } else c += x;
+  }
+  return [...r, c];
+};
+
 const separateur = ligne => ["\t", "|", ";"].map(s => [s, ligne.split(s).length]).sort((a, b) => b[1] - a[1])[0][0];
 
 export function estFec(premiereLigne) {
@@ -29,11 +45,13 @@ const iso = d => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
 export function lireFec(texte) {
   const brutes = texte.split(/\r?\n/).filter(l => l.trim());
   const sep = separateur(brutes[0] || "");
-  const entetes = entetesUniques(brutes[0].split(sep).map(n => n.trim().replace(/([a-z])([A-Z])/g, "$1_$2")));
-  const lignes = brutes.slice(1).map(l => { const v = l.split(sep); return entetes.map((_, i) => (v[i] ?? "").trim()); });
+  const entetes = entetesUniques(decouper(brutes[0], sep).map(n => nomFec(n.trim())));
+  let irregulieres = 0;
+  const lignes = brutes.slice(1).map(l => { const v = decouper(l, sep); if (v.length !== entetes.length) irregulieres++; return entetes.map((_, i) => (v[i] ?? "").trim()); });
   const iDate = entetes.indexOf("ecriture_date");
   const dates = iDate < 0 ? [] : lignes.map(l => l[iDate]).filter(d => /^\d{8}$/.test(d)).sort();
   const meta = dates.length ? { periode_du: iso(dates[0]), periode_au: iso(dates[dates.length - 1]) } : {};
+  if (irregulieres) meta.lignes_irregulieres = irregulieres;
   const colonnes = Object.fromEntries(entetes.filter(e => TYPES_FEC[e]).map(e => [e, TYPES_FEC[e]]));
   return { entetes, lignes, meta, colonnes };
 }

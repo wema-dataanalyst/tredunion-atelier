@@ -90,3 +90,19 @@ test("npm run profil : .meta.json illisible → avertissement, types du profil",
   const d = YAML.parse(fs.readFileSync(path.join(r, "spec/datasets/fec_20270630.yml"), "utf8"));
   assert.equal(d.columns.find(c => c.name === "compte_num").type, "int");
 });
+test("lireFec : en-têtes en MAJUSCULES ou minuscules, mêmes noms et types qu'en CamelCase", () => {
+  const ref = lireFec(FEC);
+  for (const f of [s => s.toUpperCase(), s => s.toLowerCase()]) {
+    const [h, ...reste] = FEC.split("\r\n"), r = lireFec([f(h), ...reste].join("\r\n"));
+    assert.deepEqual(r.entetes, ref.entetes);
+    assert.deepEqual(r.colonnes, ref.colonnes);
+  }
+});
+
+test("lireFec : champ entre guillemets contenant le séparateur, ligne irrégulière comptée", () => {
+  const e = "JournalCode;EcritureDate;CompteNum;EcritureLib;Debit;Credit";
+  const r = lireFec([e, 'VT;20260701;706;"Facture; ""A""";0,0;12,5'].join("\n"));
+  assert.deepEqual(r.lignes[0], ["VT", "20260701", "706", 'Facture; "A"', "0,0", "12,5"]);
+  assert.equal(r.meta.lignes_irregulieres, undefined);
+  assert.equal(lireFec([e, "VT;20260701;706;x;0,0;12,5;en trop"].join("\n")).meta.lignes_irregulieres, 1);
+});
