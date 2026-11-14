@@ -12,7 +12,7 @@ Règles :
 - preuves : des faits mesurés lus dans le profil (sommes, nombres de lignes, % de vides, taux de rapprochement), jamais une valeur d'une colonne personnelle.
 - question : ce qu'il faudra demander à l'adhérent, en langage d'exploitant, sans nom de colonne ni jargon.
 - Pour un dataset : renseigne desc, grain, role ; pii: true pour noms, prénoms, téléphones, adresses, e-mails, numéros de carte ; chaque sens déduit (unité, HT ou TTC, codes, règle d'exclusion) reçoit son hypothese. Retire (couverte: true) les questions automatiques auxquelles une hypothèse répond ; donne aux autres un reponse_type (codes, choix avec reponse_cible et options, exclure avec sql = condition des lignes gardées, libre en dernier recours).
-- Pour un flux : codes de catégorie pris dans le référentiel (lire_couverture) uniquement ; en codMode regles, une hypothese par règle de compte. Une source sans date par ligne (balance annuelle) n'alimente pas FAITS.
+- Pour un flux : codes de catégorie pris dans le référentiel (lire_couverture) uniquement ; en codMode regles, une hypothese par règle de compte. Une source sans date par ligne (balance annuelle) n'alimente pas FAITS. Pour un FEC ou un grand livre (colonne compte_num), lis le plan de comptes (lire_plan_comptes) et écris une règle par préfixe de compte, les préfixes longs avant les courts.
 - Pour les contrôles : au moins un par flux (ecart_somme, rapprochement, mensuel) avec porte_sur.
 - Ne cite jamais de nom de personne ni de numéro de carte. Tu n'invalides ni ne valides jamais une hypothèse : seul l'adhérent tranche.
 - Pour le périmètre : ne propose un groupe (ecrire_perimetre) que si, après lecture des exports (lire_dataset), aucune donnée ne permet la mesure. Si la donnée existe mais n'est pas branchée, c'est un branchement à faire : n'écris rien. Regroupe par cause métier (ex. suivi des véhicules), avec titre et contexte sans nom de colonne ni jargon ; les preuves disent quels exports tu as lus et pourquoi ils ne portent pas la donnée.
@@ -85,7 +85,7 @@ export async function ecrireFluxEtControles({ espace, racine, llm, rapporter = (
   const categories = espace.couverture().manque.filter(x => admis.has(x.categorie)).slice(0, max);
   const tous = creerOutilsMaquette({ espace, racine }), boucles = [], n = categories.length;
   const index = indexDatasets(espace, true).join("\n").slice(0, 12000);
-  const outilsFlux = Object.fromEntries(["lire_dataset", "lire_comptes", "lire_memoire", "ecrire_flux", "terminer"].map(k => [k, tous[k]])), outils = tous;
+  const outilsFlux = Object.fromEntries(["lire_dataset", "lire_comptes", "lire_plan_comptes", "lire_memoire", "ecrire_flux", "terminer"].map(k => [k, tous[k]])), outils = tous;
   for (const [k, c] of categories.entries()) {
     rapporter({ etape: "flux", i: k + 1, n }); budget.cible = c.categorie;
     const r = await tache({ llm, outils: outilsFlux, budget, utilisateur: `Catégorie à débloquer : « ${c.categorie} » (mesures concernées : ${c.mesures.slice(0, 6).join(", ")}).\nDatasets de l'adhérent (seuls ids valides pour lire_dataset), avec leurs colonnes :\n${index}\nChoisis dans cette liste la source de cette catégorie, lis-la avec lire_dataset si besoin, puis écris le flux avec ecrire_flux et son hypothese. Si aucun dataset ne convient, appelle terminer sans rien écrire en le disant dans le résumé.` });

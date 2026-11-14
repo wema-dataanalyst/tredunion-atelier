@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { lireMemoire, ecrireMemoire, cheminMemoire, lireSel } from "./memoire.mjs";
 import { apprendre } from "./apprendre.mjs";
+import { planComptes } from "./plan-comptes.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const A = (...a) => path.join(APP, ...a);
@@ -170,7 +171,7 @@ export function ouvrirEspace(racine) {
       const colonnes=d.columns.map(c=>{ const p=(d._prof||{})[c.name]||{}, base={nom:c.name,type:c.type,role:c.role,desc:c.desc||"",pii:!!c.pii,distinctes:p.distinct||0,pctVides:p.n?Math.round(p.nulls/p.n*100):0};
         if(c.pii) return base; return {...base,codes:c.codes||null,format:c.format||"",decimalComma:!!c.decimalComma,devine:p.guess||"",min:p.min??"",max:p.max??"",frequentes:(p.top||[]).slice(0,8),hypothese:c.hypothese||null}; });
       const touche=r=>[r.from,r.to].some(x=>String(x).split(".")[0]===d.id);
-      return {id:d.id,societe:d.societe||"",desc:d.desc||"",grain:d.grain||"",lignes:d.rows.length,colonnes,regles:(d.rules||[]).map(r=>({text:r.text||"",sql:r.sql||""})),
+      return {id:d.id,societe:d.societe||"",desc:d.desc||"",grain:d.grain||"",lignes:d.rows.length,colonnes,...(d.columns.some(c=>c.name==="compte_num")?{plan_comptes:"plan de comptes du fichier entier (libellé, net, journaux par compte ; totaux par mois) : outil lire_plan_comptes"}:{}),regles:(d.rules||[]).map(r=>({text:r.text||"",sql:r.sql||""})),
         relations:S.st.relations.filter(touche).map(r=>({id:r.id,from:r.from,to:r.to,kind:r.kind,norm:r.norm})),
         flux:S.st.flux.filter(f=>f.ds===d.id).map(f=>({id:f.id,cod:f.cod,codMode:f.codMode,valeur:f.valeur,champ:f.champ,unite:f.unite})),
         questions:d.questions.filter(q=>![...pii].some(n=>String(q.text||"").startsWith(n+" :"))).map(q=>({id:q.id,text:q.text,done:q.done,reponse_type:q.reponse_type}))}; })()`, ctx)));
@@ -201,6 +202,13 @@ export function ouvrirEspace(racine) {
   function memoireComptes(prefixe) {
     const m = lireMemoire(cheminMemoire(APP)), p = String(prefixe || "").trim();
     return p ? (m.comptes || []).filter(e => { const i = String(e.id ?? ""); return i && (p.startsWith(i) || i.startsWith(p)); }).map(comptagesAnonymes) : [];
+  }
+  function planComptesDataset(id, classes) {
+    const d = listYaml(P("spec/datasets")).map(f => readYaml(f, {})).find(x => x && x.id === id);
+    const file = d && d.file ? P(d.file) : null;
+    if (!file || !dansRacine(file) || !exists(file) || fs.statSync(file).size > CSV_MAX_OCTETS) return null;
+    const libPersonnel = (d.columns || []).some(c => c && c.name === "compte_lib" && c.pii);
+    return { dataset: id, ...planComptes(fs.readFileSync(file, "utf8"), { classes: /^[0-9]{1,9}$/.test(String(classes ?? "")) ? String(classes) : "67", libPersonnel }) };
   }
   function viewerHtml(vue) {
     const css = fs.readFileSync(A("viewer/style.css"), "utf8"), wema = fs.readFileSync(A("viewer/wema.css"), "utf8"), body = fs.readFileSync(A("viewer/body.html"), "utf8");
@@ -325,5 +333,5 @@ export function ouvrirEspace(racine) {
   const besoinsPath = path.join(racine, "spec/besoins.yml");
   const besoinsRaw = fs.existsSync(besoinsPath) ? YAML.parse(fs.readFileSync(besoinsPath, "utf8")) : null;
   const besoins = { themes: besoinsRaw?.themes || [], libres: besoinsRaw?.libres || [] };
-  return { besoins, apercuQuestion, apercuApprentissage, appliquerApprentissage, P, readYaml, listYaml, readCsv, makeCtx, loadState, evaluate, repondre, previsualiser: preparer, contexteAgent, memoireColonne, memoireComptes, profilDataset, couverture, candidatsPerimetre, codesSansLibelle, erreursProposition, reponsesAdherent, nomsCatalogueBase, ajouterAuRegistre, viewerHtml, construire, apercu, livrables, lireLivrable, lireStatut, ecrireStatut };
+  return { besoins, apercuQuestion, apercuApprentissage, appliquerApprentissage, P, readYaml, listYaml, readCsv, makeCtx, loadState, evaluate, repondre, previsualiser: preparer, contexteAgent, memoireColonne, memoireComptes, planComptes: planComptesDataset, profilDataset, couverture, candidatsPerimetre, codesSansLibelle, erreursProposition, reponsesAdherent, nomsCatalogueBase, ajouterAuRegistre, viewerHtml, construire, apercu, livrables, lireLivrable, lireStatut, ecrireStatut };
 }

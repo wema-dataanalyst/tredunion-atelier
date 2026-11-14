@@ -11,7 +11,7 @@ import { fauxLlm, appelOutil } from "./aide/faux-llm.mjs";
 const neuf = () => { const racine = racineExemple(), espace = ouvrirEspace(racine); return { racine, espace, o: creerOutilsMaquette({ espace, racine }) }; };
 const lire = (racine, f) => fs.readFileSync(path.join(racine, f), "utf8");
 const hyp = { source: "agent", preuves: ["12 lignes, 0 % de vides"], question: "Ces codes sont-ils les bons ?" };
-const NOMS = ["lire_dataset", "lire_memoire", "lire_comptes", "lire_couverture", "lire_candidats_perimetre", "lire_codes_sans_libelle", "lire_reponses_adherent", "lire_mesures_base", "ecrire_dataset", "ecrire_flux", "ecrire_controle", "ecrire_relation", "ecrire_perimetre", "ecrire_libelles", "ecrire_proposition", "terminer"];
+const NOMS = ["lire_dataset", "lire_memoire", "lire_comptes", "lire_plan_comptes", "lire_couverture", "lire_candidats_perimetre", "lire_codes_sans_libelle", "lire_reponses_adherent", "lire_mesures_base", "ecrire_dataset", "ecrire_flux", "ecrire_controle", "ecrire_relation", "ecrire_perimetre", "ecrire_libelles", "ecrire_proposition", "terminer"];
 /* valeurs des colonnes pii de l'exemple */
 const piiValeurs = racine => lire(racine, "data/bronze/kf/tms_conducteurs.csv").split("\n").slice(1).flatMap(l => l.split(";").slice(1, 3)).filter(v => v.length >= 4);
 

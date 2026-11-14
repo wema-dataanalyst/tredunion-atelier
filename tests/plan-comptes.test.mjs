@@ -1,7 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { decouperLigne } from "../tools/lecteurs/commun.mjs";
 import { planComptes } from "../tools/plan-comptes.mjs";
+import { ouvrirEspace } from "../tools/espace.mjs";
+import { creerOutilsMaquette } from "../server/agent/maquette-outils.mjs";
+import { SYSTEME_MAQUETTE } from "../server/agent/maquette-agent.mjs";
+import { racineExemple } from "./aide/racine.mjs";
 
 export const FEC_CSV = [
   "journal_code;journal_lib;ecriture_num;ecriture_date;compte_num;compte_lib;debit;credit",
@@ -46,4 +52,34 @@ test("planComptes : montant et sens, lignes sans date, CSV qui n'est pas un FEC"
   assert.deepEqual(p.comptes.map(c => [c.compte, c.net]), [["606100", -41], ["706100", 100]]);
   assert.equal(p.sans_date, 2); assert.equal(p.periode, null);
   assert.ok(planComptes("immat;km\nAB123CD;10\n").erreur);
+});
+
+const COLONNES = ["journal_code", "journal_lib", "ecriture_num", "ecriture_date", "compte_num", "compte_lib", "debit", "credit"];
+function racineFec({ libPii = false } = {}) {
+  const racine = racineExemple();
+  fs.writeFileSync(path.join(racine, "data/bronze/kf/fec_test.csv"), FEC_CSV);
+  fs.writeFileSync(path.join(racine, "spec/datasets/fec_test.yml"), `id: fec_test\nsociete: kf\nfile: data/bronze/kf/fec_test.csv\ncolumns:\n${COLONNES.map(n => `  - name: ${n}\n    type: text\n${n === "compte_lib" && libPii ? "    pii: true\n" : ""}`).join("")}`);
+  const espace = ouvrirEspace(racine);
+  return { racine, espace, o: creerOutilsMaquette({ espace, racine }) };
+}
+
+test("espace.planComptes : fichier entier, classes, libellé personnel", () => {
+  const { espace } = racineFec();
+  const p = espace.planComptes("fec_test");
+  assert.equal(p.dataset, "fec_test");
+  assert.deepEqual(p.comptes.map(c => c.compte), ["606100", "706100"]);
+  assert.deepEqual(espace.planComptes("fec_test", "abc").classes, "67");
+  assert.equal(espace.planComptes("fec_test", "4").comptes.length, 3);
+  assert.equal(espace.planComptes("inconnu"), null);
+  assert.ok(espace.planComptes("tms_missions").erreur);
+  assert.ok(racineFec({ libPii: true }).espace.planComptes("fec_test").comptes.every(c => !("lib" in c)));
+});
+
+test("outil lire_plan_comptes et invitation dans le profil", async () => {
+  const { o } = racineFec();
+  assert.equal((await o.lire_plan_comptes.executer({ id: "fec_test", classes: "7" })).comptes.length, 1);
+  for (const id of ["../../etc/passwd", "inconnu", "", undefined]) assert.ok((await o.lire_plan_comptes.executer({ id })).erreur, String(id));
+  assert.match((await o.lire_dataset.executer({ id: "fec_test" })).plan_comptes, /lire_plan_comptes/);
+  assert.equal((await o.lire_dataset.executer({ id: "tms_missions" })).plan_comptes, undefined);
+  assert.match(SYSTEME_MAQUETTE, /lire_plan_comptes/);
 });

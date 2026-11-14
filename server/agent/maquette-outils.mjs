@@ -13,6 +13,8 @@ export function creerOutilsMaquette({ espace, racine }) {
       a => typeof a.id === "string" && ID.test(a.id) ? (espace.profilDataset(a.id) || { erreur: `dataset inconnu : ${a.id}. Datasets valides : ${espace.listYaml(espace.P("spec/datasets")).map(f => espace.readYaml(f, {}).id).join(", ")}` }) : { erreur: "dataset inconnu : id invalide" }),
     outil("lire_memoire", "Sens connus d'un nom de colonne dans la mémoire commune (anonymisé).", { colonne: TXT }, ["colonne"], a => ({ entrees: espace.memoireColonne(a.colonne) })),
     outil("lire_comptes", "Catégorie connue pour un préfixe de compte dans la mémoire commune (anonymisé).", { prefixe: TXT }, ["prefixe"], a => ({ entrees: espace.memoireComptes(a.prefixe) })),
+    outil("lire_plan_comptes", "Plan de comptes d'un FEC ou d'un grand livre, lu sur le fichier entier : par compte, libellé, nombre d'écritures, net (crédit − débit : positif pour un produit, négatif pour une charge) et journaux ; totaux par mois et par journal. classes : premiers chiffres des comptes retenus (défaut \"67\").", { id: TXT, classes: TXT }, ["id"],
+      a => typeof a.id === "string" && ID.test(a.id) ? (espace.planComptes(a.id, a.classes) || { erreur: `dataset inconnu ou fichier absent : ${a.id}` }) : { erreur: "dataset inconnu : id invalide" }),
     outil("lire_couverture", "Catégories manquantes classées par nombre de mesures débloquées, et codes admis du référentiel.", {}, [],
       () => { const c = espace.couverture(); return { mesures: c.mesures, manque: c.manque.slice(0, 25), referentiel: lireReferentiel(racine) }; }),
     outil("lire_candidats_perimetre", "Mesures du dashboard sans aucune donnée (candidates au retrait) avec leurs catégories manquantes. Seules ces mesures peuvent être écartées.", {}, [],
