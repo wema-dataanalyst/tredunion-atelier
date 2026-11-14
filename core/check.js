@@ -70,6 +70,8 @@ function checkSpec(){
     if(!fl.date) add("erreur",f,"date manquante : FAITS est mensuel");
     const used=fl.codMode==="fixe"?[fl.cod]:fl.codMode==="regles"?(fl.rules||[]).map(r=>r.cod):[];
     used.filter(c=>c&&!codes.has(c)).forEach(c=>add("alerte",f,`code « ${c} » absent de spec/referentiel.yml`));
+    if(fl.codMode==="regles"){ const px=(fl.rules||[]).map(r=>String(r.prefix??""));
+      px.forEach((p,j)=>{ const i=px.findIndex((q,k)=>k<j&&q!==""&&p.startsWith(q)); if(i>=0) add("alerte",f,`règle ${p} jamais atteinte : la règle ${px[i]}, placée avant, prend déjà ces comptes (placez les préfixes longs en premier)`); }); }
     const s=fa.stats[fl.id]||{};
     if(s.badVal) add("erreur",f,`valeur « ${fl.valeur} » non calculable (colonne ou opération simple entre colonnes)`);
     if(s.filterWarn) add("info",f,`filtre non interprété dans la prévisualisation (appliqué en SQL) : ${fl.filtre}`);
