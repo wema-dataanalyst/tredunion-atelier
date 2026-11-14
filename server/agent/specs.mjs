@@ -271,7 +271,11 @@ export function ecrireFlux(racine, entree) {
   if (errs.length) return { erreurs: errs };
   Object.entries(e).filter(([k]) => k !== "id" && !["rules", "hypothese"].includes(k)).forEach(([k, v]) => { if (flux_cles.has(k)) poser(doc, map, k, v); });
   if (regles.length) { const seq = sequence(doc, map, "rules");
-    regles.forEach((r, i) => fusionnerListe(doc, seq, "prefix", String(r.prefix), { cod: r.cod, ...(r.lib !== undefined ? { lib: r.lib } : {}), ...(hr[i] ? { hypothese: hr[i] } : {}) })); }
+    // Le moteur prend la première règle qui correspond : une règle nouvelle passe avant celle dont le préfixe la couvre.
+    regles.forEach((r, i) => { const p = String(r.prefix), nouvelle = !trouver(seq, "prefix", p);
+      const couvre = nouvelle ? seq.items.findIndex(x => YAML.isMap(x) && String(x.get("prefix") ?? "") !== "" && p.startsWith(String(x.get("prefix")))) : -1;
+      const item = fusionnerListe(doc, seq, "prefix", p, { cod: r.cod, ...(r.lib !== undefined ? { lib: r.lib } : {}), ...(hr[i] ? { hypothese: hr[i] } : {}) });
+      if (couvre >= 0) { seq.items.splice(seq.items.indexOf(item), 1); seq.items.splice(couvre, 0, item); } }); }
   if (h) poser(doc, map, "hypothese", h);
   const pii = erreursPii(racine, { ...e, id: undefined }, [d]);
   if (pii.length) return { erreurs: pii };

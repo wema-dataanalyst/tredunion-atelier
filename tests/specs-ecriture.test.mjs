@@ -84,6 +84,15 @@ test("ecrireFlux : fusion sur flux existant garde les commentaires et les règle
   assert.ok(fl.rules.some(x => x.prefix === "7064")); assert.ok(fl.rules.some(x => x.prefix === "6041")); assert.equal(fl.note, "Balance au mois");
 });
 
+test("ecrireFlux : une règle plus longue est insérée avant la règle courte qui la masquerait", () => {
+  const r = racineExemple();
+  assert.equal(ecrireFlux(r, { id: "f1", rules: [{ prefix: "706", cod: "CA TOTAL", lib: "CA total" }, { prefix: "70611", cod: "CA LOG", lib: "CA détaillé" }] }).ok, true);
+  const px = YAML.parse(lire(r, "spec/flux/f1.yml")).rules.map(x => String(x.prefix));
+  assert.ok(px.indexOf("70611") < px.indexOf("7061"), px.join(","));
+  assert.ok(px.indexOf("7061") < px.indexOf("706"), px.join(","));
+  assert.ok(!/jamais atteinte/.test(check(r).stdout));
+});
+
 test("ecrireFlux : code hors référentiel, dataset ou colonne inconnus, agg invalide refusés", () => {
   const r = racineExemple();
   const base = { id: "f9", ds: "tms_missions", codMode: "fixe", cod: "DISTANCE", lib: "Km", valeur: "km_prevus", date: "date_charg" };
