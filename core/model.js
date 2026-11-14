@@ -420,13 +420,20 @@ function sessionMd(){
   if(S.st.log.length){ L.push("","## Journal de séance",""); S.st.log.forEach(l=>L.push(`- ${new Date(l.at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})} — « ${l.said} » → ${l.resume} (${l.ops.length} modifications)`)); }
   return L.join("\n")+"\n";
 }
-function buildFiles(){
+function dbtFiles(){
   const slug=snake(S.st.adherent); const F=[];
   F.push({group:"Projet dbt",path:"dbt_project.yml",body:`name: tredunion_${slug}\nversion: '0.1.0'\nprofile: wema_dwh\n\nmodel-paths: ["models"]\n\nmodels:\n  tredunion_${slug}:\n    silver:\n      +schema: silver_${slug}\n      +materialized: view\n    gold:\n      +schema: gold_${slug}\n      +materialized: table\n`});
   F.push({group:"Projet dbt",path:"models/schema.yml",body:schemaYml()});
   S.st.datasets.forEach(d=>F.push({group:"Silver",path:`models/silver/stg_${d.id}.sql`,body:silverSql(d)}));
   F.push({group:"Gold",path:"models/gold/faits.sql",body:faitsSql()});
   S.st.gold.filter(t=>t.kind==="dim"&&!t.generated).forEach(t=>F.push({group:"Gold",path:`models/gold/${t.id.toLowerCase()}.sql`,body:dimSql(t)}));
+  return F;
+}
+/* dbt rend chaque modèle en Jinja : hors les source() et ref() du générateur, toute balise viendrait de la spec */
+const JINJA_GENERE=/\{\{ (?:source|ref)\('\w+'(?:, '\w+')?\) \}\}/g;
+function dbtJinjaInterdit(){ return dbtFiles().filter(f=>/\{[{%#]/.test(f.body.replace(JINJA_GENERE,""))).map(f=>f.path); }
+function buildFiles(){
+  const F=dbtFiles();
   F.push({group:"Qlik",path:"qlik/chargement.qvs",body:qvs()});
   F.push({group:"Qlik",path:"qlik/elements_principaux.json",body:masterItemsJson()});
   S.st.gold.filter(t=>!t.generated).forEach(t=>F.push({group:"Contrats ODCS",path:`contracts/${t.id.toLowerCase()}.odcs.yaml`,body:odcs(t)}));

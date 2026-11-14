@@ -22,10 +22,13 @@ const TEXTE_MAX=300;
 function texteInvalide(t){ if(t==null) return null; if(typeof t!=="string") return "doit être un texte";
   if(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/.test(t)) return "ne doit contenir ni retour à la ligne ni caractère de contrôle";
   return t.length>TEXTE_MAX?`trop long (${TEXTE_MAX} caractères au plus)`:null; }
+/* { et } ouvriraient du Jinja (run_query, env_var) dans le projet dbt généré, exécuté chez WeMa */
+const avecAccolade=x=>typeof x==="string"?/[{}]/.test(x):!!x&&typeof x==="object"&&Object.entries(x).some(([k,v])=>/[{}]/.test(k)||avecAccolade(v));
 /* masquer : sans la valeur saisie, pour les messages de check (elle peut contenir une donnée personnelle) */
 function erreurModif(m,st=S.st,masquer=false){
   if(!m||!OPS_REPONSE.includes(m.op)) return `opération inconnue (${OPS_REPONSE.join(", ")})`;
   const bad=texteInvalide(m.text); if(bad) return `text ${bad}`;
+  if(avecAccolade(m)) return "ne doit contenir ni { ni }";
   const {ds,col,flux}=modifCibles(st), v=x=>masquer?"":` : ${x}`;
   if(m.op==="valider"){ if(typeof m.valeur!=="boolean") return "valeur doit être true ou false";
     const th=/^theme:(.+)$/.exec(String(m.cible||"")); if(th) return THEMES().some(t=>t.id===th[1])?null:`thème introuvable : ${m.cible}`;

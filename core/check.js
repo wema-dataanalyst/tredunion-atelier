@@ -108,6 +108,7 @@ function checkSpec(){
       :!fo.options.length?"aucune option":fo.options.map(o=>erreurModif({op:"definir",cible:fo.cible,valeur:o.valeur},S.st,true)).find(Boolean);
     if(e) add("alerte",q.fichier,`${q.id} : formulaire inutilisable (${e})`); });
   piiFuites().forEach(x=>add("erreur",x.fichier,`${x.cible} : contient une valeur de la colonne personnelle ${x.col}`));
+  dbtJinjaInterdit().forEach(p=>add("erreur",`generated/${p}`,"contiendrait du Jinja venu de la spec (seuls source() et ref() sont admis) : retirez les { } des règles, filtres, codes et libellés"));
   if(!st.catalogue.trim()) add("alerte","spec/catalogue/elements_principaux.txt","catalogue vide");
   // Thème coché sans mesure alimentée
   const besoins = S.st.besoins || { themes: [], libres: [] };
