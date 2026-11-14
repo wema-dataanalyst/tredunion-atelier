@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { lireMemoire, cheminMemoire, ecrireMemoire, lireSel, pseudonymiserMemoire } from "./memoire.mjs";
 import { apprendre } from "./apprendre.mjs";
-import { normaliserSociete, planProfil } from "./normaliser.mjs";
+import { normaliserSociete, planProfil, appliquerTypesMeta } from "./normaliser.mjs";
 import { configSftp, collecter, dossierSociete, validerSociete } from "./collecte.mjs";
 import { comparer } from "./evaluer.mjs";
 import { cmdCompte } from "./compte.mjs";
@@ -86,7 +86,8 @@ function cmdProfile(args) {
   const d = { id, columns: header.map(h => ({ name: h, type: "", role: "attr", desc: "", pii: false, codes: null, format: "", decimalComma: false })), rows };
   profile(d); const qs = autoQuestions(d);
   const spec = { id, societe: opt("societe"), file: rel(abs), desc: "", grain: "",
-    columns: d.columns.map(c => { const p = d._prof[c.name]; const o = { name: c.name, type: p.guess, role: "attr", desc: "" }; if (p.fmt) o.format = p.fmt; if (p.comma) o.decimalComma = true; return o; }),
+    columns: appliquerTypesMeta(d.columns.map(c => { const p = d._prof[c.name]; const o = { name: c.name, type: p.guess, role: "attr", desc: "" }; if (p.fmt) o.format = p.fmt; if (p.comma) o.decimalComma = true; return o; }),
+      exists(abs.replace(/\.csv$/i, ".meta.json")) ? JSON.parse(fs.readFileSync(abs.replace(/\.csv$/i, ".meta.json"), "utf8")) : null),
     rules: [], questions: qs.map((q, i) => ({ id: `q${i + 1}`, text: q.text, done: false, answer: "" })), cases: [] };
   fs.mkdirSync(P("spec/datasets"), { recursive: true });
   fs.writeFileSync(target, `# Dataset bronze ${id} : profil généré, types détectés à confirmer avec l'adhérent\n` + YAML.stringify(spec, { lineWidth: 0 }));

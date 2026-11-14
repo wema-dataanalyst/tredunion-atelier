@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
+import YAML from "yaml";
 import { decoder, estFec, lireFec, idFec } from "../tools/lecteurs/fec.mjs";
-import { normaliserSociete } from "../tools/normaliser.mjs";
+import { normaliserSociete, appliquerTypesMeta } from "../tools/normaliser.mjs";
+import { racineExemple, ATELIER } from "./aide/racine.mjs";
 
 const ENTETE = "JournalCode\tJournalLib\tEcritureNum\tEcritureDate\tCompteNum\tCompteLib\tCompAuxNum\tCompAuxLib\tPieceRef\tPieceDate\tEcritureLib\tDebit\tCredit\tEcritureLet\tDateLet\tValidDate\tMontantdevise\tIdevise";
 const FEC = [ENTETE,
@@ -54,4 +57,24 @@ test("normaliserSociete : un FEC .txt devient un CSV bronze avec ses types ; un 
   assert.equal(meta.logiciel, "FEC (DGFiP)");
   assert.deepEqual(meta.colonnes.valid_date, { type: "date", format: "YYYYMMDD" });
   assert.deepEqual(r.nonLus, [{ fichier: "notes.txt", raison: "format .txt non pris en charge" }]);
+});
+
+test("appliquerTypesMeta : impose type et format, garde la virgule détectée", () => {
+  const cols = [{ name: "compte_num", type: "int", role: "attr", desc: "" }, { name: "debit", type: "decimal", role: "attr", desc: "", decimalComma: true }, { name: "compte_lib", type: "text", role: "attr", desc: "" }];
+  const r = appliquerTypesMeta(cols, { colonnes: { compte_num: { type: "text" }, debit: { type: "decimal" } } });
+  assert.deepEqual(r.map(c => [c.name, c.type, c.decimalComma ?? false]), [["compte_num", "text", false], ["debit", "decimal", true], ["compte_lib", "text", false]]);
+  assert.deepEqual(appliquerTypesMeta(cols, null), cols);
+});
+
+test("npm run profil : un FEC bronze sort avec comptes en texte et dates YYYYMMDD", async () => {
+  const r = racineExemple(), brut = fs.mkdtempSync(path.join(os.tmpdir(), "brut-")), bronze = path.join(r, "data/bronze/kf");
+  fs.writeFileSync(path.join(brut, "484147699FEC20270630.txt"), FEC);
+  await normaliserSociete({ brut, bronze, logiciels: [] });
+  const p = spawnSync("node", [ATELIER, "profil", "data/bronze/kf/fec_20270630.csv", "--societe", "kf"], { env: { ...process.env, ATELIER_ROOT: r }, encoding: "utf8" });
+  assert.equal(p.status, 0, p.stderr);
+  const d = YAML.parse(fs.readFileSync(path.join(r, "spec/datasets/fec_20270630.yml"), "utf8"));
+  const col = n => d.columns.find(c => c.name === n);
+  assert.equal(col("compte_num").type, "text");
+  assert.deepEqual([col("ecriture_date").type, col("ecriture_date").format], ["date", "YYYYMMDD"]);
+  assert.deepEqual([col("debit").type, col("debit").decimalComma], ["decimal", true]);
 });

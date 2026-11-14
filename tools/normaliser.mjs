@@ -27,6 +27,12 @@ export function planProfil(datasets, fichier, societe) {
   return datasets.some(d => d.id === id) ? { id: `${societe}_${id}` } : {};
 }
 
+// Types imposés par le lecteur (norme FEC) : le profil devinerait un entier pour les comptes et les dates AAAAMMJJ vides.
+export function appliquerTypesMeta(colonnes, meta) {
+  const t = meta?.colonnes || {};
+  return colonnes.map(c => t[c.name] ? { ...c, ...t[c.name] } : c);
+}
+
 export function lireFeuille(lignes, logiciels) {
   const recette = logiciels.find(r => r.lecteur === "positions" && correspond(lignes, r));
   if (recette) return { ...lirePositions(lignes, recette), lecteur: recette.id, logiciel: recette.logiciel, meta: lireMeta(lignes) };
