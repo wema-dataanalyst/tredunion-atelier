@@ -52,13 +52,15 @@ function hydrate(st){
 }
 /* ───────────── profilage ───────────── */
 const reDateFR=/^\d{2}\/\d{2}\/\d{4}$/, reISO=/^\d{4}-\d{2}-\d{2}$/, reTS=/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/, reInt=/^-?\d+$/, reDec=/^-?\d+[.,]\d+$/;
+const reDate8=/^(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/;
 function profile(d){
   const prof={};
   d.columns.forEach((c,i)=>{
     const vals=d.rows.map(r=>r[i]); const ne=vals.filter(v=>v!==""&&v!=null);
     const set=new Map(); ne.forEach(v=>set.set(v,(set.get(v)||0)+1));
     let guess="text",fmt="",comma=false; const all=re=>ne.length&&ne.every(v=>re.test(String(v)));
-    if(all(reInt)) guess="int";
+    if(all(reDate8)){ guess="date"; fmt="YYYYMMDD"; }
+    else if(all(reInt)) guess="int";
     else if(ne.length&&ne.every(v=>reDec.test(String(v))||reInt.test(String(v)))){ guess="decimal"; comma=ne.some(v=>String(v).includes(",")); }
     else if(all(reDateFR)){ guess="date"; fmt="DD/MM/YYYY"; }
     else if(all(reISO)) guess="date";
@@ -99,7 +101,7 @@ function castVal(d,c,raw){
   const s=raw==null?"":String(raw).trim(); if(s==="") return null;
   const p=d._prof[c.name]||{}; const type=c.type||p.guess||"text";
   if(type==="int"||type==="decimal"){ let t=s.replace(/\s/g,""); if(t.includes(",")) t=t.replace(/\./g,"").replace(",","."); const n=parseFloat(t); return isNaN(n)?null:n; }
-  if(type==="date"||type==="timestamp"){ let m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s); if(m) return new Date(+m[3],+m[2]-1,+m[1]); m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const dt=new Date(s); return isNaN(dt)?null:dt; }
+  if(type==="date"||type==="timestamp"){ if((c.format||p.fmt)==="YYYYMMDD"){ const m8=/^(\d{4})(\d{2})(\d{2})$/.exec(s); return m8?new Date(+m8[1],+m8[2]-1,+m8[3]):null; } let m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s); if(m) return new Date(+m[3],+m[2]-1,+m[1]); m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const dt=new Date(s); return isNaN(dt)?null:dt; }
   if(type==="bool") return /^(1|true|vrai|oui|o|y|yes)$/i.test(s);
   return s;
 }
