@@ -8,6 +8,7 @@ const parFrequence = m => [...m.entries()].sort((a, b) => b[1] - a[1] || String(
 const compter = (m, k) => m.set(k, (m.get(k) || 0) + 1);
 
 export function planComptes(texte, { classes = "67", libPersonnel = false } = {}) {
+  classes = classes.replace(/4/g, "") || "67"; // les comptes de tiers (classe 4) peuvent porter un nom de personne dans le numéro ou le libellé
   const lignes = String(texte).replace(/^\uFEFF/, "").split(/\r?\n/).filter(l => l.trim());
   const h = decouperLigne(lignes[0] || "", ";").map(s => s.trim());
   const [iCpt, iLib, iJnl, iDate, iD, iC, iM, iS] = ["compte_num", "compte_lib", "journal_code", "ecriture_date", "debit", "credit", "montant", "sens"].map(n => h.indexOf(n));
@@ -35,7 +36,7 @@ export function planComptes(texte, { classes = "67", libPersonnel = false } = {}
     ...(mois.has("?") ? { sans_date: mois.get("?").lignes } : {}),
     journaux: parFrequence(journaux).map(([code, n]) => ({ code, lignes: n })),
     comptes: [...comptes.values()].sort((a, b) => a.compte.localeCompare(b.compte)).map(c => ({
-      compte: c.compte, ...(!libPersonnel && c.libs.size ? { lib: parFrequence(c.libs)[0][0] } : {}),
+      compte: c.compte, ...(!libPersonnel && /^[67]/.test(c.compte) && c.libs.size ? { lib: parFrequence(c.libs)[0][0] } : {}),
       lignes: c.lignes, net: arrondi(c.net), journaux: parFrequence(c.jnls).slice(0, 3).map(x => x[0]),
     })),
   };

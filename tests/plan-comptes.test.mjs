@@ -43,7 +43,10 @@ test("planComptes : comptes 6/7, mois, journaux, net crédit − débit", () => 
 });
 
 test("planComptes : autres classes, libellé personnel retiré", () => {
-  assert.deepEqual(planComptes(FEC_CSV, { classes: "4" }).comptes.map(c => c.compte), ["401000", "411000", "445710"]);
+  assert.deepEqual(planComptes(FEC_CSV, { classes: "4" }).comptes.map(c => c.compte), ["606100", "706100"]);
+  const p27 = planComptes(FEC_CSV, { classes: "247" });
+  assert.equal(p27.classes, "27"); assert.ok(p27.comptes.every(c => !c.compte.startsWith("4")));
+  assert.deepEqual(planComptes(FEC_CSV.replace(/\n$/, "\nHA;Achats;5;20260710;218200;Matériel de transport;1000,00;0,00\n"), { classes: "2" }).comptes, [{ compte: "218200", lignes: 1, net: -1000, journaux: ["HA"] }]);
   assert.ok(planComptes(FEC_CSV, { libPersonnel: true }).comptes.every(c => !("lib" in c)));
 });
 
@@ -69,7 +72,10 @@ test("espace.planComptes : fichier entier, classes, libellé personnel", () => {
   assert.equal(p.dataset, "fec_test");
   assert.deepEqual(p.comptes.map(c => c.compte), ["606100", "706100"]);
   assert.deepEqual(espace.planComptes("fec_test", "abc").classes, "67");
-  assert.equal(espace.planComptes("fec_test", "4").comptes.length, 3);
+  assert.equal(espace.planComptes("fec_test", "4").comptes.length, 2);
+  const { racine: r2, espace: e2 } = racineFec();
+  fs.writeFileSync(path.join(r2, "spec/datasets/casse.yml"), "id: [");
+  assert.equal(e2.planComptes("fec_test").comptes.length, 2);
   assert.equal(espace.planComptes("inconnu"), null);
   assert.ok(espace.planComptes("tms_missions").erreur);
   assert.ok(racineFec({ libPii: true }).espace.planComptes("fec_test").comptes.every(c => !("lib" in c)));

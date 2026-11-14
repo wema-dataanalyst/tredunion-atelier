@@ -204,7 +204,7 @@ export function ouvrirEspace(racine) {
     return p ? (m.comptes || []).filter(e => { const i = String(e.id ?? ""); return i && (p.startsWith(i) || i.startsWith(p)); }).map(comptagesAnonymes) : [];
   }
   function planComptesDataset(id, classes) {
-    const d = listYaml(P("spec/datasets")).map(f => readYaml(f, {})).find(x => x && x.id === id);
+    const d = listYaml(P("spec/datasets")).map(f => { try { return readYaml(f, {}); } catch { return null; } }).find(x => x && x.id === id);
     const file = d && d.file ? P(d.file) : null;
     if (!file || !dansRacine(file) || !exists(file) || fs.statSync(file).size > CSV_MAX_OCTETS) return null;
     const libPersonnel = (d.columns || []).some(c => c && c.name === "compte_lib" && c.pii);
