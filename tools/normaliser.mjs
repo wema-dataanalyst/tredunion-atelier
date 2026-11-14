@@ -4,6 +4,7 @@ import readXlsxFile from "read-excel-file/node";
 import { snake, ecrireCsv } from "./lecteurs/commun.mjs";
 import { lireTableau } from "./lecteurs/tableau.mjs";
 import { correspond, lirePositions, lireMeta } from "./lecteurs/positions.mjs";
+import { decoder, estFec, lireFec, idFec } from "./lecteurs/fec.mjs";
 
 const IGNORER = ["^Nombre de lignes\\s*:"];
 
@@ -47,8 +48,15 @@ export async function normaliserSociete({ brut, bronze, logiciels, progres = () 
     const parts = relatif.split("/"); const domaine = parts.length > 1 ? parts[0] : "";
     const ext = path.extname(f).toLowerCase();
     progres(`Lecture de ${relatif}`);
-    if (ext === ".csv") {
-      const lignes = Math.max(0, fs.readFileSync(f, "utf8").split(/\r?\n/).filter(l => l.trim()).length - 1);
+    if (ext === ".csv" || ext === ".txt") {
+      const texte = decoder(fs.readFileSync(f));
+      if (estFec(texte.split(/\r?\n/)[0] || "")) {
+        const r = lireFec(texte);
+        ecrire(idFec(domaine, f), relatif, { source: relatif, domaine, lecteur: "fec", logiciel: "FEC (DGFiP)", ...r.meta, lignes: r.lignes.length, colonnes: r.colonnes }, cible => ecrireCsv(cible, r.entetes, r.lignes));
+        continue;
+      }
+      if (ext === ".txt") { nonLus.push({ fichier: relatif, raison: "format .txt non pris en charge" }); continue; }
+      const lignes = Math.max(0, texte.split(/\r?\n/).filter(l => l.trim()).length - 1);
       ecrire(idDataset(domaine, f, ""), relatif, { source: relatif, domaine, lecteur: "copie", lignes }, cible => fs.copyFileSync(f, cible));
       continue;
     }
