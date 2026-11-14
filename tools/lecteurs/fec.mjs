@@ -1,5 +1,5 @@
 import path from "node:path";
-import { snake, entetesUniques } from "./commun.mjs";
+import { snake, entetesUniques, decouperLigne as decouper } from "./commun.mjs";
 
 // Article A47 A-1 du LPF : colonnes obligatoires ; les montants sont en Debit/Credit ou en Montant/Sens.
 const OBLIGATOIRES = ["journalcode", "ecrituredate", "comptenum"];
@@ -20,18 +20,6 @@ export function decoder(buffer) {
 // Noms de la norme : clé compacte (minuscules, sans « _ » ni espace) → nom canonique, quelle que soit la casse de l'en-tête.
 const CANON = Object.fromEntries(["journal_code", "journal_lib", "ecriture_num", "ecriture_date", "compte_num", "compte_lib", "comp_aux_num", "comp_aux_lib", "piece_ref", "piece_date", "ecriture_lib", "debit", "credit", "ecriture_let", "date_let", "valid_date", "montantdevise", "idevise", "montant", "sens"].map(n => [n.replace(/_/g, ""), n]));
 const nomFec = n => CANON[n.toLowerCase().replace(/[_\s]/g, "")] ?? n.replace(/([a-z])([A-Z])/g, "$1_$2");
-
-// Découpe une ligne en respectant les champs entre guillemets (« "" » = guillemet littéral) ; sans guillemet : split simple.
-const decouper = (l, sep) => {
-  if (!l.includes('"')) return l.split(sep);
-  const r = []; let c = "", q = false;
-  for (let i = 0; i < l.length; i++) {
-    const x = l[i];
-    if (q) { if (x !== '"') c += x; else if (l[i + 1] === '"') { c += '"'; i++; } else q = false; }
-    else if (x === '"') q = true; else if (x === sep) { r.push(c); c = ""; } else c += x;
-  }
-  return [...r, c];
-};
 
 const separateur = ligne => ["\t", "|", ";"].map(s => [s, ligne.split(s).length]).sort((a, b) => b[1] - a[1])[0][0];
 

@@ -25,6 +25,18 @@ export function entetesUniques(noms) {
   });
 }
 
+// Champs entre guillemets : « "" » est un guillemet littéral ; sans guillemet, split simple.
+export function decouperLigne(l, sep) {
+  if (!l.includes('"')) return l.split(sep);
+  const r = []; let c = "", q = false;
+  for (let i = 0; i < l.length; i++) {
+    const x = l[i];
+    if (q) { if (x !== '"') c += x; else if (l[i + 1] === '"') { c += '"'; i++; } else q = false; }
+    else if (x === '"') q = true; else if (x === sep) { r.push(c); c = ""; } else c += x;
+  }
+  return [...r, c];
+}
+
 const champCsv = s => /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 
 export function ecrireCsv(fichier, entetes, lignes) {
