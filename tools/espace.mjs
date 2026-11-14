@@ -38,7 +38,7 @@ export function ouvrirEspace(racine) {
     if (st.size > CSV_MAX_OCTETS) throw new Error(`${rel(file)} : fichier trop gros (plus de 200 Mo)`);
     const rows = parseCSV(fs.readFileSync(file, "utf8"));
     const header = (rows[0] || []).map((h, i) => snake(h) || `col_${i + 1}`);
-    const data = { header, rows: rows.slice(1, 50001) };
+    const data = { header, rows: rows.slice(1, 50001), tronque: rows.length > 50001 };
     csvCache.set(file, { mtime: st.mtimeMs, data });
     while (csvCache.size > CSV_MAX_ENTREES) csvCache.delete(csvCache.keys().next().value);
     return data;
@@ -62,7 +62,7 @@ export function ouvrirEspace(racine) {
       const file = d.file ? P(d.file) : null; d.rows = [];
       if (file && !dansRacine(file)) throw new Error(`file : chemin hors de la racine de l'espace (${String(d.file).slice(0, 80)})`);
       if (!file || !exists(file)) d._fileMissing = true;
-      else { const { header, rows } = readCsv(file, parseCSV, snake); const idx = d.columns.map(c => header.indexOf(c.name));
+      else { const { header, rows, tronque } = readCsv(file, parseCSV, snake); d._tronque = !!tronque; const idx = d.columns.map(c => header.indexOf(c.name));
         d._notInCsv = d.columns.filter((c, k) => idx[k] < 0).map(c => c.name); d._notInSpec = header.filter(h => !d.columns.some(c => c.name === h));
         d.rows = rows.map(r => idx.map(k => k < 0 ? "" : (r[k] ?? ""))); }
       const metaF = file ? file.replace(/\.csv$/i, ".meta.json") : null; d.meta = metaF && dansRacine(metaF) && exists(metaF) ? JSON.parse(fs.readFileSync(metaF, "utf8")) : null;
@@ -171,7 +171,7 @@ export function ouvrirEspace(racine) {
       const colonnes=d.columns.map(c=>{ const p=(d._prof||{})[c.name]||{}, base={nom:c.name,type:c.type,role:c.role,desc:c.desc||"",pii:!!c.pii,distinctes:p.distinct||0,pctVides:p.n?Math.round(p.nulls/p.n*100):0};
         if(c.pii) return base; return {...base,codes:c.codes||null,format:c.format||"",decimalComma:!!c.decimalComma,devine:p.guess||"",min:p.min??"",max:p.max??"",frequentes:(p.top||[]).slice(0,8),hypothese:c.hypothese||null}; });
       const touche=r=>[r.from,r.to].some(x=>String(x).split(".")[0]===d.id);
-      return {id:d.id,societe:d.societe||"",desc:d.desc||"",grain:d.grain||"",lignes:d.rows.length,colonnes,...(d.columns.some(c=>c.name==="compte_num")?{plan_comptes:"plan de comptes du fichier entier (libellé, net, journaux par compte ; totaux par mois) : outil lire_plan_comptes"}:{}),regles:(d.rules||[]).map(r=>({text:r.text||"",sql:r.sql||""})),
+      return {id:d.id,societe:d.societe||"",desc:d.desc||"",grain:d.grain||"",lignes:d.rows.length,tronque:!!d._tronque,colonnes,...(d.columns.some(c=>c.name==="compte_num")?{plan_comptes:"plan de comptes du fichier entier (libellé, net, journaux par compte ; totaux par mois) : outil lire_plan_comptes"}:{}),regles:(d.rules||[]).map(r=>({text:r.text||"",sql:r.sql||""})),
         relations:S.st.relations.filter(touche).map(r=>({id:r.id,from:r.from,to:r.to,kind:r.kind,norm:r.norm})),
         flux:S.st.flux.filter(f=>f.ds===d.id).map(f=>({id:f.id,cod:f.cod,codMode:f.codMode,valeur:f.valeur,champ:f.champ,unite:f.unite})),
         questions:d.questions.filter(q=>![...pii].some(n=>String(q.text||"").startsWith(n+" :"))).map(q=>({id:q.id,text:q.text,done:q.done,reponse_type:q.reponse_type}))}; })()`, ctx)));

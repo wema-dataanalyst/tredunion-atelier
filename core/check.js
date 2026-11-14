@@ -10,6 +10,7 @@ function checkSpec(){
     const f=dsFile(d);
     if(!SOC(d.societe)) add("erreur",f,`société « ${d.societe} » absente de spec/projet.yml`);
     if(d._fileMissing) add("erreur",f,`fichier de données introuvable : ${d.file}`);
+    if(d._tronque) add("alerte",f,`aperçu limité aux ${d.rows.length} premières lignes du fichier : sommes, contrôles et FAITS de l'aperçu sont partiels (le projet dbt lit le fichier entier)`);
     (d._notInCsv||[]).forEach(c=>add("erreur",f,`colonne « ${c} » décrite dans la spec mais absente du CSV`));
     (d._notInSpec||[]).forEach(c=>add("alerte",f,`colonne « ${c} » présente dans le CSV mais pas dans la spec`));
     d.columns.forEach(c=>{
