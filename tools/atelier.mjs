@@ -85,9 +85,14 @@ function cmdProfile(args) {
   const { header, rows } = readCsv(abs, parseCSV, snake);
   const d = { id, columns: header.map(h => ({ name: h, type: "", role: "attr", desc: "", pii: false, codes: null, format: "", decimalComma: false })), rows };
   profile(d); const qs = autoQuestions(d);
+  const metaAbs = abs.replace(/\.csv$/i, ".meta.json");
+  let meta = null;
+  if (exists(metaAbs)) {
+    try { meta = JSON.parse(fs.readFileSync(metaAbs, "utf8")); }
+    catch { console.warn(`${C.yellow}Attention : ${rel(metaAbs)} illisible, types du lecteur ignorés.${C.reset}`); }
+  }
   const spec = { id, societe: opt("societe"), file: rel(abs), desc: "", grain: "",
-    columns: appliquerTypesMeta(d.columns.map(c => { const p = d._prof[c.name]; const o = { name: c.name, type: p.guess, role: "attr", desc: "" }; if (p.fmt) o.format = p.fmt; if (p.comma) o.decimalComma = true; return o; }),
-      exists(abs.replace(/\.csv$/i, ".meta.json")) ? JSON.parse(fs.readFileSync(abs.replace(/\.csv$/i, ".meta.json"), "utf8")) : null),
+    columns: appliquerTypesMeta(d.columns.map(c => { const p = d._prof[c.name]; const o = { name: c.name, type: p.guess, role: "attr", desc: "" }; if (p.fmt) o.format = p.fmt; if (p.comma) o.decimalComma = true; return o; }), meta),
     rules: [], questions: qs.map((q, i) => ({ id: `q${i + 1}`, text: q.text, done: false, answer: "" })), cases: [] };
   fs.mkdirSync(P("spec/datasets"), { recursive: true });
   fs.writeFileSync(target, `# Dataset bronze ${id} : profil généré, types détectés à confirmer avec l'adhérent\n` + YAML.stringify(spec, { lineWidth: 0 }));

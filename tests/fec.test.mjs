@@ -78,3 +78,15 @@ test("npm run profil : un FEC bronze sort avec comptes en texte et dates YYYYMMD
   assert.deepEqual([col("ecriture_date").type, col("ecriture_date").format], ["date", "YYYYMMDD"]);
   assert.deepEqual([col("debit").type, col("debit").decimalComma], ["decimal", true]);
 });
+
+test("npm run profil : .meta.json illisible → avertissement, types du profil", async () => {
+  const r = racineExemple(), brut = fs.mkdtempSync(path.join(os.tmpdir(), "brut-")), bronze = path.join(r, "data/bronze/kf");
+  fs.writeFileSync(path.join(brut, "484147699FEC20270630.txt"), FEC);
+  await normaliserSociete({ brut, bronze, logiciels: [] });
+  fs.writeFileSync(path.join(bronze, "fec_20270630.meta.json"), "{");
+  const p = spawnSync("node", [ATELIER, "profil", "data/bronze/kf/fec_20270630.csv", "--societe", "kf"], { env: { ...process.env, ATELIER_ROOT: r }, encoding: "utf8" });
+  assert.equal(p.status, 0, p.stderr);
+  assert.match((p.stderr || "") + (p.stdout || ""), /illisible/);
+  const d = YAML.parse(fs.readFileSync(path.join(r, "spec/datasets/fec_20270630.yml"), "utf8"));
+  assert.equal(d.columns.find(c => c.name === "compte_num").type, "int");
+});
